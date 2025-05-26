@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+<string name="app_name">taskify</string>
+<string name="facebook_app_id">2384325665280906</string>
+<string name="fb_login_protocol_scheme">fb1234</string>
+<string name="facebook_client_token">aa13cab9bb899aa4b27ae69c84d02f15</string>
+
+</resources>
+
