@@ -15,7 +15,6 @@ import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/utils/app_theme.dart';
 import 'package:taskify/core/utils/custom_bloc_observer.dart';
 import 'package:taskify/features/auth/domain/entities/user_entity.dart';
-import 'package:taskify/features/auth/domain/repos/auth_repo.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
 import 'package:taskify/features/home/domain/entities/category_entity.dart';
@@ -24,7 +23,6 @@ import 'package:taskify/features/home/domain/entities/task_entity.dart';
 import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
 import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
 import 'package:taskify/features/home/domain/entities/user_preferences_entity.dart';
-import 'package:taskify/features/home/domain/repos/home_repo.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/attachments_cubit/attachment_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit/sub_task_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
@@ -178,25 +176,17 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => UserCubit(
-            getIt.get<AuthRepo>(),
-          ),
+        BlocProvider<UserCubit>(
+          create: (_) => getIt<UserCubit>(),
         ),
-        BlocProvider(
-          create: (context) => TaskCubit(
-            getIt.get<HomeRepo>(),
-          ),
+        BlocProvider<TaskCubit>(
+          create: (_) => getIt<TaskCubit>(),
         ),
-        BlocProvider(
-          create: (context) => SubtaskCubit(
-            getIt.get<HomeRepo>(),
-          ),
+        BlocProvider<SubtaskCubit>(
+          create: (_) => getIt<SubtaskCubit>(),
         ),
-        BlocProvider(
-          create: (context) => AttachmentCubit(
-            getIt.get<HomeRepo>(),
-          ),
+        BlocProvider<AttachmentCubit>(
+          create: (_) => getIt<AttachmentCubit>(),
         ),
       ],
       child: ValueListenableBuilder(

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
-import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_colors.dart';
@@ -15,14 +14,14 @@ import 'package:taskify/core/widgets/password_text_form_field.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 
 class ResetPasswordViewBody extends StatefulWidget {
-  const ResetPasswordViewBody({super.key});
+  const ResetPasswordViewBody({super.key, required this.supabase});
+  final SupabaseClient supabase;
 
   @override
   State<ResetPasswordViewBody> createState() => _ResetPasswordViewBodyState();
 }
 
 class _ResetPasswordViewBodyState extends State<ResetPasswordViewBody> {
-  final supabase = getIt<SupabaseClient>();
   late TextEditingController _newPasswordController;
   late TextEditingController _confirmPasswordController;
   final GlobalKey<FormState> _formKey = GlobalKey();
@@ -111,7 +110,7 @@ class _ResetPasswordViewBodyState extends State<ResetPasswordViewBody> {
                       }
                       await context.read<UserCubit>().updateUserData(
                             newPassword: _newPasswordController.text,
-                            uid: supabase.auth.currentUser!.id,
+                            uid: widget.supabase.auth.currentUser!.id,
                           );
                     } else {
                       _autovalidateMode = AutovalidateMode.always;

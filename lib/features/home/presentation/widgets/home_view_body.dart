@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskify/core/functions/filter_tasks.dart';
-import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
@@ -25,14 +24,14 @@ import 'package:taskify/features/home/presentation/widgets/custom_tab_bar.dart';
 import 'package:taskify/features/home/presentation/widgets/task_card.dart';
 
 class HomeViewBody extends StatefulWidget {
-  const HomeViewBody({super.key});
+  const HomeViewBody({super.key, required this.supabase});
+  final SupabaseClient supabase;
 
   @override
   State<HomeViewBody> createState() => _HomeViewBodyState();
 }
 
 class _HomeViewBodyState extends State<HomeViewBody> {
-  final supabase = getIt<SupabaseClient>();
   late TextEditingController _searchController;
   List<String> _selectedStatuses = [];
   List<String> _selectedPriorities = [];
@@ -62,7 +61,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
   Future<void> getTasks() async {
     await context
         .read<TaskCubit>()
-        .getTasks(userId: supabase.auth.currentUser!.id);
+        .getTasks(userId: widget.supabase.auth.currentUser!.id);
   }
 
   Future<void> _loadCustomCategoriesFromHive() async {
@@ -674,7 +673,9 @@ class _HomeViewBodyState extends State<HomeViewBody> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            CustomHomeAppBar(),
+            CustomHomeAppBar(
+              supabase: widget.supabase,
+            ),
             const SizedBox(height: 30),
             CustomTabBar(
               selectedTabIndex: _selectedTabIndex,

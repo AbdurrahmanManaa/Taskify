@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
-import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/edit_user_arguments_class.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
@@ -22,14 +21,14 @@ import 'package:taskify/features/home/presentation/widgets/edit_user_view_body.d
 import 'package:taskify/features/home/presentation/widgets/user_info_widget.dart';
 
 class ProfileViewBody extends StatefulWidget {
-  const ProfileViewBody({super.key});
+  const ProfileViewBody({super.key, required this.supabase});
+  final SupabaseClient supabase;
 
   @override
   State<ProfileViewBody> createState() => _ProfileViewBodyState();
 }
 
 class _ProfileViewBodyState extends State<ProfileViewBody> {
-  final supabase = getIt<SupabaseClient>();
   File? _imageFile;
   String _timezone = 'Unknown';
 
@@ -43,7 +42,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
   Future<void> getUserData() async {
     await context
         .read<UserCubit>()
-        .getUserData(userId: supabase.auth.currentUser!.id);
+        .getUserData(userId: widget.supabase.auth.currentUser!.id);
   }
 
   Future<void> _getTimezone() async {
@@ -62,11 +61,11 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
       });
       var imagePath = await context.read<UserCubit>().uploadUserImage(
             imageFile: _imageFile!,
-            userId: supabase.auth.currentUser!.id,
+            userId: widget.supabase.auth.currentUser!.id,
           );
       await context.read<UserCubit>().updateUserData(
             newImagePath: imagePath,
-            uid: supabase.auth.currentUser!.id,
+            uid: widget.supabase.auth.currentUser!.id,
           );
     } else {
       return;
@@ -84,11 +83,11 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
       });
       var imagePath = await context.read<UserCubit>().uploadUserImage(
             imageFile: _imageFile!,
-            userId: supabase.auth.currentUser!.id,
+            userId: widget.supabase.auth.currentUser!.id,
           );
       await context.read<UserCubit>().updateUserData(
             newImagePath: imagePath,
-            uid: supabase.auth.currentUser!.id,
+            uid: widget.supabase.auth.currentUser!.id,
           );
     } else {
       return;
@@ -136,7 +135,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                         );
                         await context.read<UserCubit>().updateUserData(
                               newImagePath: null,
-                              uid: supabase.auth.currentUser!.id,
+                              uid: widget.supabase.auth.currentUser!.id,
                             );
                         Navigator.pop(context);
                       },

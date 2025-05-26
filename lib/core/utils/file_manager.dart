@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:taskify/core/services/file_picker_service.dart';
+import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/services/supabase_storage_service.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/endpoints.dart';
@@ -36,7 +37,7 @@ class FileManager {
         return localFilePath;
       }
 
-      final response = await SupabaseStorageService().downloadFile(
+      final response = await getIt<SupabaseStorageService>().downloadFile(
         path: filePath,
         bucket: Endpoints.taskAttachmentsBucket,
       );

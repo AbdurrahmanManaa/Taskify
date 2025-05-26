@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/app_routes.dart';
@@ -38,14 +37,14 @@ import 'package:taskify/features/home/presentation/widgets/subtask_item.dart';
 import 'package:uuid/uuid.dart';
 
 class AddTaskViewBody extends StatefulWidget {
-  const AddTaskViewBody({super.key});
+  const AddTaskViewBody({super.key, required this.supabase});
+  final SupabaseClient supabase;
 
   @override
   State<AddTaskViewBody> createState() => _AddTaskViewBodyState();
 }
 
 class _AddTaskViewBodyState extends State<AddTaskViewBody> {
-  final supabase = getIt<SupabaseClient>();
   String _selectedTaskDate = DateFormat('yyyy-MM-dd').format(
     DateTime.now(),
   );
@@ -1062,8 +1061,8 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       title: 'Create Task',
                       onPressed: () async {
                         if (_taskFormKey.currentState!.validate()) {
-                          if (supabase.auth.currentUser != null) {
-                            final userId = supabase.auth.currentUser!.id;
+                          if (widget.supabase.auth.currentUser != null) {
+                            final userId = widget.supabase.auth.currentUser!.id;
                             final taskId = uuid.v4();
                             final subtaskId = uuid.v4();
 

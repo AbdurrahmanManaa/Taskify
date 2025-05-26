@@ -2,10 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:taskify/core/services/get_it_service.dart';
 
 class SupabaseStorageService {
-  final supabase = getIt<SupabaseClient>();
+  final SupabaseClient _supabase;
+
+  SupabaseStorageService(this._supabase);
 
   Future<void> addData({
     required String table,
@@ -13,7 +14,7 @@ class SupabaseStorageService {
     required dynamic dataId,
     required String column,
   }) async {
-    await supabase.from(table).upsert({
+    await _supabase.from(table).upsert({
       column: dataId,
       ...data,
     });
@@ -24,7 +25,7 @@ class SupabaseStorageService {
     required String dataId,
     required String column,
   }) async {
-    var data = await supabase.from(table).select().eq(column, dataId).single();
+    var data = await _supabase.from(table).select().eq(column, dataId).single();
     return data;
   }
 
@@ -33,7 +34,7 @@ class SupabaseStorageService {
     required dynamic dataId,
     required String column,
   }) async {
-    var data = await supabase.from(table).select().eq(column, dataId);
+    var data = await _supabase.from(table).select().eq(column, dataId);
     return data;
   }
 
@@ -43,7 +44,7 @@ class SupabaseStorageService {
     required dynamic dataId,
     required String column,
   }) async {
-    await supabase.from(table).update(data).eq(column, dataId);
+    await _supabase.from(table).update(data).eq(column, dataId);
   }
 
   Future<void> deleteSingleDataFromTable({
@@ -51,7 +52,7 @@ class SupabaseStorageService {
     required String dataId,
     required String column,
   }) async {
-    await supabase.from(table).delete().eq(column, dataId);
+    await _supabase.from(table).delete().eq(column, dataId);
   }
 
   Future<void> deleteMultipleDataFromTable({
@@ -59,19 +60,19 @@ class SupabaseStorageService {
     required List<String> dataIds,
     required String column,
   }) async {
-    await supabase.from(table).delete().inFilter(column, dataIds);
+    await _supabase.from(table).delete().inFilter(column, dataIds);
   }
 
   Future<void> deleteDataFromStorage(
       {required String bucket, required List<String> dataPaths}) async {
-    await supabase.storage.from(bucket).remove(dataPaths);
+    await _supabase.storage.from(bucket).remove(dataPaths);
   }
 
   Future<void> moveDataFromStorage(
       {required String bucket,
       required String oldPath,
       required String newPath}) async {
-    await supabase.storage.from(bucket).move(oldPath, newPath);
+    await _supabase.storage.from(bucket).move(oldPath, newPath);
   }
 
   Future<String> uploadFile({
@@ -79,7 +80,7 @@ class SupabaseStorageService {
     required String path,
     required File file,
   }) async {
-    final String fullPath = await supabase.storage.from(bucket).upload(
+    final String fullPath = await _supabase.storage.from(bucket).upload(
           path,
           file,
           fileOptions: FileOptions(upsert: true),
@@ -89,7 +90,7 @@ class SupabaseStorageService {
 
   Future<Uint8List> downloadFile(
       {required String path, required String bucket}) async {
-    final Uint8List file = await supabase.storage.from(bucket).download(path);
+    final Uint8List file = await _supabase.storage.from(bucket).download(path);
     return file;
   }
 
@@ -97,7 +98,7 @@ class SupabaseStorageService {
     required String bucket,
     required String path,
   }) async {
-    final String publicUrl = supabase.storage.from(bucket).getPublicUrl(path);
+    final String publicUrl = _supabase.storage.from(bucket).getPublicUrl(path);
 
     return publicUrl;
   }

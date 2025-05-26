@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -85,6 +87,7 @@ class _ConnectedAccountsViewBodyState extends State<ConnectedAccountsViewBody> {
                 );
               } else {
                 var userIdentities = context.watch<UserCubit>().userIdentities;
+                log(userIdentities.toString());
                 final providerIcons = {
                   'google': AppAssets.imagesGoogle,
                 };

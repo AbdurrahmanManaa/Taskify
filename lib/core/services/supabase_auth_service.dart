@@ -2,12 +2,11 @@ import 'dart:developer';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskify/core/errors/exceptions.dart';
-import 'package:taskify/core/services/get_it_service.dart';
-import 'package:taskify/core/services/hive_service.dart';
 
 class SupabaseAuthService {
-  final HiveService _hiveService = HiveService();
-  final supabase = getIt<SupabaseClient>();
+  final SupabaseClient _supabase;
+
+  SupabaseAuthService(this._supabase);
 
   Future<User> signUpWithEmailAndPassword({
     required String email,
@@ -16,7 +15,7 @@ class SupabaseAuthService {
     String? imagePath,
   }) async {
     try {
-      final AuthResponse res = await supabase.auth.signUp(
+      final AuthResponse res = await _supabase.auth.signUp(
         email: email,
         password: password,
         data: {
@@ -41,7 +40,7 @@ class SupabaseAuthService {
     required String password,
   }) async {
     try {
-      final AuthResponse res = await supabase.auth.signInWithPassword(
+      final AuthResponse res = await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
@@ -61,7 +60,7 @@ class SupabaseAuthService {
     required String? accessToken,
   }) async {
     try {
-      await supabase.auth.signInWithIdToken(
+      await _supabase.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: accessToken,
@@ -74,7 +73,7 @@ class SupabaseAuthService {
 
   Future<void> signInWithOAuth({required OAuthProvider provider}) async {
     try {
-      await supabase.auth.signInWithOAuth(
+      await _supabase.auth.signInWithOAuth(
         provider,
       );
     } catch (e) {
@@ -104,7 +103,7 @@ class SupabaseAuthService {
         updateData['email'] = newEmail;
       }
 
-      await supabase.auth.updateUser(
+      await _supabase.auth.updateUser(
         UserAttributes(
           email: newEmail,
           password: newPassword,
@@ -120,7 +119,7 @@ class SupabaseAuthService {
 
   Future<void> resetPassword({required String email}) async {
     try {
-      await supabase.auth.resetPasswordForEmail(
+      await _supabase.auth.resetPasswordForEmail(
         email,
         redirectTo: 'taskify://reset-password',
       );
@@ -132,8 +131,7 @@ class SupabaseAuthService {
 
   Future<void> signOut() async {
     try {
-      await _hiveService.clearCache();
-      await supabase.auth.signOut();
+      await _supabase.auth.signOut();
     } catch (e) {
       log('Exception in SupabaseAuthService.signOut: ${e.toString()}');
     }
@@ -141,7 +139,7 @@ class SupabaseAuthService {
 
   Future<List<UserIdentity>> getUserIdentities() async {
     try {
-      return await supabase.auth.getUserIdentities();
+      return await _supabase.auth.getUserIdentities();
     } catch (e) {
       log('Exception in SupabaseAuthService.getUserIdentities: ${e.toString()}');
       throw CustomException('Something went wrong.');
@@ -150,7 +148,7 @@ class SupabaseAuthService {
 
   Future<void> linkIdentity({required OAuthProvider provider}) async {
     try {
-      await supabase.auth.linkIdentity(
+      await _supabase.auth.linkIdentity(
         provider,
         redirectTo: 'taskify://link-identity',
       );
@@ -162,11 +160,11 @@ class SupabaseAuthService {
 
   Future<void> unlinkIdentity() async {
     try {
-      final identities = await supabase.auth.getUserIdentities();
+      final identities = await _supabase.auth.getUserIdentities();
       final googleIdentity = identities.firstWhere(
         (element) => element.provider == 'google',
       );
-      await supabase.auth.unlinkIdentity(googleIdentity);
+      await _supabase.auth.unlinkIdentity(googleIdentity);
     } catch (e) {
       log('Exception in SupabaseAuthService.unlinkIdentity: ${e.toString()}');
       throw CustomException('Something went wrong.');

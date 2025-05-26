@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
@@ -28,14 +27,14 @@ import 'package:taskify/features/home/presentation/widgets/task_basic_info.dart'
 import 'package:taskify/features/home/presentation/widgets/task_timeline_info.dart';
 
 class TaskDetailsViewBody extends StatefulWidget {
-  const TaskDetailsViewBody({super.key});
+  const TaskDetailsViewBody({super.key, required this.supabase});
+  final SupabaseClient supabase;
 
   @override
   State<TaskDetailsViewBody> createState() => _TaskDetailsViewBodyState();
 }
 
 class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
-  final supabase = getIt<SupabaseClient>();
   late final TaskEntity taskEntity;
   final GlobalKey<FormState> _formKey = GlobalKey();
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
@@ -55,7 +54,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
   Future<void> getTasks() async {
     await context
         .read<TaskCubit>()
-        .getTasks(userId: supabase.auth.currentUser!.id);
+        .getTasks(userId: widget.supabase.auth.currentUser!.id);
   }
 
   Future<void> getSubtasks() async {

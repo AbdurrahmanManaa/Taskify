@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/utils/app_assets.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_constants.dart';
@@ -17,14 +16,14 @@ import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/tas
 import 'package:taskify/features/home/presentation/widgets/calender_item.dart';
 
 class CalenderViewBody extends StatefulWidget {
-  const CalenderViewBody({super.key});
+  const CalenderViewBody({super.key, required this.supabase});
+  final SupabaseClient supabase;
 
   @override
   State<CalenderViewBody> createState() => _CalenderViewBodyState();
 }
 
 class _CalenderViewBodyState extends State<CalenderViewBody> {
-  final supabase = getIt<SupabaseClient>();
   late TextEditingController _searchController;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -50,7 +49,7 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
   Future<void> getTasks() async {
     await context
         .read<TaskCubit>()
-        .getTasks(userId: supabase.auth.currentUser!.id);
+        .getTasks(userId: widget.supabase.auth.currentUser!.id);
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {

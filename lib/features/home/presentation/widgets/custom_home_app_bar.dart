@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskify/core/functions/filter_tasks.dart';
-import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_colors.dart';
@@ -15,15 +14,14 @@ import 'package:badges/badges.dart' as badges;
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 
 class CustomHomeAppBar extends StatefulWidget {
-  const CustomHomeAppBar({super.key});
+  const CustomHomeAppBar({super.key, required this.supabase});
+  final SupabaseClient supabase;
 
   @override
   State<CustomHomeAppBar> createState() => _CustomHomeAppBarState();
 }
 
 class _CustomHomeAppBarState extends State<CustomHomeAppBar> {
-  final supabase = getIt<SupabaseClient>();
-
   @override
   void initState() {
     super.initState();
@@ -33,7 +31,7 @@ class _CustomHomeAppBarState extends State<CustomHomeAppBar> {
   Future<void> getUserData() async {
     await context
         .read<UserCubit>()
-        .getUserData(userId: supabase.auth.currentUser!.id);
+        .getUserData(userId: widget.supabase.auth.currentUser!.id);
   }
 
   String formatFirstName(String fullName) {
