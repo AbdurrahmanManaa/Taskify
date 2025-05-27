@@ -22,6 +22,10 @@ class AppAssets {
   /// assets/animations/reset_password.json
   static const String animationsResetPassword = "assets/animations/reset_password.json";
 
+  /// Assets for imagesAppLogo
+  /// assets/images/app_logo.png
+  static const String imagesAppLogo = "assets/images/app_logo.png";
+
   /// Assets for imagesDarkModeLogo
   /// assets/images/dark_mode_logo.png
   static const String imagesDarkModeLogo = "assets/images/dark_mode_logo.png";
