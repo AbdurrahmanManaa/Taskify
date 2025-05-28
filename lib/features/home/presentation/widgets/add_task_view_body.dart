@@ -637,10 +637,12 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       label: 'Reminder',
                       widget: GestureDetector(
                         onTap: () async {
-                          final result = await Navigator.pushNamed(
-                            context,
+                          final result =
+                              await Navigator.of(context, rootNavigator: true)
+                                  .pushNamed(
                             AppRoutes.taskReminder,
                           );
+
                           if (result is TaskReminderEntity) {
                             setState(() {
                               _reminderEntity = result;
@@ -673,8 +675,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       label: 'Repeat',
                       widget: GestureDetector(
                         onTap: () async {
-                          final result = await Navigator.pushNamed(
-                            context,
+                          final result =
+                              await Navigator.of(context, rootNavigator: true)
+                                  .pushNamed(
                             AppRoutes.taskRepeat,
                           );
                           if (result is TaskRepeatEntity) {

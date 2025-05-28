@@ -8,10 +8,10 @@ import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_assets.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
-import 'package:taskify/core/utils/edit_user_arguments_class.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/widgets/option_item.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
+import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
 import 'package:taskify/features/home/presentation/widgets/account_settings_section.dart';
 import 'package:taskify/features/home/presentation/widgets/edit_user_view_body.dart';
 import 'package:taskify/features/home/presentation/widgets/preferences_settings_section.dart';
@@ -156,11 +156,11 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
             onPressed: () => Navigator.pop(context),
           ),
           BlocListener<UserCubit, UserState>(
-            listener: (context, state) async {
+            listener: (context, state) {
               if (state is UserDeleted) {
                 buildSnackbar(context,
                     message: 'Account deleted successfully.');
-                await Navigator.pushNamedAndRemoveUntil(
+                Navigator.pushNamedAndRemoveUntil(
                     context, AppRoutes.signIn, (route) => false);
               } else if (state is UserFailure) {
                 buildSnackbar(context, message: 'Failed to delete account.');
@@ -201,28 +201,30 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
             ),
             const SizedBox(height: 20),
             AccountSettingsSection(
-              profileOnTap: () async {
-                await Navigator.pushNamed(context, AppRoutes.profile);
+              profileOnTap: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pushNamed(AppRoutes.profile);
               },
               connectedAccountsOnTap: () async {
-                await Navigator.pushNamed(context, AppRoutes.connectedAccounts);
+                Navigator.of(context, rootNavigator: true)
+                    .pushNamed(AppRoutes.connectedAccounts);
               },
               deleteAccountOnTap: () => _deleteAccount(context),
             ),
             const SizedBox(height: 20),
             SecuritySettingsSection(
-              changePasswordOnTap: () async {
-                await Navigator.pushNamed(
-                  context,
+              changePasswordOnTap: () {
+                Navigator.of(context, rootNavigator: true).pushNamed(
                   AppRoutes.editUser,
-                  arguments: EditUserArguments(
+                  arguments: EditUserEntity(
                     userEntity: context.read<UserCubit>().userEntity,
                     mode: EditProfileType.password,
                   ),
                 );
               },
-              appLockOnTap: () async {
-                await Navigator.pushNamed(context, AppRoutes.appLockType);
+              appLockOnTap: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pushNamed(AppRoutes.appLockType);
               },
             ),
             const SizedBox(height: 20),

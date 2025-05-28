@@ -254,7 +254,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                     userId: taskDetails.userId,
                     taskId: taskEntity.id,
                   );
-              await Navigator.pushNamedAndRemoveUntil(
+              Navigator.pushNamedAndRemoveUntil(
                 context,
                 AppRoutes.main,
                 (route) => false,
@@ -310,9 +310,8 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
           if (taskDetails.status != 'Trash')
             PopupMenuItem(
               value: 1,
-              onTap: () async {
-                await Navigator.pushNamed(
-                  context,
+              onTap: () {
+                Navigator.of(context, rootNavigator: true).pushNamed(
                   'editTask',
                   arguments: taskDetails,
                 );

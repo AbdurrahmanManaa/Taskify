@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/app_constants.dart';
-import 'package:taskify/core/utils/edit_user_arguments_class.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/widgets/custom_button.dart';
 import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/core/widgets/field_item.dart';
 import 'package:taskify/core/widgets/password_text_form_field.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
+import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
 
 enum EditProfileType {
   name,
@@ -26,7 +26,7 @@ class EditUserViewBody extends StatefulWidget {
 class _EditUserViewBodyState extends State<EditUserViewBody> {
   late final TextEditingController _controller;
   late final TextEditingController _confirmController;
-  late final EditUserArguments editData;
+  late final EditUserEntity editData;
   final _formKey = GlobalKey<FormState>();
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
@@ -35,7 +35,7 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
     super.initState();
     _controller = TextEditingController();
     _confirmController = TextEditingController();
-    editData = context.read<EditUserArguments>();
+    editData = context.read<EditUserEntity>();
     switch (editData.mode) {
       case EditProfileType.name:
         _controller.text = editData.userEntity.fullName;

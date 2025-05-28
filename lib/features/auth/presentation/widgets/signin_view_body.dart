@@ -148,8 +148,8 @@ class _SigninViewBodyState extends State<SigninViewBody> {
               AuthFooter(
                 title: 'Don’t have an account? ',
                 tapText: 'Sign Up',
-                onTap: () async {
-                  await Navigator.pushNamedAndRemoveUntil(
+                onTap: () {
+                  Navigator.pushNamedAndRemoveUntil(
                       context, AppRoutes.signUp, (route) => false);
                 },
               ),

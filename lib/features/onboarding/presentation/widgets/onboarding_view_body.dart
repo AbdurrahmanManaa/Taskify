@@ -22,7 +22,7 @@ class _OnboardingViewBodyState extends State<OnboardingViewBody> {
     await HiveService().setUserPreferences(
       prefs.copyWith(isOnboardingSeen: true),
     );
-    await Navigator.pushNamedAndRemoveUntil(
+    Navigator.pushNamedAndRemoveUntil(
         context, AppRoutes.signIn, (route) => false);
   }
 

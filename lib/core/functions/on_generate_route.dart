@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskify/core/utils/app_routes.dart';
-import 'package:taskify/core/utils/edit_user_arguments_class.dart';
 import 'package:taskify/features/auth/presentation/views/forgot_password_view.dart';
 import 'package:taskify/features/auth/presentation/views/reset_password_view.dart';
 import 'package:taskify/features/auth/presentation/views/signin_view.dart';
 import 'package:taskify/features/auth/presentation/views/signup_view.dart';
+import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
 import 'package:taskify/features/home/domain/entities/task_entity.dart';
 import 'package:taskify/features/home/presentation/views/add_task_view.dart';
 import 'package:taskify/features/home/presentation/views/app_lock_type_view.dart';
@@ -57,10 +57,10 @@ Route<dynamic> onGenerateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => const ProfileView());
 
     case AppRoutes.editUser:
-      final args = settings.arguments as EditUserArguments;
+      final editUserEntity = settings.arguments as EditUserEntity;
       return MaterialPageRoute(
         builder: (_) => Provider.value(
-          value: args,
+          value: editUserEntity,
           child: EditUserView(),
         ),
       );

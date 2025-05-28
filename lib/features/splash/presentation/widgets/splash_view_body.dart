@@ -41,7 +41,7 @@ class _SplashViewBodyState extends State<SplashViewBody> {
         );
       }
     } else {
-      await Navigator.pushNamedAndRemoveUntil(
+      Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.onBoarding,
         (route) => false,

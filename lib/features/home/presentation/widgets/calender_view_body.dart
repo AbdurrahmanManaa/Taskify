@@ -299,8 +299,7 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
                       padding: const EdgeInsets.only(bottom: 10),
                       child: CalenderItem(
                         onTap: () {
-                          Navigator.pushNamed(
-                            context,
+                          Navigator.of(context, rootNavigator: true).pushNamed(
                             'taskDetails',
                             arguments: _filterTasks(filteredTasks)[index],
                           );

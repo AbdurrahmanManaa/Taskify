@@ -90,8 +90,8 @@ class CalenderItem extends StatelessWidget {
                           PopupMenuItem(
                             value: 1,
                             onTap: () {
-                              Navigator.pushNamed(
-                                context,
+                              Navigator.of(context, rootNavigator: true)
+                                  .pushNamed(
                                 'editTask',
                                 arguments: taskEntity,
                               );

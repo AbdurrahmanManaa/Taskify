@@ -101,12 +101,12 @@ class _SignupViewBodyState extends State<SignupViewBody> {
               ),
               const SizedBox(height: 30),
               BlocConsumer<UserCubit, UserState>(
-                listener: (context, state) async {
+                listener: (context, state) {
                   if (state is UserCreated) {
                     buildSnackbar(context,
                         message:
                             'User created successfully, Check your email for verification');
-                    await Navigator.pushNamedAndRemoveUntil(
+                    Navigator.pushNamedAndRemoveUntil(
                         context, AppRoutes.signIn, (route) => false);
                   } else if (state is UserFailure) {
                     buildSnackbar(context, message: 'Failed to create user');
@@ -135,8 +135,8 @@ class _SignupViewBodyState extends State<SignupViewBody> {
               AuthFooter(
                 title: 'Already have an account? ',
                 tapText: 'Sign In',
-                onTap: () async {
-                  await Navigator.pushNamed(context, AppRoutes.signIn);
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.signIn);
                 },
               ),
               const SizedBox(height: 30),

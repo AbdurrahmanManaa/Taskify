@@ -609,9 +609,8 @@ class _TrashViewBodyState extends State<TrashViewBody> {
                     itemBuilder: (context, index) => Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: GestureDetector(
-                        onTap: () async {
-                          await Navigator.pushNamed(
-                            context,
+                        onTap: () {
+                          Navigator.of(context, rootNavigator: true).pushNamed(
                             AppRoutes.taskDetails,
                             arguments: trashTasks[index],
                           );

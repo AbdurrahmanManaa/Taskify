@@ -324,9 +324,9 @@ class _TaskCardState extends State<TaskCard> {
                         if (widget.taskEntity.status != 'Trash')
                           PopupMenuItem(
                             value: 1,
-                            onTap: () async {
-                              await Navigator.pushNamed(
-                                context,
+                            onTap: () {
+                              Navigator.of(context, rootNavigator: true)
+                                  .pushNamed(
                                 AppRoutes.editTask,
                                 arguments: widget.taskEntity,
                               );

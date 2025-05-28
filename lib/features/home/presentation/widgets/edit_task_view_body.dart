@@ -420,8 +420,9 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 label: 'Reminder',
                 widget: GestureDetector(
                   onTap: () async {
-                    final result = await Navigator.pushNamed(
-                      context,
+                    final result =
+                        await Navigator.of(context, rootNavigator: true)
+                            .pushNamed(
                       AppRoutes.taskReminder,
                     );
                     if (result is TaskReminderEntity) {
@@ -457,8 +458,9 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 label: 'Repeat',
                 widget: GestureDetector(
                   onTap: () async {
-                    final result = await Navigator.pushNamed(
-                      context,
+                    final result =
+                        await Navigator.of(context, rootNavigator: true)
+                            .pushNamed(
                       AppRoutes.taskRepeat,
                     );
                     if (result is TaskRepeatEntity) {

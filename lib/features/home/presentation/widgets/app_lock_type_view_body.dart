@@ -32,8 +32,9 @@ class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
             child: Column(
               children: [
                 OptionItem(
-                  onTap: () async {
-                    await Navigator.pushNamed(context, AppRoutes.pinLockType);
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: true)
+                        .pushNamed(AppRoutes.pinLockType);
                   },
                   title: Text(
                     'PIN',
@@ -66,9 +67,9 @@ class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
                 ),
                 Divider(),
                 OptionItem(
-                  onTap: () async {
-                    await Navigator.pushNamed(
-                        context, AppRoutes.passwordLockType);
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: true)
+                        .pushNamed(AppRoutes.passwordLockType);
                   },
                   title: Text(
                     'Password',

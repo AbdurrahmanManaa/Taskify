@@ -120,10 +120,8 @@ class _CustomHomeAppBarState extends State<CustomHomeAppBar> {
             children: [
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.profile,
-                  );
+                  Navigator.of(context, rootNavigator: true)
+                      .pushNamed(AppRoutes.profile);
                 },
                 child: UserProfileImage(
                   size: 60,
@@ -150,11 +148,9 @@ class _CustomHomeAppBarState extends State<CustomHomeAppBar> {
               ),
               Spacer(),
               GestureDetector(
-                onTap: () async {
-                  await Navigator.pushNamed(
-                    context,
-                    AppRoutes.trash,
-                  );
+                onTap: () {
+                  Navigator.of(context, rootNavigator: true)
+                      .pushNamed(AppRoutes.trash);
                 },
                 child: CustomIconButton(
                   child: badges.Badge(
@@ -180,11 +176,9 @@ class _CustomHomeAppBarState extends State<CustomHomeAppBar> {
               ),
               const SizedBox(width: 10),
               GestureDetector(
-                onTap: () async {
-                  await Navigator.pushNamed(
-                    context,
-                    AppRoutes.notifications,
-                  );
+                onTap: () {
+                  Navigator.of(context, rootNavigator: true)
+                      .pushNamed(AppRoutes.notifications);
                 },
                 child: CustomIconButton(
                   child: badges.Badge(

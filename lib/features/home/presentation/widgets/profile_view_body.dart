@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/app_routes.dart';
-import 'package:taskify/core/utils/edit_user_arguments_class.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/services/image_picker_service.dart';
@@ -17,6 +16,7 @@ import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/widgets/user_profile_image.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
+import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
 import 'package:taskify/features/home/presentation/widgets/edit_user_view_body.dart';
 import 'package:taskify/features/home/presentation/widgets/user_info_widget.dart';
 
@@ -290,11 +290,10 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                   ),
                   const SizedBox(height: 50),
                   UserInfoWidget(
-                    onTap: () async {
-                      await Navigator.pushNamed(
-                        context,
+                    onTap: () {
+                      Navigator.of(context, rootNavigator: true).pushNamed(
                         AppRoutes.editUser,
-                        arguments: EditUserArguments(
+                        arguments: EditUserEntity(
                           userEntity: userEntity,
                           mode: EditProfileType.name,
                         ),
@@ -305,11 +304,10 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                   ),
                   const SizedBox(height: 40),
                   UserInfoWidget(
-                    onTap: () async {
-                      await Navigator.pushNamed(
-                        context,
+                    onTap: () {
+                      Navigator.of(context, rootNavigator: true).pushNamed(
                         AppRoutes.editUser,
-                        arguments: EditUserArguments(
+                        arguments: EditUserEntity(
                           userEntity: userEntity,
                           mode: EditProfileType.email,
                         ),

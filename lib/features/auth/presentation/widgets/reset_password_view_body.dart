@@ -87,11 +87,11 @@ class _ResetPasswordViewBodyState extends State<ResetPasswordViewBody> {
               ),
               const SizedBox(height: 30),
               BlocListener<UserCubit, UserState>(
-                listener: (context, state) async {
+                listener: (context, state) {
                   if (state is UserUpdated) {
                     buildSnackbar(context,
                         message: 'Password updated successfully.');
-                    await Navigator.pushNamedAndRemoveUntil(
+                    Navigator.pushNamedAndRemoveUntil(
                         context, AppRoutes.signIn, (route) => false);
                   } else if (state is UserFailure) {
                     buildSnackbar(context,
