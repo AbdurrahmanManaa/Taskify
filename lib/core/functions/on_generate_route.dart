@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskify/core/utils/app_routes.dart';
+import 'package:taskify/core/widgets/page_not_found.dart';
 import 'package:taskify/features/auth/presentation/views/forgot_password_view.dart';
 import 'package:taskify/features/auth/presentation/views/reset_password_view.dart';
 import 'package:taskify/features/auth/presentation/views/signin_view.dart';
@@ -25,12 +26,12 @@ import 'package:taskify/features/home/presentation/views/task_reminder_view.dart
 import 'package:taskify/features/home/presentation/views/task_repeat_view.dart';
 import 'package:taskify/features/home/presentation/views/trash_view.dart';
 import 'package:taskify/features/onboarding/presentation/views/onboarding_view.dart';
-import 'package:taskify/features/splash/presentation/views/splash_view.dart';
+import 'package:taskify/features/initial/presentation/views/initial_view.dart';
 
-Route<dynamic> onGenerateRoute(RouteSettings settings) {
+Route<dynamic>? onGenerateRoute(RouteSettings settings) {
   switch (settings.name) {
-    case AppRoutes.splash:
-      return MaterialPageRoute(builder: (_) => const SplashView());
+    case AppRoutes.initial:
+      return MaterialPageRoute(builder: (_) => const InitialView());
 
     case AppRoutes.onBoarding:
       return MaterialPageRoute(builder: (_) => const OnboardingView());
@@ -118,6 +119,8 @@ Route<dynamic> onGenerateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => const AppLockTypeView());
 
     default:
-      return MaterialPageRoute(builder: (_) => const Scaffold());
+      return MaterialPageRoute(
+        builder: (_) => const PageNotFound(),
+      );
   }
 }

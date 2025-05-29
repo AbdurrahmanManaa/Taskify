@@ -1,5 +1,5 @@
 abstract class AppRoutes {
-  static const splash = 'splash';
+  static const initial = 'initial';
   static const onBoarding = 'onBoarding';
   static const signIn = 'signIn';
   static const signUp = 'signUp';

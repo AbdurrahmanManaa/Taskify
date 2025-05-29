@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -28,7 +29,8 @@ import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await dotenv.load(fileName: '.env');
   await Hive.initFlutter();
   Hive.registerAdapter(
@@ -79,6 +81,7 @@ void main() async {
   initGetIt();
   Bloc.observer = CustomBlocObserver();
   runApp(const MyApp());
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatefulWidget {
@@ -195,11 +198,11 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
+            onGenerateRoute: onGenerateRoute,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: value.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            onGenerateRoute: onGenerateRoute,
-            initialRoute: AppRoutes.splash,
+            initialRoute: AppRoutes.initial,
           );
         },
       ),

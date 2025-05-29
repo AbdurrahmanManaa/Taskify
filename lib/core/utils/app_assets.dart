@@ -18,17 +18,37 @@ class AppAssets {
   /// assets/animations/no_internet.json
   static const String animationsNoInternet = "assets/animations/no_internet.json";
 
+  /// Assets for animationsPageNotFound
+  /// assets/animations/page_not_found.json
+  static const String animationsPageNotFound = "assets/animations/page_not_found.json";
+
   /// Assets for animationsResetPassword
   /// assets/animations/reset_password.json
   static const String animationsResetPassword = "assets/animations/reset_password.json";
 
-  /// Assets for imagesAppLogo
-  /// assets/images/app_logo.png
-  static const String imagesAppLogo = "assets/images/app_logo.png";
+  /// Assets for imagesAndroidBranding
+  /// assets/images/android_branding.png
+  static const String imagesAndroidBranding = "assets/images/android_branding.png";
 
-  /// Assets for imagesDarkModeLogo
-  /// assets/images/dark_mode_logo.png
-  static const String imagesDarkModeLogo = "assets/images/dark_mode_logo.png";
+  /// Assets for imagesAndroidBrandingDark
+  /// assets/images/android_branding_dark.png
+  static const String imagesAndroidBrandingDark = "assets/images/android_branding_dark.png";
+
+  /// Assets for imagesAndroidLogo
+  /// assets/images/android_logo.png
+  static const String imagesAndroidLogo = "assets/images/android_logo.png";
+
+  /// Assets for imagesAndroidLogoDark
+  /// assets/images/android_logo_dark.png
+  static const String imagesAndroidLogoDark = "assets/images/android_logo_dark.png";
+
+  /// Assets for imagesBranding
+  /// assets/images/branding.png
+  static const String imagesBranding = "assets/images/branding.png";
+
+  /// Assets for imagesBrandingDark
+  /// assets/images/branding_dark.png
+  static const String imagesBrandingDark = "assets/images/branding_dark.png";
 
   /// Assets for imagesGoogle
   /// assets/images/google.svg
@@ -38,9 +58,17 @@ class AppAssets {
   /// assets/images/ksa.png
   static const String imagesKsa = "assets/images/ksa.png";
 
-  /// Assets for imagesLightModeLogo
-  /// assets/images/light_mode_logo.png
-  static const String imagesLightModeLogo = "assets/images/light_mode_logo.png";
+  /// Assets for imagesLauncherIcon
+  /// assets/images/launcher_icon.png
+  static const String imagesLauncherIcon = "assets/images/launcher_icon.png";
+
+  /// Assets for imagesLogo
+  /// assets/images/logo.png
+  static const String imagesLogo = "assets/images/logo.png";
+
+  /// Assets for imagesLogoDark
+  /// assets/images/logo_dark.png
+  static const String imagesLogoDark = "assets/images/logo_dark.png";
 
   /// Assets for imagesOnBoarding1
   /// assets/images/on_boarding_1.png
