@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
-import 'package:taskify/core/functions/convert_time_to_12h_format.dart';
+import 'package:taskify/core/extensions/task_priority_extension.dart';
+import 'package:taskify/core/extensions/task_status_extension.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/utils/schedule_parser.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/core/widgets/field_item.dart';
@@ -20,10 +21,15 @@ class TaskBasicInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate = DateFormat('yyyy-MM-dd').format(taskDetails.dueDate);
+    String formattedDate = DateTimeUtils.formatDate(taskDetails.dueDate);
     final statusDetails = TaskUIHelper.getStatusDetails(taskDetails.status);
     final IconData statusIcon = statusDetails['icon'] as IconData;
     final Color statusColor = statusDetails['color'] as Color;
+    final Map<String, dynamic> uncategorizedCategory = {
+      'name': 'Uncategorized',
+      'icon': Icons.help_outline,
+      'color': AppColors.greyColor,
+    };
 
     return Column(
       children: [
@@ -75,7 +81,7 @@ class TaskBasicInfo extends StatelessWidget {
             const SizedBox(width: 5),
             Flexible(
               child: Text(
-                taskDetails.status,
+                taskDetails.status.label,
                 style: AppTextStyles.regular16,
               ),
             ),
@@ -100,14 +106,13 @@ class TaskBasicInfo extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.only(right: 5),
                         child: CustomTagContainer(
-                          iconColor: predefinedCategories[0]['color'],
+                          iconColor: uncategorizedCategory['color'],
                           iconCodePoint:
-                              predefinedCategories[0]['icon'].codePoint,
-                          title: predefinedCategories[0]['name'],
+                              uncategorizedCategory['icon'].codePoint,
+                          title: uncategorizedCategory['name'],
                         ),
                       );
                     }
-                    return const SizedBox.shrink();
                   }
 
                   return Padding(
@@ -122,9 +127,9 @@ class TaskBasicInfo extends StatelessWidget {
               ),
             ] else
               CustomTagContainer(
-                iconColor: predefinedCategories[0]['color'],
-                iconCodePoint: predefinedCategories[0]['icon'].codePoint,
-                title: predefinedCategories[0]['name'],
+                iconColor: uncategorizedCategory['color'],
+                iconCodePoint: uncategorizedCategory['icon'].codePoint,
+                title: uncategorizedCategory['name'],
               ),
             CustomTagContainer(
               iconColor: TaskUIHelper.getPriorityDetails(
@@ -132,7 +137,7 @@ class TaskBasicInfo extends StatelessWidget {
               iconCodePoint:
                   TaskUIHelper.getPriorityDetails(taskDetails.priority)['icon']
                       .codePoint,
-              title: taskDetails.priority,
+              title: taskDetails.priority.label,
             ),
           ],
         ),
@@ -163,7 +168,7 @@ class TaskBasicInfo extends StatelessWidget {
             ),
             const SizedBox(width: 5),
             Text(
-              '${convertTimeTo12HourFormat(taskDetails.startTime)} - ${convertTimeTo12HourFormat(taskDetails.endTime)}',
+              '${DateTimeUtils.formatTime(taskDetails.startTime)} - ${DateTimeUtils.formatTime(taskDetails.endTime)}',
               style: AppTextStyles.regular16,
             ),
           ],

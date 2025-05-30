@@ -1,3 +1,5 @@
+import 'package:taskify/core/extensions/subtask_status_extension.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
 
 class SubtaskModel {
@@ -5,7 +7,7 @@ class SubtaskModel {
   final String taskId;
   final String title;
   final String? note;
-  final String status;
+  final SubtaskStatus status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -14,22 +16,24 @@ class SubtaskModel {
     required this.taskId,
     required this.title,
     this.note,
-    String? status,
+    required this.status,
     this.createdAt,
     this.updatedAt,
-  }) : status = status ?? 'In Progress';
+  });
 
   factory SubtaskModel.fromJson(Map<String, dynamic> json) => SubtaskModel(
         id: json['id'],
         taskId: json['task_id'],
         title: json['title'],
         note: json['note'],
-        status: json['status'] ?? 'In Progress',
+        status: json['status'] != null
+            ? SubtaskStatusX.fromString(json['status'])
+            : SubtaskStatus.inProgress,
         createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'])
+            ? DateTimeUtils.parseIsoDateTime(json['created_at'])
             : null,
         updatedAt: json['updated_at'] != null
-            ? DateTime.parse(json['updated_at'])
+            ? DateTimeUtils.parseIsoDateTime(json['updated_at'])
             : null,
       );
 
@@ -38,8 +42,7 @@ class SubtaskModel {
         'task_id': taskId,
         'title': title,
         'note': note,
-        'status': status,
-        'updated_at': updatedAt?.toIso8601String(),
+        'status': status.label,
       };
 
   factory SubtaskModel.fromEntity(SubtaskEntity entity) => SubtaskModel(

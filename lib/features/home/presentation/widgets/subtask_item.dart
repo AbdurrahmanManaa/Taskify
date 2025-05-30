@@ -23,7 +23,7 @@ class SubtaskItem extends StatelessWidget {
       leading: leading,
       title: Text(subtaskEntity.title,
           style: AppTextStyles.medium16.copyWith(
-            decoration: subtaskEntity.status == 'Completed'
+            decoration: subtaskEntity.status == SubtaskStatus.completed
                 ? TextDecoration.lineThrough
                 : null,
           )),
@@ -41,7 +41,7 @@ class SubtaskItem extends StatelessWidget {
               child: Text(
                 subtaskEntity.note!,
                 style: AppTextStyles.regular16.copyWith(
-                  decoration: subtaskEntity.status == 'Completed'
+                  decoration: subtaskEntity.status == SubtaskStatus.completed
                       ? TextDecoration.lineThrough
                       : null,
                 ),

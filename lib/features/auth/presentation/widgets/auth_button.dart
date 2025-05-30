@@ -17,7 +17,7 @@ class AuthButton extends StatelessWidget {
         decoration: ShapeDecoration(
           shadows: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(26),
               offset: Offset(0, 4),
               blurRadius: 20,
             ),

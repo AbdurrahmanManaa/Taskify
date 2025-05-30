@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:taskify/core/utils/app_colors.dart';
-
 part 'category_entity.g.dart';
 
 @HiveType(typeId: 4)
@@ -23,38 +21,9 @@ class CategoryEntity extends HiveObject {
   IconData get icon => IconData(iconCodePoint, fontFamily: 'MaterialIcons');
 
   Color get color => Color(colorValue);
-
-  static CategoryEntity defaultCategory() {
-    return CategoryEntity(
-      name: predefinedCategories[0]['name'],
-      icon: predefinedCategories[0]['icon'],
-      color: predefinedCategories[0]['color'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'icon': iconCodePoint,
-      'color': colorValue,
-    };
-  }
-
-  factory CategoryEntity.fromJson(Map<String, dynamic> json) {
-    return CategoryEntity(
-      name: json['name'],
-      icon: IconData(json['icon'], fontFamily: 'MaterialIcons'),
-      color: Color(json['color']),
-    );
-  }
 }
 
 final List<Map<String, dynamic>> predefinedCategories = [
-  {
-    'name': 'Uncategorized',
-    'icon': Icons.help_outline,
-    'color': AppColors.greyColor,
-  },
   {
     'name': 'Work',
     'icon': Icons.work,
@@ -89,5 +58,30 @@ final List<Map<String, dynamic>> predefinedCategories = [
     'name': 'Shopping',
     'icon': Icons.shopping_bag,
     'color': const Color(0xffFF7F50),
+  },
+  {
+    'name': 'Education',
+    'icon': Icons.school,
+    'color': const Color(0xff6A5ACD),
+  },
+  {
+    'name': 'Fitness',
+    'icon': Icons.fitness_center,
+    'color': const Color(0xff228B22),
+  },
+  {
+    'name': 'Travel',
+    'icon': Icons.flight_takeoff,
+    'color': const Color(0xff20B2AA),
+  },
+  {
+    'name': 'Events',
+    'icon': Icons.event,
+    'color': const Color(0xffFF69B4),
+  },
+  {
+    'name': 'Reading',
+    'icon': Icons.menu_book,
+    'color': const Color(0xff8B4513),
   },
 ];

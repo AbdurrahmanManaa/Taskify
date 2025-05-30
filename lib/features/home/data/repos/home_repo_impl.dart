@@ -82,8 +82,8 @@ class HomeRepoImpl implements HomeRepo {
   @override
   void filterTasks({
     String? query,
-    List<String>? statuses,
-    List<String>? priorities,
+    List<TaskStatus>? statuses,
+    List<TaskPriority>? priorities,
     List<String>? categories,
     List<String>? dueDates,
   }) {
@@ -159,8 +159,8 @@ class HomeRepoImpl implements HomeRepo {
             break;
           case 'priority':
             const priorityOrder = {'High': 0, 'Medium': 1, 'Low': 2};
-            compare = (priorityOrder[a.priority] ?? 1)
-                .compareTo(priorityOrder[b.priority] ?? 1);
+            compare = (priorityOrder[a.priority.name] ?? 1)
+                .compareTo(priorityOrder[b.priority.name] ?? 1);
             break;
           case 'alphabet':
             compare = a.title.toLowerCase().compareTo(b.title.toLowerCase());
@@ -211,7 +211,7 @@ class HomeRepoImpl implements HomeRepo {
           fileName: fileName,
           fileType: fileType,
           fileSize: fileSize,
-          status: 'Uploaded',
+          status: AttachmentStatus.uploaded,
           createdAt: DateTime.now(),
         );
 

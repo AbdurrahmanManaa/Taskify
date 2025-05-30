@@ -1,4 +1,7 @@
-import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:taskify/core/extensions/task_priority_extension.dart';
+import 'package:taskify/core/extensions/task_status_extension.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/features/home/domain/entities/task_entity.dart';
 import 'package:taskify/features/home/domain/entities/category_entity.dart';
 import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
@@ -10,13 +13,13 @@ class TaskModel {
   final String title;
   final String? description;
   final DateTime dueDate;
-  final String startTime;
-  final String endTime;
+  final DateTime startTime;
+  final DateTime endTime;
   final TaskReminderEntity reminder;
   final TaskRepeatEntity repeat;
-  final String priority;
+  final TaskPriority priority;
   final List<CategoryEntity> categories;
-  final String status;
+  final TaskStatus status;
   final DateTime? createdAt;
   final DateTime? completedAt;
   final DateTime? updatedAt;
@@ -29,43 +32,21 @@ class TaskModel {
     required this.userId,
     required this.title,
     this.description,
-    DateTime? dueDate,
-    String? startTime,
-    String? endTime,
-    TaskReminderEntity? reminder,
-    TaskRepeatEntity? repeat,
-    String? priority,
-    List<CategoryEntity>? categories,
-    String? status,
+    required this.dueDate,
+    required this.startTime,
+    required this.endTime,
+    required this.reminder,
+    required this.repeat,
+    required this.priority,
+    required this.categories,
+    required this.status,
     this.createdAt,
     this.completedAt,
     this.updatedAt,
     this.deletedAt,
-    this.subtaskCount = 0,
-    this.attachmentsCount = 0,
-  })  : dueDate = dueDate ??
-            DateFormat('yyyy-MM-dd')
-                .parse(DateFormat('yyyy-MM-dd').format(DateTime.now())),
-        startTime = startTime ?? DateFormat('hh:mm a').format(DateTime.now()),
-        endTime = endTime ?? '9:30 AM',
-        reminder = reminder ??
-            TaskReminderEntity(
-              option: '10 mins before',
-              value: 0,
-              unit: 'Minutes',
-            ),
-        repeat = repeat ??
-            TaskRepeatEntity(
-              option: 'Don\'t repeat',
-              duration: 'Forever',
-              interval: 1,
-              count: 0,
-              weekDays: [],
-              untilDate: null,
-            ),
-        priority = priority ?? 'Medium',
-        categories = categories ?? [CategoryEntity.defaultCategory()],
-        status = status ?? 'In Progress';
+    required this.attachmentsCount,
+    required this.subtaskCount,
+  });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
@@ -73,63 +54,54 @@ class TaskModel {
       userId: json['user_id'],
       title: json['title'],
       description: json['description'],
-      dueDate:
-          json['due_date'] != null ? DateTime.parse(json['due_date']) : null,
-      startTime: json['start_time'],
-      endTime: json['end_time'],
-      reminder: json['reminder'] != null
-          ? TaskReminderEntity(
-              option: json['reminder']['option'] ?? 'Custom',
-              value: json['reminder']['value'] ?? 0,
-              unit: json['reminder']['unit'] ?? 'Minutes',
-            )
-          : TaskReminderEntity(
-              option: '10 mins before',
-              value: 0,
-              unit: 'Minutes',
-            ),
-      repeat: json['repeat'] != null
-          ? TaskRepeatEntity(
-              option: json['repeat']['option'] ?? 'Don\'t repeat',
-              duration: json['repeat']['duration'] ?? 'Forever',
-              interval: json['repeat']['interval'] ?? 1,
-              count: json['repeat']['count'] ?? 0,
-              weekDays: json['repeat']['week_days'] != null
-                  ? List<String>.from(json['repeat']['week_days'])
-                  : [],
-              untilDate: json['repeat']['until_date'] != null
-                  ? DateTime.parse(json['repeat']['until_date'])
-                  : null,
-            )
-          : TaskRepeatEntity(
-              option: 'Don\'t repeat',
-              duration: 'Forever',
-              interval: 1,
-              count: 0,
-              weekDays: [],
-              untilDate: null,
-            ),
-      priority: json['priority'],
-      categories: json['categories'] != null
-          ? (json['categories'] as List)
-              .map((e) => CategoryEntity.fromJson(e))
-              .toList()
-          : [CategoryEntity.defaultCategory()],
-      status: json['status'] ?? 'In Progress',
+      dueDate: DateTimeUtils.parseIsoDateTime(json['due_date']),
+      startTime:
+          DateTimeUtils.parseTimeFrom24HourWithSeconds(json['start_time']),
+      endTime: DateTimeUtils.parseTimeFrom24HourWithSeconds(json['end_time']),
+      reminder: TaskReminderEntity(
+        option: json['reminder']['option'] ?? 'Custom',
+        value: json['reminder']['value'] ?? 0,
+        unit: json['reminder']['unit'] ?? 'Minutes',
+      ),
+      repeat: TaskRepeatEntity(
+        option: json['repeat']['option'] ?? 'Don\'t repeat',
+        duration: json['repeat']['duration'] ?? 'Forever',
+        interval: json['repeat']['interval'] ?? 1,
+        count: json['repeat']['count'] ?? 0,
+        weekDays: json['repeat']['week_days'] != null
+            ? List<String>.from(json['repeat']['week_days'])
+            : [],
+        untilDate: json['repeat']['until_date'] != null
+            ? DateTime.parse(json['repeat']['until_date'])
+            : null,
+      ),
+      priority: json['priority'] != null
+          ? TaskPriorityX.fromString(json['priority'])
+          : TaskPriority.medium,
+      categories: (json['categories'] as List)
+          .map((e) => CategoryEntity(
+                name: e['name'],
+                icon: IconData(e['icon'], fontFamily: 'MaterialIcons'),
+                color: Color(e['color']),
+              ))
+          .toList(),
+      status: json['status'] != null
+          ? TaskStatusX.fromString(json['status'])
+          : TaskStatus.inProgress,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+          ? DateTimeUtils.parseIsoDateTime(json['created_at'])
           : null,
       completedAt: json['completed_at'] != null
-          ? DateTime.parse(json['completed_at'])
+          ? DateTimeUtils.parseIsoDateTime(json['completed_at'])
           : null,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
+          ? DateTimeUtils.parseIsoDateTime(json['updated_at'])
           : null,
       deletedAt: json['deleted_at'] != null
-          ? DateTime.parse(json['deleted_at'])
+          ? DateTimeUtils.parseIsoDateTime(json['deleted_at'])
           : null,
-      subtaskCount: json['subtask_count'] ?? 0,
-      attachmentsCount: json['attachments_count'] ?? 0,
+      subtaskCount: json['subtask_count'],
+      attachmentsCount: json['attachments_count'],
     );
   }
 
@@ -139,9 +111,9 @@ class TaskModel {
       'user_id': userId,
       'title': title,
       'description': description,
-      'due_date': dueDate.toIso8601String(),
-      'start_time': startTime,
-      'end_time': endTime,
+      'due_date': DateTimeUtils.formatIsoDateTime(dueDate),
+      'start_time': DateTimeUtils.formatTimeTo24HourWithSeconds(startTime),
+      'end_time': DateTimeUtils.formatTimeTo24HourWithSeconds(endTime),
       'reminder': {
         'option': reminder.option,
         'value': reminder.value,
@@ -155,13 +127,17 @@ class TaskModel {
         'week_days': repeat.weekDays,
         'until_date': repeat.untilDate?.toIso8601String(),
       },
-      'priority': priority,
-      'categories': categories.map((c) => c.toJson()).toList(),
-      'status': status,
-      'created_at': createdAt?.toIso8601String(),
-      'completed_at': completedAt?.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
-      'deleted_at': deletedAt?.toIso8601String(),
+      'priority': priority.label,
+      'categories': categories
+          .map((c) => {
+                'name': c.name,
+                'icon': c.icon.codePoint,
+                'color': c.color.toARGB32(),
+              })
+          .toList(),
+      'status': status.label,
+      'attachments_count': attachmentsCount,
+      'subtask_count': subtaskCount,
     };
   }
 

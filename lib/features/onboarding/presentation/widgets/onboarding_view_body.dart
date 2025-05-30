@@ -17,11 +17,12 @@ class OnboardingViewBody extends StatefulWidget {
 class _OnboardingViewBodyState extends State<OnboardingViewBody> {
   final _introKey = GlobalKey<IntroductionScreenState>();
 
-  void _onIntroEnd(context) async {
+  void _onIntroEnd(BuildContext context) async {
     final prefs = await HiveService().getUserPreferences();
     await HiveService().setUserPreferences(
       prefs.copyWith(isOnboardingSeen: true),
     );
+    if (!context.mounted) return;
     Navigator.pushNamedAndRemoveUntil(
         context, AppRoutes.signIn, (route) => false);
   }

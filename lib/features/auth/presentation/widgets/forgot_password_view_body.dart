@@ -82,6 +82,7 @@ class _ForgotPasswordViewBodyState extends State<ForgotPasswordViewBody> {
                     await context.read<UserCubit>().resetPassword(
                           email: _emailController.text.trim(),
                         );
+                    if (!context.mounted) return;
                     buildSnackbar(context,
                         message: 'Password reset email sent.');
                     _emailController.clear();

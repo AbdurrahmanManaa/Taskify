@@ -106,11 +106,17 @@ class _CustomBarChartState extends State<CustomBarChart> {
                     .toDouble(),
                 width: 20,
                 color: isTouched
-                    ? TaskUIHelper.getPriorityDetails(
-                        ['Low', 'Medium', 'High'][index])['color']
-                    : TaskUIHelper.getPriorityDetails(
-                            ['Low', 'Medium', 'High'][index])['color']
-                        .withOpacity(0.5),
+                    ? TaskUIHelper.getPriorityDetails([
+                        TaskPriority.low,
+                        TaskPriority.medium,
+                        TaskPriority.high
+                      ][index])['color']
+                    : TaskUIHelper.getPriorityDetails([
+                        TaskPriority.low,
+                        TaskPriority.medium,
+                        TaskPriority.high
+                      ][index])['color']
+                        .withAlpha(128),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(10),
                   topRight: Radius.circular(10),

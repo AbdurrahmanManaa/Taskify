@@ -119,6 +119,7 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
                       uid: editData.userEntity.id,
                     );
                 _controller.clear();
+                if (!mounted) return;
                 Navigator.pop(context);
               } else {
                 setState(() {
@@ -184,6 +185,8 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
                     newEmail: _controller.text.trim(),
                     uid: editData.userEntity.id,
                     redirectTo: 'taskify://change-email');
+                if (!context.mounted) return;
+                if (!mounted) return;
                 buildSnackbar(context,
                     message: 'Check your new email for the verification link.');
                 _controller.clear();
@@ -246,6 +249,7 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
                     );
                 _controller.clear();
                 _confirmController.clear();
+                if (!mounted) return;
                 Navigator.pop(context);
               } else {
                 setState(() {

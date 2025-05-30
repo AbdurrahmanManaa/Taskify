@@ -53,8 +53,11 @@ class _StatisticsViewBodyState extends State<StatisticsViewBody> {
       final directory = await getApplicationDocumentsDirectory();
       final file = File('${directory.path}/statistics.pdf');
       await file.writeAsBytes(await pdf.save());
-      await Share.shareXFiles([XFile(file.path)],
-          text: 'Here are the statistics!');
+      final params = ShareParams(
+        text: 'Here are the statistics!',
+        files: [XFile(file.path)],
+      );
+      await SharePlus.instance.share(params);
     } catch (e) {
       log('Error generating PDF: $e');
     }

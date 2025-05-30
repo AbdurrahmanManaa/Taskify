@@ -85,7 +85,7 @@ abstract class AppTheme {
         return Colors.grey;
       }),
       overlayColor: WidgetStateProperty.all(
-        AppColors.primaryLightColor.withOpacity(0.1),
+        AppColors.primaryLightColor.withAlpha(26),
       ),
     ),
   );
@@ -170,7 +170,7 @@ abstract class AppTheme {
         return Colors.grey;
       }),
       overlayColor: WidgetStateProperty.all(
-        AppColors.primaryDarkColor.withOpacity(0.1),
+        AppColors.primaryDarkColor.withAlpha(26),
       ),
     ),
   );

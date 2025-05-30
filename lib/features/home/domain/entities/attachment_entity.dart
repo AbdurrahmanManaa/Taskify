@@ -2,7 +2,15 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 part 'attachment_entity.g.dart';
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 10)
+enum AttachmentStatus {
+  @HiveField(0)
+  pending,
+  @HiveField(1)
+  uploaded,
+}
+
+@HiveType(typeId: 9)
 class AttachmentEntity {
   @HiveField(0)
   final String id;
@@ -19,7 +27,7 @@ class AttachmentEntity {
   @HiveField(6)
   final String? fileUrl;
   @HiveField(7)
-  final String status;
+  final AttachmentStatus status;
   @HiveField(8)
   final DateTime? createdAt;
   @HiveField(9)
@@ -33,10 +41,10 @@ class AttachmentEntity {
     required this.fileSize,
     required this.filePath,
     this.fileUrl,
-    String? status,
+    required this.status,
     this.createdAt,
     this.updatedAt,
-  }) : status = status ?? 'Pending';
+  });
 
   AttachmentEntity copyWith({
     String? id,
@@ -46,7 +54,7 @@ class AttachmentEntity {
     int? fileSize,
     String? filePath,
     String? fileUrl,
-    String? status,
+    AttachmentStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {

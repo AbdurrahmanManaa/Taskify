@@ -1,10 +1,32 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
 import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
+
 import 'category_entity.dart';
 
 part 'task_entity.g.dart';
+
+@HiveType(typeId: 2)
+enum TaskPriority {
+  @HiveField(0)
+  low,
+  @HiveField(1)
+  medium,
+  @HiveField(2)
+  high,
+}
+
+@HiveType(typeId: 3)
+enum TaskStatus {
+  @HiveField(0)
+  inProgress,
+  @HiveField(1)
+  completed,
+  @HiveField(2)
+  overdue,
+  @HiveField(3)
+  trash,
+}
 
 @HiveType(typeId: 1)
 class TaskEntity extends HiveObject {
@@ -19,19 +41,19 @@ class TaskEntity extends HiveObject {
   @HiveField(4)
   final DateTime dueDate;
   @HiveField(5)
-  final String startTime;
+  final DateTime startTime;
   @HiveField(6)
-  final String endTime;
+  final DateTime endTime;
   @HiveField(7)
   final TaskReminderEntity reminder;
   @HiveField(8)
   final TaskRepeatEntity repeat;
   @HiveField(9)
-  final String priority;
+  final TaskPriority priority;
   @HiveField(10)
   final List<CategoryEntity> categories;
   @HiveField(11)
-  final String status;
+  final TaskStatus status;
   @HiveField(12)
   final DateTime? createdAt;
   @HiveField(13)
@@ -50,46 +72,21 @@ class TaskEntity extends HiveObject {
     required this.userId,
     required this.title,
     this.description,
-    DateTime? dueDate,
-    String? startTime,
-    String? endTime,
-    TaskReminderEntity? reminder,
-    TaskRepeatEntity? repeat,
-    String? priority,
-    List<CategoryEntity>? categories,
-    String? status,
+    required this.dueDate,
+    required this.startTime,
+    required this.endTime,
+    required this.reminder,
+    required this.repeat,
+    required this.priority,
+    required this.categories,
+    required this.status,
     this.createdAt,
     this.completedAt,
     this.updatedAt,
     this.deletedAt,
-    int? subtaskCount,
-    int? attachmentsCount,
-  })  : dueDate = dueDate ?? DateTime.now(),
-        startTime = startTime ?? DateFormat('hh:mm a').format(DateTime.now()),
-        endTime = endTime ?? '9:30 AM',
-        reminder = reminder ??
-            TaskReminderEntity(
-              option: '10 mins before',
-              value: 0,
-              unit: 'Minutes',
-            ),
-        repeat = repeat ??
-            TaskRepeatEntity(
-              option: 'Don\'t repeat',
-              duration: 'Forever',
-              interval: 1,
-              count: 0,
-              weekDays: weekDays
-                  .where((day) => day.isSelected == true)
-                  .map((day) => day.dayKey)
-                  .toList(),
-              untilDate: null,
-            ),
-        priority = priority ?? 'Medium',
-        categories = categories ?? [CategoryEntity.defaultCategory()],
-        status = status ?? 'In Progress',
-        subtaskCount = subtaskCount ?? 0,
-        attachmentsCount = attachmentsCount ?? 0;
+    required this.attachmentsCount,
+    required this.subtaskCount,
+  });
 
   TaskEntity copyWith({
     String? id,
@@ -97,19 +94,19 @@ class TaskEntity extends HiveObject {
     String? title,
     String? description,
     DateTime? dueDate,
-    String? startTime,
-    String? endTime,
+    DateTime? startTime,
+    DateTime? endTime,
     TaskReminderEntity? reminder,
     TaskRepeatEntity? repeat,
-    String? priority,
+    TaskPriority? priority,
     List<CategoryEntity>? categories,
-    String? status,
+    TaskStatus? status,
     DateTime? createdAt,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
-    int? subtaskCount,
     int? attachmentsCount,
+    int? subtaskCount,
   }) {
     return TaskEntity(
       id: id ?? this.id,
@@ -128,10 +125,8 @@ class TaskEntity extends HiveObject {
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
-      subtaskCount: subtaskCount ?? this.subtaskCount,
       attachmentsCount: attachmentsCount ?? this.attachmentsCount,
+      subtaskCount: subtaskCount ?? this.subtaskCount,
     );
   }
 }
-
-const List<String> priorities = ['Low', 'Medium', 'High'];

@@ -46,6 +46,7 @@ class TaskDialogUtils {
       initialEntryMode: TimePickerEntryMode.input,
     );
     if (pickedTime != null) {
+      if (!context.mounted) return null;
       return pickedTime.format(context);
     } else {
       return null;
@@ -178,6 +179,7 @@ class TaskDialogUtils {
                       category.icon.codePoint == categoryIcon.codePoint);
 
                   if (alreadyExists) {
+                    if (!context.mounted) return;
                     buildSnackbar(
                       context,
                       message: 'Category name already exists',
@@ -188,6 +190,7 @@ class TaskDialogUtils {
 
                   if (predefinedCategories
                       .any((category) => category['name'] == categoryName)) {
+                    if (!context.mounted) return;
                     buildSnackbar(
                       context,
                       message: 'Category name already exists',
@@ -200,6 +203,7 @@ class TaskDialogUtils {
                         color: categoryColor,
                       ),
                     );
+                    if (!context.mounted) return;
                     Navigator.pop(
                       dialogContext,
                       CategoryEntity(

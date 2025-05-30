@@ -54,7 +54,7 @@ class TaskTimelineInfo extends StatelessWidget {
               style: TextStyle(height: 1.5),
             ),
           ],
-          if (taskDetails.status == 'Trash' &&
+          if (taskDetails.status == TaskStatus.trash &&
               formattedDeletedTime != null) ...[
             TextSpan(
               text: '\nDeleted at  ',

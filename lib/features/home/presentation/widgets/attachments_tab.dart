@@ -38,6 +38,7 @@ class AttachmentsTab extends StatefulWidget {
 }
 
 class _AttachmentsTabState extends State<AttachmentsTab> {
+  late final AttachmentCubit _attachmentCubit;
   late final TextEditingController _attachmentController;
   final GlobalKey<FormState> _attachmentFormKey = GlobalKey();
   AutovalidateMode _attachmentAutoValidateMode = AutovalidateMode.disabled;
@@ -50,6 +51,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
   @override
   void initState() {
     super.initState();
+    _attachmentCubit = context.read<AttachmentCubit>();
     _attachmentController = TextEditingController();
   }
 
@@ -78,6 +80,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
             fileType: fileType,
             fileSize: fileSize,
             filePath: file.path,
+            status: AttachmentStatus.pending,
           );
         }).toList();
 
@@ -182,22 +185,22 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
             onPressed: () async {
-              await context
-                  .read<AttachmentCubit>()
-                  .deleteAttachmentsFromStorage(
+              await _attachmentCubit.deleteAttachmentsFromStorage(
                 dataPaths: [attachment.filePath],
                 taskId: widget.taskDetails.id,
               );
-              await context.read<AttachmentCubit>().deleteSingleAttachment(
-                    attachmentId: attachment.id,
-                    taskId: widget.taskDetails.id,
-                  );
+              await _attachmentCubit.deleteSingleAttachment(
+                attachmentId: attachment.id,
+                taskId: widget.taskDetails.id,
+              );
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
           ),
         ],
       ),
     );
+    if (!context.mounted) return;
     Navigator.pop(context);
   }
 
@@ -250,14 +253,14 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                           filePath: newPath,
                           fileName: p.basename(newPath),
                         );
-                        await context.read<AttachmentCubit>().updateAttachment(
-                              data:
-                                  AttachmentModel.fromEntity(updatedAttachment)
-                                      .toJson(),
-                              attachmentId: updatedAttachment.id,
-                              taskId: widget.taskDetails.id,
-                            );
+                        await _attachmentCubit.updateAttachment(
+                          data: AttachmentModel.fromEntity(updatedAttachment)
+                              .toJson(),
+                          attachmentId: updatedAttachment.id,
+                          taskId: widget.taskDetails.id,
+                        );
                         _attachmentController.clear();
+                        if (!context.mounted) return;
                         Navigator.pop(context);
                       } else {
                         setState(() {
@@ -279,6 +282,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
         );
       },
     );
+    if (!context.mounted) return;
     Navigator.pop(context);
   }
 
@@ -340,6 +344,8 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                       GestureDetector(
                         onTap: () async {
                           await _downloadFile(attachment.filePath);
+
+                          if (!context.mounted) return;
                           Navigator.pop(context);
                         },
                         child: Container(
@@ -421,12 +427,12 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
     );
 
     if (_mediaAttachments.isNotEmpty) {
-      await context.read<AttachmentCubit>().addAttachment(
-            files: _mediaFiles,
-            baseEntities: _mediaAttachments,
-            taskId: taskId,
-            userId: userId,
-          );
+      await _attachmentCubit.addAttachment(
+        files: _mediaFiles,
+        baseEntities: _mediaAttachments,
+        taskId: taskId,
+        userId: userId,
+      );
     }
   }
 
@@ -444,12 +450,12 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
     );
 
     if (_documentAttachments.isNotEmpty) {
-      await context.read<AttachmentCubit>().addAttachment(
-            files: _documentFiles,
-            baseEntities: _documentAttachments,
-            taskId: taskId,
-            userId: userId,
-          );
+      await _attachmentCubit.addAttachment(
+        files: _documentFiles,
+        baseEntities: _documentAttachments,
+        taskId: taskId,
+        userId: userId,
+      );
     }
   }
 
@@ -533,7 +539,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
             ),
           );
         } else {
-          final attachments = context.read<AttachmentCubit>().attachments;
+          final attachments = _attachmentCubit.attachments;
 
           final mediaAttachments = _getMediaAttachments(attachments);
           final documentAttachments = _getDocumentAttachments(attachments);

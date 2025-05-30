@@ -9,8 +9,8 @@ abstract class HomeRepo {
   Future<List<TaskEntity>> getAllTaskData({required String userId});
   void filterTasks({
     String? query,
-    List<String>? statuses,
-    List<String>? priorities,
+    List<TaskStatus>? statuses,
+    List<TaskPriority>? priorities,
     List<String>? categories,
     List<String>? dueDates,
   });

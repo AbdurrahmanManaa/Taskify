@@ -8,7 +8,7 @@ part of 'attachment_entity.dart';
 
 class AttachmentEntityAdapter extends TypeAdapter<AttachmentEntity> {
   @override
-  final int typeId = 3;
+  final int typeId = 9;
 
   @override
   AttachmentEntity read(BinaryReader reader) {
@@ -24,7 +24,7 @@ class AttachmentEntityAdapter extends TypeAdapter<AttachmentEntity> {
       fileSize: fields[4] as int,
       filePath: fields[5] as String,
       fileUrl: fields[6] as String?,
-      status: fields[7] as String?,
+      status: fields[7] as AttachmentStatus,
       createdAt: fields[8] as DateTime?,
       updatedAt: fields[9] as DateTime?,
     );
@@ -63,6 +63,45 @@ class AttachmentEntityAdapter extends TypeAdapter<AttachmentEntity> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is AttachmentEntityAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class AttachmentStatusAdapter extends TypeAdapter<AttachmentStatus> {
+  @override
+  final int typeId = 10;
+
+  @override
+  AttachmentStatus read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return AttachmentStatus.pending;
+      case 1:
+        return AttachmentStatus.uploaded;
+      default:
+        return AttachmentStatus.pending;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, AttachmentStatus obj) {
+    switch (obj) {
+      case AttachmentStatus.pending:
+        writer.writeByte(0);
+        break;
+      case AttachmentStatus.uploaded:
+        writer.writeByte(1);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AttachmentStatusAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

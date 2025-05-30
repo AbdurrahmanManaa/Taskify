@@ -6,6 +6,8 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:taskify/core/extensions/task_priority_extension.dart';
+import 'package:taskify/core/extensions/task_status_extension.dart';
 import 'package:taskify/core/functions/filter_tasks.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
@@ -18,6 +20,8 @@ import 'package:taskify/core/widgets/custom_pop_up_menu_button.dart';
 import 'package:taskify/core/widgets/custom_search_text_field.dart';
 import 'package:taskify/features/home/domain/entities/category_entity.dart';
 import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_home_app_bar.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_tab_bar.dart';
@@ -33,8 +37,8 @@ class HomeViewBody extends StatefulWidget {
 
 class _HomeViewBodyState extends State<HomeViewBody> {
   late TextEditingController _searchController;
-  List<String> _selectedStatuses = [];
-  List<String> _selectedPriorities = [];
+  List<TaskStatus> _selectedStatuses = [];
+  List<TaskPriority> _selectedPriorities = [];
   List<CategoryEntity> _selectedCategories = [];
   List<String> _selectedDueDates = [];
   List<CategoryEntity> _customCategories = [];
@@ -74,11 +78,12 @@ class _HomeViewBodyState extends State<HomeViewBody> {
   }
 
   Future<void> _showFiltersAndSort(BuildContext context) async {
-    List<String> tempStatuses = List<String>.from(_selectedStatuses);
+    List<TaskStatus> tempStatuses = List<TaskStatus>.from(_selectedStatuses);
     List<CategoryEntity> tempCategories =
         List<CategoryEntity>.from(_selectedCategories);
     List<String> tempDueDates = List<String>.from(_selectedDueDates);
-    List<String> tempPriorities = List<String>.from(_selectedPriorities);
+    List<TaskPriority> tempPriorities =
+        List<TaskPriority>.from(_selectedPriorities);
     String tempSortField = _selectedSortField;
     bool tempIsDateAscending = _isDateAscending;
     bool tempIsPriorityAscending = _isPriorityAscending;
@@ -145,7 +150,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                                   }
                                 });
                               },
-                              selectedColor: category.color.withOpacity(0.2),
+                              selectedColor: category.color.withAlpha(51),
                             );
                           },
                         ),
@@ -180,7 +185,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                                 }
                               });
                             },
-                            selectedColor: category.color.withOpacity(0.2),
+                            selectedColor: category.color.withAlpha(51),
                             backgroundColor:
                                 AppColors.scaffoldLightBackgroundColor,
                           );
@@ -218,7 +223,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                             });
                           },
                           selectedColor:
-                              AppColors.primaryLightColor.withOpacity(0.2),
+                              AppColors.primaryLightColor.withAlpha(51),
                           backgroundColor:
                               AppColors.scaffoldLightBackgroundColor,
                         );
@@ -232,15 +237,19 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                     const SizedBox(height: 5),
                     Wrap(
                       spacing: 10,
-                      children: ['In Progress', 'Completed', 'Overdue', 'Trash']
-                          .map((status) {
+                      children: [
+                        TaskStatus.inProgress,
+                        TaskStatus.completed,
+                        TaskStatus.overdue,
+                        TaskStatus.trash
+                      ].map((status) {
                         bool isSelected = tempStatuses.contains(status);
                         final statusDetails =
                             TaskUIHelper.getStatusDetails(status);
 
                         return FilterChip(
                           showCheckmark: false,
-                          label: Text(status),
+                          label: Text(status.label),
                           avatar: Icon(
                             statusDetails['icon'],
                             color: statusDetails['color'],
@@ -259,7 +268,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                             );
                           },
                           selectedColor:
-                              AppColors.primaryLightColor.withOpacity(0.2),
+                              AppColors.primaryLightColor.withAlpha(51),
                           backgroundColor:
                               AppColors.scaffoldLightBackgroundColor,
                         );
@@ -273,13 +282,17 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                     const SizedBox(height: 5),
                     Wrap(
                       spacing: 10,
-                      children: ['High', 'Medium', 'Low'].map((priority) {
+                      children: [
+                        TaskPriority.high,
+                        TaskPriority.medium,
+                        TaskPriority.low
+                      ].map((priority) {
                         bool isSelected = tempPriorities.contains(priority);
                         var priorityDetails =
                             TaskUIHelper.getPriorityDetails(priority);
                         return FilterChip(
                           showCheckmark: false,
-                          label: Text(priority),
+                          label: Text(priority.label),
                           avatar: Icon(
                             priorityDetails['icon'],
                             color: priorityDetails['color'],
@@ -298,7 +311,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                             );
                           },
                           selectedColor:
-                              AppColors.primaryLightColor.withOpacity(0.2),
+                              AppColors.primaryLightColor.withAlpha(51),
                           backgroundColor:
                               AppColors.scaffoldLightBackgroundColor,
                         );
@@ -539,6 +552,22 @@ class _HomeViewBodyState extends State<HomeViewBody> {
               title: 'Get Groceries for the week',
               description:
                   'Go to the grocery store and buy groceries for the week',
+              dueDate: DateTime.now(),
+              startTime: DateTime.now(),
+              endTime: DateTime.now(),
+              status: TaskStatus.inProgress,
+              priority: TaskPriority.low,
+              reminder: TaskReminderEntity(option: '', value: 0, unit: ''),
+              repeat: TaskRepeatEntity(
+                interval: 0,
+                option: '',
+                duration: '',
+                count: 0,
+                weekDays: [],
+              ),
+              categories: [],
+              attachmentsCount: 0,
+              subtaskCount: 0,
             ),
           ),
         ),
@@ -655,7 +684,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     final tasks = context
         .watch<TaskCubit>()
         .filteredTasks
-        .where((task) => task.status != 'Trash')
+        .where((task) => task.status != TaskStatus.trash)
         .toList();
     final todayTasks = filterTasks(tasks, 'today');
     final tomorrowTasks = filterTasks(tasks, 'tomorrow');

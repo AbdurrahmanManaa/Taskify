@@ -4,10 +4,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
-import 'package:taskify/core/functions/convert_time_to_12h_format.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/task_dialog_utils.dart';
@@ -100,7 +100,8 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                     label: 'Due Date',
                     widget: GestureDetector(
                       onTap: () async {
-                        bool isOverdueTask = taskDetails.status == 'Overdue';
+                        bool isOverdueTask =
+                            taskDetails.status == TaskStatus.overdue;
                         DateTime? pickedDate =
                             await TaskDialogUtils.showCustomDatePickerDialog(
                           context: context,
@@ -197,11 +198,13 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                                 'due_date': formattedDate,
                                 'start_time': selectedTaskStartTime,
                                 'end_time': selectedTaskEndTime,
-                                'status': 'In Progress',
+                                'status': TaskStatus.inProgress,
                                 'updated_at': DateTime.now().toIso8601String(),
                               },
                               taskId: taskEntity.id,
                             );
+
+                        if (!context.mounted) return;
                         Navigator.pop(context);
                       } else {
                         _autoValidateMode = AutovalidateMode.always;
@@ -250,10 +253,12 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                     taskId: taskEntity.id,
                     dataPaths: dataPaths,
                   );
+              if (!context.mounted) return;
               await context.read<TaskCubit>().deleteSingleTask(
                     userId: taskDetails.userId,
                     taskId: taskEntity.id,
                   );
+              if (!context.mounted) return;
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 AppRoutes.main,
@@ -282,15 +287,15 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
           color: Colors.black,
         ),
         items: [
-          if (taskDetails.status != 'Completed' &&
-              taskDetails.status != 'Trash')
+          if (taskDetails.status != TaskStatus.completed &&
+              taskDetails.status != TaskStatus.trash)
             PopupMenuItem(
               value: 0,
               onTap: () async {
                 await context.read<TaskCubit>().updateTask(
                       userId: taskDetails.userId,
                       data: {
-                        'status': 'Completed',
+                        'status': TaskStatus.completed,
                         'completed_at': DateTime.now().toIso8601String(),
                       },
                       taskId: taskDetails.id,
@@ -307,7 +312,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                 ],
               ),
             ),
-          if (taskDetails.status != 'Trash')
+          if (taskDetails.status != TaskStatus.trash)
             PopupMenuItem(
               value: 1,
               onTap: () {
@@ -327,7 +332,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                 ],
               ),
             ),
-          if (taskDetails.status == 'Overdue')
+          if (taskDetails.status == TaskStatus.overdue)
             PopupMenuItem(
               value: 5,
               onTap: () async {
@@ -351,14 +356,14 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                 ],
               ),
             ),
-          if (taskDetails.status != 'Trash')
+          if (taskDetails.status != TaskStatus.trash)
             PopupMenuItem(
               value: 2,
               onTap: () async {
                 await context.read<TaskCubit>().updateTask(
                       userId: taskDetails.userId,
                       data: {
-                        'status': 'Trash',
+                        'status': TaskStatus.trash,
                         'deleted_at': DateTime.now().toIso8601String(),
                         'updated_at': DateTime.now().toIso8601String(),
                       },
@@ -376,14 +381,14 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                 ],
               ),
             ),
-          if (taskDetails.status == 'Trash')
+          if (taskDetails.status == TaskStatus.trash)
             PopupMenuItem(
               value: 3,
               onTap: () async {
                 await context.read<TaskCubit>().updateTask(
                       userId: taskDetails.userId,
                       data: {
-                        'status': 'In Progress',
+                        'status': TaskStatus.inProgress,
                         'deleted_at': null,
                         'updated_at': DateTime.now().toIso8601String(),
                       },
@@ -449,11 +454,10 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
               tasks.firstWhere((task) => task.id == taskEntity.id);
 
           String selectedTaskStartTime =
-              convertTimeTo12HourFormat(taskDetails.startTime);
+              DateTimeUtils.formatTimeTo12Hour(taskDetails.startTime);
           String selectedTaskEndTime =
-              convertTimeTo12HourFormat(taskDetails.endTime);
-          String formattedDate =
-              DateFormat('yyyy-MM-dd').format(taskDetails.dueDate);
+              DateTimeUtils.formatTimeTo12Hour(taskDetails.endTime);
+          String formattedDate = DateTimeUtils.formatDate(taskDetails.dueDate);
 
           final attachments = context.watch<AttachmentCubit>().attachments;
           List<String> attachmentPaths = attachments

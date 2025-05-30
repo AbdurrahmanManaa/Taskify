@@ -22,6 +22,7 @@ class FilePickerService {
         return result.paths.map((path) => File(path!)).toList();
       }
     } else {
+      if (!context.mounted) return null;
       buildSnackbar(
         context,
         message:

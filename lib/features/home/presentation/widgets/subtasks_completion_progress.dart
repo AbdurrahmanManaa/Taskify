@@ -30,7 +30,7 @@ class SubtasksCompletionProgress extends StatelessWidget {
                 value: subtasks.isNotEmpty
                     ? completedSubtasks.length / subtasks.length
                     : 0.0,
-                backgroundColor: AppColors.greyColor.withOpacity(0.3),
+                backgroundColor: AppColors.greyColor.withAlpha(76),
                 color: completedSubtasks.length == subtasks.length
                     ? Colors.green
                     : Colors.blue,

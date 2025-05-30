@@ -26,6 +26,7 @@ class ImagePickerService {
         return null;
       }
     } else {
+      if (!context.mounted) return null;
       buildSnackbar(
         context,
         message:

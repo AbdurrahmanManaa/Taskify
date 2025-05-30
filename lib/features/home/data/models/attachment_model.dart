@@ -1,3 +1,4 @@
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
 
 class AttachmentModel {
@@ -8,7 +9,7 @@ class AttachmentModel {
   final int fileSize;
   final String filePath;
   final String? fileUrl;
-  final String status;
+  final AttachmentStatus status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -20,10 +21,10 @@ class AttachmentModel {
     required this.fileSize,
     required this.filePath,
     this.fileUrl,
-    String? status,
+    required this.status,
     this.createdAt,
     this.updatedAt,
-  }) : status = status ?? 'Pending';
+  });
 
   factory AttachmentModel.fromJson(Map<String, dynamic> json) {
     return AttachmentModel(
@@ -33,12 +34,12 @@ class AttachmentModel {
       fileType: json['file_type'],
       fileSize: json['file_size'],
       filePath: json['file_path'],
-      status: json['status'] ?? 'Pending',
+      status: json['status'],
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+          ? DateTimeUtils.parseIsoDateTime(json['created_at'])
           : null,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
+          ? DateTimeUtils.parseIsoDateTime(json['updated_at'])
           : null,
     );
   }
@@ -52,8 +53,6 @@ class AttachmentModel {
       'file_size': fileSize,
       'file_path': filePath,
       'status': status,
-      'created_at': createdAt?.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
     };
   }
 

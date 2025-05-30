@@ -59,10 +59,12 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
       setState(() {
         _imageFile = pickedImage;
       });
+      if (!mounted) return;
       var imagePath = await context.read<UserCubit>().uploadUserImage(
             imageFile: _imageFile!,
             userId: widget.supabase.auth.currentUser!.id,
           );
+      if (!mounted) return;
       await context.read<UserCubit>().updateUserData(
             newImagePath: imagePath,
             uid: widget.supabase.auth.currentUser!.id,
@@ -81,10 +83,12 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
       setState(() {
         _imageFile = pickedImage;
       });
+      if (!mounted) return;
       var imagePath = await context.read<UserCubit>().uploadUserImage(
             imageFile: _imageFile!,
             userId: widget.supabase.auth.currentUser!.id,
           );
+      if (!mounted) return;
       await context.read<UserCubit>().updateUserData(
             newImagePath: imagePath,
             uid: widget.supabase.auth.currentUser!.id,
@@ -133,10 +137,12 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                         await context.read<UserCubit>().deleteImageFromStorage(
                           dataPaths: [userImagePath!],
                         );
+                        if (!context.mounted) return;
                         await context.read<UserCubit>().updateUserData(
                               newImagePath: null,
                               uid: widget.supabase.auth.currentUser!.id,
                             );
+                        if (!context.mounted) return;
                         Navigator.pop(context);
                       },
                       child: Icon(
@@ -157,6 +163,8 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                       GestureDetector(
                         onTap: () async {
                           await _pickImageFromCamera();
+
+                          if (!context.mounted) return;
                           Navigator.pop(context);
                         },
                         child: Container(
@@ -188,6 +196,8 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                       GestureDetector(
                         onTap: () async {
                           await _pickImageFromGallery();
+
+                          if (!context.mounted) return;
                           Navigator.pop(context);
                         },
                         child: Container(

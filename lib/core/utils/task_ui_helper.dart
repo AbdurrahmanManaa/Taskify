@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:taskify/core/extensions/task_status_extension.dart';
 import 'package:taskify/core/utils/app_colors.dart';
+import 'package:taskify/features/home/domain/entities/task_entity.dart';
 
 class TaskUIHelper {
-  static Widget buildStatusTag(String status) {
+  static Widget buildStatusTag(TaskStatus status) {
     final details = getStatusDetails(status);
     final Color statusColor = details['color'] as Color;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.2),
+        color: statusColor.withAlpha(51),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        status,
+        status.label,
         style: TextStyle(
           color: statusColor,
           fontWeight: FontWeight.w600,
@@ -24,19 +26,19 @@ class TaskUIHelper {
     );
   }
 
-  static Map<String, dynamic> getPriorityDetails(String? priority) {
+  static Map<String, dynamic> getPriorityDetails(TaskPriority? priority) {
     switch (priority) {
-      case 'High':
+      case TaskPriority.high:
         return {
           'color': AppColors.errorColor,
           'icon': Icons.circle_rounded,
         };
-      case 'Medium':
+      case TaskPriority.medium:
         return {
           'color': Colors.orange,
           'icon': Icons.circle_rounded,
         };
-      case 'Low':
+      case TaskPriority.low:
         return {
           'color': Colors.green,
           'icon': Icons.circle_rounded,
@@ -49,24 +51,24 @@ class TaskUIHelper {
     }
   }
 
-  static Map<String, dynamic> getStatusDetails(String status) {
+  static Map<String, dynamic> getStatusDetails(TaskStatus? status) {
     switch (status) {
-      case 'In Progress':
+      case TaskStatus.inProgress:
         return {
           'icon': FontAwesomeIcons.circle,
           'color': AppColors.primaryLightColor,
         };
-      case 'Completed':
+      case TaskStatus.completed:
         return {
           'icon': FontAwesomeIcons.circleCheck,
           'color': Colors.green,
         };
-      case 'Overdue':
+      case TaskStatus.overdue:
         return {
           'icon': FontAwesomeIcons.circleExclamation,
           'color': AppColors.errorColor,
         };
-      case 'Trash':
+      case TaskStatus.trash:
         return {
           'icon': FontAwesomeIcons.trash,
           'color': AppColors.greyColor,

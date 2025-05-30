@@ -98,7 +98,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
           shape: BoxShape.circle,
         ),
         todayDecoration: BoxDecoration(
-          color: AppColors.primaryLightColor.withOpacity(0.5),
+          color: AppColors.primaryLightColor.withAlpha(128),
           shape: BoxShape.circle,
         ),
       ),

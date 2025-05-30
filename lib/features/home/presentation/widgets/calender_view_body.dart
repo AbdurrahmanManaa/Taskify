@@ -10,8 +10,11 @@ import 'package:taskify/core/utils/app_assets.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 import 'package:taskify/features/home/presentation/widgets/calender_item.dart';
 
@@ -73,7 +76,8 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
   }
 
   List<TaskEntity> _filterTasks(List<TaskEntity> tasks) {
-    var filteredTasks = tasks.where((task) => task.status != 'Trash').toList();
+    var filteredTasks =
+        tasks.where((task) => task.status != TaskStatus.trash).toList();
 
     if (_rangeStart != null && _rangeEnd != null) {
       filteredTasks = filteredTasks.where((task) {
@@ -89,8 +93,8 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
     }
 
     filteredTasks.sort((a, b) {
-      final DateTime aTime = DateFormat("HH:mm").parse(a.endTime);
-      final DateTime bTime = DateFormat("HH:mm").parse(b.endTime);
+      final aTime = DateTimeUtils.extractTime(a.endTime);
+      final bTime = DateTimeUtils.extractTime(b.endTime);
       return aTime.compareTo(bTime);
     });
 
@@ -113,7 +117,7 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
             decoration: BoxDecoration(
               color: isSameDay(day, _selectedDay)
                   ? AppColors.primaryLightColor
-                  : AppColors.primaryLightColor.withOpacity(0.5),
+                  : AppColors.primaryLightColor.withAlpha(128),
               shape: BoxShape.circle,
             ),
           );
@@ -180,6 +184,22 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
               title: 'Get Groceries for the week',
               description:
                   'Go to the grocery store and buy groceries for the week',
+              dueDate: DateTime.now(),
+              startTime: DateTime.now(),
+              endTime: DateTime.now(),
+              status: TaskStatus.inProgress,
+              priority: TaskPriority.low,
+              reminder: TaskReminderEntity(option: '', value: 0, unit: ''),
+              repeat: TaskRepeatEntity(
+                interval: 0,
+                option: '',
+                duration: '',
+                count: 0,
+                weekDays: [],
+              ),
+              categories: [],
+              attachmentsCount: 0,
+              subtaskCount: 0,
             ),
           ),
         ),
@@ -232,7 +252,7 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
                 shape: BoxShape.circle,
               ),
               todayDecoration: BoxDecoration(
-                color: AppColors.primaryLightColor.withOpacity(0.5),
+                color: AppColors.primaryLightColor.withAlpha(128),
                 shape: BoxShape.circle,
               ),
             ),

@@ -2,7 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 part 'user_preferences_entity.g.dart';
 
-@HiveType(typeId: 8)
+@HiveType(typeId: 12)
 enum AppLanguage {
   @HiveField(0)
   english,
@@ -10,7 +10,7 @@ enum AppLanguage {
   arabic,
 }
 
-@HiveType(typeId: 9)
+@HiveType(typeId: 13)
 enum AppIconBadgeStyle {
   @HiveField(0)
   number,
@@ -18,7 +18,7 @@ enum AppIconBadgeStyle {
   dot,
 }
 
-@HiveType(typeId: 10)
+@HiveType(typeId: 14)
 enum AppLockType {
   @HiveField(0)
   none,
@@ -28,7 +28,7 @@ enum AppLockType {
   password,
 }
 
-@HiveType(typeId: 7)
+@HiveType(typeId: 11)
 class UserPreferencesEntity extends HiveObject {
   @HiveField(0)
   final bool isOnboardingSeen;

@@ -2,7 +2,15 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 part 'sub_task_entity.g.dart';
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 8)
+enum SubtaskStatus {
+  @HiveField(0)
+  inProgress,
+  @HiveField(1)
+  completed,
+}
+
+@HiveType(typeId: 7)
 class SubtaskEntity extends HiveObject {
   @HiveField(0)
   final String id;
@@ -13,7 +21,7 @@ class SubtaskEntity extends HiveObject {
   @HiveField(3)
   final String? note;
   @HiveField(4)
-  final String status;
+  final SubtaskStatus status;
   @HiveField(5)
   final DateTime? createdAt;
   @HiveField(6)
@@ -24,17 +32,17 @@ class SubtaskEntity extends HiveObject {
     required this.taskId,
     required this.title,
     this.note,
-    String? status,
+    required this.status,
     this.createdAt,
     this.updatedAt,
-  }) : status = status ?? 'In Progress';
+  });
 
   SubtaskEntity copyWith({
     String? id,
     String? taskId,
     String? title,
     String? note,
-    String? status,
+    SubtaskStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {

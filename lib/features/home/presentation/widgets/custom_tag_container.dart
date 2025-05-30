@@ -29,7 +29,10 @@ class CustomTagContainer extends StatelessWidget {
           Icon(
             IconData(
               iconCodePoint,
-              fontFamilyFallback: const ['MaterialIcons', 'CupertinoIcons'],
+              fontFamilyFallback: const [
+                'MaterialIcons',
+                'CupertinoIcons',
+              ],
             ),
             color: iconColor,
           ),

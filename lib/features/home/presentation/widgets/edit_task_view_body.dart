@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:taskify/core/extensions/task_priority_extension.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/app_routes.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_constants.dart';
-import 'package:taskify/core/functions/convert_time_to_12h_format.dart';
 import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
@@ -38,7 +38,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
   AutovalidateMode _taskAutoValidateMode = AutovalidateMode.disabled;
   late TaskReminderEntity _reminderEntity;
   late TaskRepeatEntity _repeatEntity;
-  late String? _selectedTaskPriority;
+  late TaskPriority? _selectedTaskPriority;
   late List<CategoryEntity> _selectedTaskCategories;
   late String? _selectedTaskDueDate;
   late String? _selectedTaskStartTime;
@@ -69,9 +69,9 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
     _repeatEntity = taskEntity.repeat;
     _selectedTaskPriority = taskEntity.priority;
     _selectedTaskCategories = taskEntity.categories;
-    _selectedTaskDueDate = DateFormat('yyyy-MM-dd').format(taskEntity.dueDate);
-    _selectedTaskStartTime = convertTimeTo12HourFormat(taskEntity.startTime);
-    _selectedTaskEndTime = convertTimeTo12HourFormat(taskEntity.endTime);
+    _selectedTaskDueDate = DateTimeUtils.formatDate(taskEntity.dueDate);
+    _selectedTaskStartTime = DateTimeUtils.formatTime(taskEntity.startTime);
+    _selectedTaskEndTime = DateTimeUtils.formatTime(taskEntity.endTime);
     _selectedTaskReminder = ScheduleParser.formatReminder(taskEntity.reminder);
     _selectedTaskRepeat = ScheduleParser.formatRepeat(taskEntity.repeat);
   }
@@ -98,18 +98,19 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
             'due_date': _selectedTaskDueDate ?? taskEntity.dueDate,
             'start_time': _selectedTaskStartTime ?? taskEntity.startTime,
             'end_time': _selectedTaskEndTime ?? taskEntity.endTime,
-            'priority': _selectedTaskPriority ?? taskEntity.priority,
+            'priority': (_selectedTaskPriority ?? taskEntity.priority).name,
             'reminder': _reminderEntity,
             'repeat': _repeatEntity,
             'categories': _selectedTaskCategories,
-            'updated_at': DateTime.now().toIso8601String(),
           },
           taskId: taskEntity.id,
         );
+
+    if (!context.mounted) return;
     Navigator.pop(context);
   }
 
-  _prioritySelection(BuildContext context) {
+  Future _prioritySelection(BuildContext context) {
     return showModalBottomSheet(
       showDragHandle: true,
       backgroundColor: AppColors.scaffoldLightBackgroundColor,
@@ -132,16 +133,16 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 ),
               ),
               Divider(),
-              ...List.generate(priorities.length, (index) {
-                final e = priorities[index];
-                final isLast = index == priorities.length - 1;
+              ...List.generate(TaskPriority.values.length, (index) {
+                final e = TaskPriority.values[index];
+                final isLast = index == TaskPriority.values.length - 1;
                 final isSelected = e == _selectedTaskPriority;
 
                 return Column(
                   children: [
                     ListTile(
                       title: Text(
-                        e.toString(),
+                        e.label,
                         style: AppTextStyles.medium18,
                       ),
                       trailing: isSelected
@@ -182,10 +183,6 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
       return;
     }
 
-    if (_selectedTaskCategories.any((c) => c.name == 'Uncategorized')) {
-      _selectedTaskCategories.removeWhere((c) => c.name == 'Uncategorized');
-    }
-
     setState(() {
       _customCategories.add(category);
       if (!_selectedTaskCategories.contains(category)) {
@@ -213,13 +210,8 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
           if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
             _selectedTaskCategories.add(category);
           }
-          _selectedTaskCategories.removeWhere((c) => c.name == 'Uncategorized');
         } else {
           _selectedTaskCategories.removeWhere((c) => c.name == category.name);
-        }
-
-        if (_selectedTaskCategories.isEmpty) {
-          _selectedTaskCategories.add(CategoryEntity.defaultCategory());
         }
       },
     );
@@ -254,6 +246,8 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 _selectedTaskCategories
                     .removeWhere((c) => c.name == category.name);
               });
+
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
           ),
@@ -279,12 +273,8 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
           if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
             _selectedTaskCategories.add(category);
           }
-          _selectedTaskCategories.removeWhere((c) => c.name == 'Uncategorized');
         } else {
           _selectedTaskCategories.removeWhere((c) => c.name == category.name);
-        }
-        if (_selectedTaskCategories.isEmpty) {
-          _selectedTaskCategories.add(CategoryEntity.defaultCategory());
         }
       },
     );
@@ -300,7 +290,6 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 20),
               const SizedBox(height: 20),
               CustomAppbar(title: 'Edit Task'),
               const SizedBox(height: 20),
@@ -329,27 +318,29 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 label: 'Due Date',
                 widget: GestureDetector(
                   onTap: () async {
-                    bool isOverdueTask = taskEntity.status == 'Overdue';
+                    bool isOverdueTask =
+                        taskEntity.status == TaskStatus.overdue;
+
                     DateTime? pickedDate =
                         await TaskDialogUtils.showCustomDatePickerDialog(
                       context: context,
                       initialDate: DateTime.parse(
                         _selectedTaskDueDate ??
-                            DateFormat('yyyy-MM-dd').format(taskEntity.dueDate),
+                            DateTimeUtils.formatDate(taskEntity.dueDate),
                       ),
                       isOverdueTask: isOverdueTask,
                     );
                     if (pickedDate != null) {
                       setState(() {
                         _selectedTaskDueDate =
-                            DateFormat('yyyy-MM-dd').format(pickedDate);
+                            DateTimeUtils.formatDate(pickedDate);
                       });
                     }
                   },
                   child: AbsorbPointer(
                     child: CustomTextFormField(
                       hintText: _selectedTaskDueDate ??
-                          DateFormat('yyyy-MM-dd').format(taskEntity.dueDate),
+                          DateTimeUtils.formatDate(taskEntity.dueDate),
                       suffixIcon: const Icon(Icons.calendar_today_outlined),
                     ),
                   ),
@@ -362,12 +353,13 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                       label: 'Start Time',
                       widget: GestureDetector(
                         onTap: () async {
+                          String initialTime = _selectedTaskStartTime ??
+                              DateTimeUtils.formatTime(taskEntity.startTime);
                           String? pickedStartTime =
                               await TaskDialogUtils.showCustomTimePickerDialog(
                             isStartTime: true,
                             context: context,
-                            initialTime: _selectedTaskStartTime ??
-                                convertTimeTo12HourFormat(taskEntity.startTime),
+                            initialTime: initialTime,
                           );
                           if (pickedStartTime != null) {
                             setState(() {
@@ -378,7 +370,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                         child: AbsorbPointer(
                           child: CustomTextFormField(
                             hintText: _selectedTaskStartTime ??
-                                convertTimeTo12HourFormat(taskEntity.startTime),
+                                DateTimeUtils.formatTime(taskEntity.startTime),
                             suffixIcon: const Icon(Icons.access_time_outlined),
                           ),
                         ),
@@ -391,12 +383,13 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                       label: 'End Time',
                       widget: GestureDetector(
                         onTap: () async {
+                          String initialTime = _selectedTaskEndTime ??
+                              DateTimeUtils.formatTime(taskEntity.endTime);
                           String? pickedEndTime =
                               await TaskDialogUtils.showCustomTimePickerDialog(
                             isStartTime: false,
                             context: context,
-                            initialTime: _selectedTaskEndTime ??
-                                convertTimeTo12HourFormat(taskEntity.endTime),
+                            initialTime: initialTime,
                           );
                           if (pickedEndTime != null) {
                             setState(() {
@@ -407,7 +400,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                         child: AbsorbPointer(
                           child: CustomTextFormField(
                             hintText: _selectedTaskEndTime ??
-                                convertTimeTo12HourFormat(taskEntity.endTime),
+                                DateTimeUtils.formatTime(taskEntity.endTime),
                             suffixIcon: const Icon(Icons.access_time_outlined),
                           ),
                         ),
@@ -496,7 +489,9 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                   },
                   child: AbsorbPointer(
                     child: CustomTextFormField(
-                      hintText: _selectedTaskPriority ?? taskEntity.priority,
+                      hintText: _selectedTaskPriority != null
+                          ? _selectedTaskPriority!.label
+                          : taskEntity.priority.label,
                       suffixIcon: const Icon(Icons.keyboard_arrow_down),
                     ),
                   ),
@@ -527,7 +522,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                                 category.icon,
                                 color: category.color,
                               ),
-                              selectedColor: category.color.withOpacity(0.2),
+                              selectedColor: category.color.withAlpha(51),
                               selected: isSelected,
                               onSelected: (bool selected) {
                                 _predefinedCategoriesActions(
@@ -567,7 +562,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                                   ),
                                   color: Color(category.color.toARGB32()),
                                 ),
-                                selectedColor: category.color.withOpacity(0.2),
+                                selectedColor: category.color.withAlpha(51),
                                 selected: isSelected,
                                 onSelected: (bool selected) {
                                   _customCategoriesActions(

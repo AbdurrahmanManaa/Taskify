@@ -14,8 +14,8 @@ class TaskCubit extends Cubit<TaskState> {
   List<TaskEntity> get filteredTasks => _homeRepo.filteredTasks;
 
   String? _lastQuery;
-  List<String>? _lastStatuses;
-  List<String>? _lastPriorities;
+  List<TaskStatus>? _lastStatuses;
+  List<TaskPriority>? _lastPriorities;
   List<String>? _lastCategories;
   List<String>? _lastDueDates;
 
@@ -59,8 +59,8 @@ class TaskCubit extends Cubit<TaskState> {
 
   void applyFiltersAndSort({
     String? query,
-    List<String>? statuses,
-    List<String>? priorities,
+    List<TaskStatus>? statuses,
+    List<TaskPriority>? priorities,
     List<String>? categories,
     List<String>? dueDates,
     String? sortBy,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:taskify/core/functions/convert_time_to_12h_format.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/features/home/domain/entities/task_entity.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
@@ -46,7 +46,7 @@ class CalenderItem extends StatelessWidget {
                             color: AppColors.bodyTextColor,
                           ),
                           Text(
-                            '${convertTimeTo12HourFormat(taskEntity.startTime)} - ${convertTimeTo12HourFormat(taskEntity.endTime)}',
+                            '${DateTimeUtils.formatTime(taskEntity.startTime)} - ${DateTimeUtils.formatTime(taskEntity.endTime)}',
                             style: AppTextStyles.regular14
                                 .copyWith(color: AppColors.bodyTextColor),
                           ),
@@ -139,6 +139,8 @@ class CalenderItem extends StatelessWidget {
                                             .deleteSingleTask(
                                                 taskId: taskEntity.id,
                                                 userId: taskEntity.userId);
+
+                                        if (!context.mounted) return;
                                         Navigator.pop(context);
                                       },
                                     ),

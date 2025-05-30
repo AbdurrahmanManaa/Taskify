@@ -40,10 +40,10 @@ void main() async {
     TaskEntityAdapter(),
   );
   Hive.registerAdapter(
-    SubtaskEntityAdapter(),
+    TaskPriorityAdapter(),
   );
   Hive.registerAdapter(
-    AttachmentEntityAdapter(),
+    TaskStatusAdapter(),
   );
   Hive.registerAdapter(
     CategoryEntityAdapter(),
@@ -54,6 +54,19 @@ void main() async {
   Hive.registerAdapter(
     TaskRepeatEntityAdapter(),
   );
+  Hive.registerAdapter(
+    SubtaskEntityAdapter(),
+  );
+  Hive.registerAdapter(
+    SubtaskStatusAdapter(),
+  );
+  Hive.registerAdapter(
+    AttachmentEntityAdapter(),
+  );
+  Hive.registerAdapter(
+    AttachmentStatusAdapter(),
+  );
+
   Hive.registerAdapter(
     UserPreferencesEntityAdapter(),
   );
@@ -119,8 +132,6 @@ class _MyAppState extends State<MyApp> {
         log('event: $event, session: $session');
 
         switch (event) {
-          case AuthChangeEvent.initialSession:
-            break;
           case AuthChangeEvent.signedIn:
             navigatorKey.currentState?.pushNamedAndRemoveUntil(
               AppRoutes.main,
@@ -136,13 +147,9 @@ class _MyAppState extends State<MyApp> {
           case AuthChangeEvent.passwordRecovery:
             navigatorKey.currentState?.pushNamed(AppRoutes.resetPassword);
             break;
-          case AuthChangeEvent.tokenRefreshed:
-            break;
-          case AuthChangeEvent.userUpdated:
-            break;
-          case AuthChangeEvent.userDeleted:
-            break;
           case AuthChangeEvent.mfaChallengeVerified:
+            break;
+          default:
             break;
         }
       },

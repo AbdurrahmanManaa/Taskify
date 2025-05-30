@@ -95,6 +95,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
                               taskId: widget.taskDetails.id,
                               title: _titleController.text,
                               note: _noteController.text,
+                              status: SubtaskStatus.inProgress,
                             );
 
                             await context.read<SubtaskCubit>().addNewSubtask(
@@ -104,6 +105,8 @@ class _SubtasksTabState extends State<SubtasksTab> {
 
                             _titleController.clear();
                             _noteController.clear();
+
+                            if (!context.mounted) return;
                             Navigator.pop(context);
                           } else {
                             setState(() {
@@ -218,6 +221,8 @@ class _SubtasksTabState extends State<SubtasksTab> {
                         );
                         _titleController.clear();
                         _noteController.clear();
+
+                        if (!context.mounted) return;
                         Navigator.pop(context);
                       } else {
                         setState(() {
@@ -267,6 +272,8 @@ class _SubtasksTabState extends State<SubtasksTab> {
                     subtaskId: taskSubtasks[index].id,
                     taskId: taskSubtasks[index].taskId,
                   );
+
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
           ),
@@ -294,6 +301,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
                   id: '',
                   taskId: '',
                   title: '',
+                  status: SubtaskStatus.inProgress,
                 ),
               ),
             );
@@ -323,7 +331,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
               .where((subtask) => subtask.taskId == widget.taskDetails.id)
               .toList();
           var completedSubtasks = taskSubtasks
-              .where((subtask) => subtask.status == 'Completed')
+              .where((subtask) => subtask.status == SubtaskStatus.completed)
               .toList();
           if (taskSubtasks.isEmpty) {
             return Padding(
@@ -352,7 +360,8 @@ class _SubtasksTabState extends State<SubtasksTab> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: SubtaskItem(
                       leading: CustomCheck(
-                        isChecked: taskSubtasks[index].status == 'Completed',
+                        isChecked: taskSubtasks[index].status ==
+                            SubtaskStatus.completed,
                         onChecked: (value) async {
                           await _markAsCompleted(
                             context,

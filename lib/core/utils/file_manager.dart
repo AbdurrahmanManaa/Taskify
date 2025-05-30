@@ -248,6 +248,7 @@ Future<void> pickFilesAndValidate(
     }
 
     if (totalSizeInBytes > 50 * 1024 * 1024) {
+      if (!context.mounted) return;
       buildSnackbar(context, message: 'File size should be less than 50 MB');
     } else {
       onFilesPicked(pickedFiles);

@@ -8,7 +8,7 @@ part of 'user_preferences_entity.dart';
 
 class UserPreferencesEntityAdapter extends TypeAdapter<UserPreferencesEntity> {
   @override
-  final int typeId = 7;
+  final int typeId = 11;
 
   @override
   UserPreferencesEntity read(BinaryReader reader) {
@@ -66,7 +66,7 @@ class UserPreferencesEntityAdapter extends TypeAdapter<UserPreferencesEntity> {
 
 class AppLanguageAdapter extends TypeAdapter<AppLanguage> {
   @override
-  final int typeId = 8;
+  final int typeId = 12;
 
   @override
   AppLanguage read(BinaryReader reader) {
@@ -105,7 +105,7 @@ class AppLanguageAdapter extends TypeAdapter<AppLanguage> {
 
 class AppIconBadgeStyleAdapter extends TypeAdapter<AppIconBadgeStyle> {
   @override
-  final int typeId = 9;
+  final int typeId = 13;
 
   @override
   AppIconBadgeStyle read(BinaryReader reader) {
@@ -144,7 +144,7 @@ class AppIconBadgeStyleAdapter extends TypeAdapter<AppIconBadgeStyle> {
 
 class AppLockTypeAdapter extends TypeAdapter<AppLockType> {
   @override
-  final int typeId = 10;
+  final int typeId = 14;
 
   @override
   AppLockType read(BinaryReader reader) {

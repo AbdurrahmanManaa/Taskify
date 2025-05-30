@@ -4,12 +4,13 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:taskify/core/extensions/task_priority_extension.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/app_routes.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/utils/file_manager.dart';
 import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_colors.dart';
@@ -45,16 +46,13 @@ class AddTaskViewBody extends StatefulWidget {
 }
 
 class _AddTaskViewBodyState extends State<AddTaskViewBody> {
-  String _selectedTaskDate = DateFormat('yyyy-MM-dd').format(
-    DateTime.now(),
-  );
-  String _selectedTaskStartTime = DateFormat('hh:mm a').format(
-    DateTime.now(),
-  );
-  String _selectedTaskEndTime = '9:30 AM';
+  String _selectedTaskDate = DateTimeUtils.formatDate(DateTime.now());
+  String _selectedTaskStartTime = DateTimeUtils.formatTime(DateTime.now());
+  String _selectedTaskEndTime =
+      DateTimeUtils.formatTime(DateTime.now().add(Duration(minutes: 30)));
   String _selectedTaskReminder = '10 mins before';
   String _selectedTaskRepeat = 'Don\'t repeat';
-  String _selectedTaskPriority = 'Medium';
+  TaskPriority _selectedTaskPriority = TaskPriority.medium;
   TaskReminderEntity _reminderEntity = TaskReminderEntity(
     option: '10 mins before',
     value: 0,
@@ -74,9 +72,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
   late final TextEditingController _subtaskNoteController;
   late final TextEditingController _taskRepeatIntervalController;
   late final TextEditingController _taskRepeatCountController;
-  List<CategoryEntity> _selectedTaskCategories = [
-    CategoryEntity.defaultCategory(),
-  ];
+  List<CategoryEntity> _selectedTaskCategories = [];
   final List<SubtaskEntity> _subtasks = [];
   final List<AttachmentEntity> _attachments = [];
   final List<File> _pickedFiles = [];
@@ -99,6 +95,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
     _taskRepeatCountController = TextEditingController(
       text: '10',
     );
+
     _initializeCategories();
   }
 
@@ -126,6 +123,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
         fileType: fileType,
         fileSize: stat.size,
         filePath: file.path,
+        status: AttachmentStatus.pending,
       );
 
       setState(() {
@@ -135,7 +133,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
     }
   }
 
-  _prioritySelection(BuildContext context) {
+  Future _prioritySelection(BuildContext context) {
     return showModalBottomSheet(
       showDragHandle: true,
       backgroundColor: AppColors.scaffoldLightBackgroundColor,
@@ -158,16 +156,16 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                 ),
               ),
               Divider(),
-              ...List.generate(priorities.length, (index) {
-                final e = priorities[index];
-                final isLast = index == priorities.length - 1;
+              ...List.generate(TaskPriority.values.length, (index) {
+                final e = TaskPriority.values[index];
+                final isLast = index == TaskPriority.values.length - 1;
                 final isSelected = e == _selectedTaskPriority;
 
                 return Column(
                   children: [
                     ListTile(
                       title: Text(
-                        e.toString(),
+                        e.label,
                         style: AppTextStyles.medium18,
                       ),
                       trailing: isSelected
@@ -196,28 +194,26 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
 
   void _predefinedCategoriesActions(
       bool selected, BuildContext context, CategoryEntity category) {
-    setState(() {
-      if (selected) {
-        if (_selectedTaskCategories.length >= 3) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('You can select up to 3 categories only.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-          return;
+    setState(
+      () {
+        if (selected) {
+          if (_selectedTaskCategories.length >= 3) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('You can select up to 3 categories only.'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return;
+          }
+          if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
+            _selectedTaskCategories.add(category);
+          }
+        } else {
+          _selectedTaskCategories.removeWhere((c) => c.name == category.name);
         }
-        if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
-          _selectedTaskCategories.add(category);
-        }
-        _selectedTaskCategories.removeWhere((c) => c.name == 'Uncategorized');
-      } else {
-        _selectedTaskCategories.removeWhere((c) => c.name == category.name);
-      }
-      if (_selectedTaskCategories.isEmpty) {
-        _selectedTaskCategories.add(CategoryEntity.defaultCategory());
-      }
-    });
+      },
+    );
   }
 
   Future<void> _deleteCustomTaskCategory(
@@ -244,6 +240,8 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
             ),
             onPressed: () async {
               await HiveService().deleteCategory(category.name);
+
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
           ),
@@ -254,28 +252,26 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
 
   void _customCategoriesActions(
       bool selected, BuildContext context, CategoryEntity category) {
-    setState(() {
-      if (selected) {
-        if (_selectedTaskCategories.length >= 3) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('You can select up to 3 categories only.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-          return;
+    setState(
+      () {
+        if (selected) {
+          if (_selectedTaskCategories.length >= 3) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('You can select up to 3 categories only.'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return;
+          }
+          if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
+            _selectedTaskCategories.add(category);
+          }
+        } else {
+          _selectedTaskCategories.removeWhere((c) => c.name == category.name);
         }
-        if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
-          _selectedTaskCategories.add(category);
-        }
-        _selectedTaskCategories.removeWhere((c) => c.name == 'Uncategorized');
-      } else {
-        _selectedTaskCategories.removeWhere((c) => c.name == category.name);
-      }
-      if (_selectedTaskCategories.isEmpty) {
-        _selectedTaskCategories.add(CategoryEntity.defaultCategory());
-      }
-    });
+      },
+    );
   }
 
   Future<void> _createSubtask(BuildContext context) async {
@@ -328,6 +324,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                           taskId: '',
                           title: _subtaskTitleController.text,
                           note: _subtaskNoteController.text,
+                          status: SubtaskStatus.inProgress,
                         );
                         setState(() {
                           _subtasks.add(subtask);
@@ -433,19 +430,29 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
 
   Future<void> _addTask(
       BuildContext context, String taskId, String userId) async {
+    DateTime baseDate = DateTimeUtils.parseDate(_selectedTaskDate);
+    DateTime parsedStartTime = DateTimeUtils.parseTime(_selectedTaskStartTime);
+    DateTime parsedEndTime = DateTimeUtils.parseTime(_selectedTaskEndTime);
+    final startDateTime =
+        DateTimeUtils.mergeDateAndTime(baseDate, parsedStartTime);
+    final endDateTime = DateTimeUtils.mergeDateAndTime(baseDate, parsedEndTime);
+
     await context.read<TaskCubit>().addTask(
           taskEntity: TaskEntity(
             id: taskId,
             userId: userId,
             title: _taskTitleController.text,
             description: _taskDescriptionController.text,
-            dueDate: DateFormat('yyyy-MM-dd').parse(_selectedTaskDate),
-            startTime: _selectedTaskStartTime,
-            endTime: _selectedTaskEndTime,
+            dueDate: baseDate,
+            startTime: startDateTime,
+            endTime: endDateTime,
+            status: TaskStatus.inProgress,
             priority: _selectedTaskPriority,
             reminder: _reminderEntity,
             repeat: _repeatEntity,
             categories: _selectedTaskCategories,
+            attachmentsCount: _attachments.length,
+            subtaskCount: _subtasks.length,
           ),
         );
   }
@@ -483,13 +490,17 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
       _taskTitleController.clear();
       _taskDescriptionController.clear();
       _taskRepeatIntervalController.clear();
-      _selectedTaskDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      _selectedTaskStartTime = DateFormat('hh:mm a').format(DateTime.now());
-      _selectedTaskEndTime = '9:30 AM';
+      _taskRepeatCountController.clear();
+      _selectedTaskDate =
+          DateTimeUtils.formatDate(DateTime.now().add(Duration(days: 1)));
+      _selectedTaskStartTime =
+          DateTimeUtils.formatTime(DateTime.now().add(Duration(hours: 1)));
+      _selectedTaskEndTime = DateTimeUtils.formatTime(
+          DateTime.now().add(Duration(hours: 1, minutes: 30)));
       _selectedTaskReminder = '10 mins before';
       _selectedTaskRepeat = 'Don\'t repeat';
-      _selectedTaskPriority = 'Medium';
-      _selectedTaskCategories = [CategoryEntity.defaultCategory()];
+      _selectedTaskPriority = TaskPriority.medium;
+      _selectedTaskCategories = [];
       _attachments.clear();
       _subtasks.clear();
     });
@@ -557,7 +568,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                           if (pickedDate != null) {
                             setState(() {
                               _selectedTaskDate =
-                                  DateFormat('yyyy-MM-dd').format(pickedDate);
+                                  DateTimeUtils.formatDate(pickedDate);
                             });
                           }
                         },
@@ -577,13 +588,12 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                             label: 'Start Time',
                             widget: GestureDetector(
                               onTap: () async {
+                                String initialTime = _selectedTaskStartTime;
                                 String? pickedStartTime = await TaskDialogUtils
                                     .showCustomTimePickerDialog(
                                   isStartTime: true,
                                   context: context,
-                                  initialTime: DateFormat('hh:mm a').format(
-                                    DateTime.now(),
-                                  ),
+                                  initialTime: initialTime,
                                 );
                                 if (pickedStartTime != null) {
                                   setState(() {
@@ -608,11 +618,12 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                             label: 'End Time',
                             widget: GestureDetector(
                               onTap: () async {
+                                String initialTime = _selectedTaskEndTime;
                                 String? pickedEndTime = await TaskDialogUtils
                                     .showCustomTimePickerDialog(
                                   isStartTime: false,
                                   context: context,
-                                  initialTime: _selectedTaskEndTime,
+                                  initialTime: initialTime,
                                 );
                                 if (pickedEndTime != null) {
                                   setState(() {
@@ -712,7 +723,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                         },
                         child: AbsorbPointer(
                           child: CustomTextFormField(
-                            hintText: _selectedTaskPriority,
+                            hintText: _selectedTaskPriority.label,
                             suffixIcon: const Icon(Icons.keyboard_arrow_down),
                           ),
                         ),
@@ -744,8 +755,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                       category.icon,
                                       color: category.color,
                                     ),
-                                    selectedColor:
-                                        category.color.withOpacity(0.2),
+                                    selectedColor: category.color.withAlpha(51),
                                     selected: isSelected,
                                     onSelected: (bool selected) {
                                       _predefinedCategoriesActions(
@@ -792,7 +802,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                               ),
                                             ),
                                             selectedColor:
-                                                category.color.withOpacity(0.2),
+                                                category.color.withAlpha(51),
                                             selected: isSelected,
                                             onSelected: (bool selected) {
                                               _customCategoriesActions(
@@ -1075,13 +1085,13 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                 taskId,
                                 userId,
                               );
-
+                              if (!context.mounted) return;
                               await _addAttachments(
                                 context,
                                 taskId,
                                 userId,
                               );
-
+                              if (!context.mounted) return;
                               await _addSubtask(
                                 subtaskId,
                                 taskId,

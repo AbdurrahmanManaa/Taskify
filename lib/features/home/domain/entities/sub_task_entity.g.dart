@@ -8,7 +8,7 @@ part of 'sub_task_entity.dart';
 
 class SubtaskEntityAdapter extends TypeAdapter<SubtaskEntity> {
   @override
-  final int typeId = 2;
+  final int typeId = 7;
 
   @override
   SubtaskEntity read(BinaryReader reader) {
@@ -21,7 +21,7 @@ class SubtaskEntityAdapter extends TypeAdapter<SubtaskEntity> {
       taskId: fields[1] as String,
       title: fields[2] as String,
       note: fields[3] as String?,
-      status: fields[4] as String?,
+      status: fields[4] as SubtaskStatus,
       createdAt: fields[5] as DateTime?,
       updatedAt: fields[6] as DateTime?,
     );
@@ -54,6 +54,45 @@ class SubtaskEntityAdapter extends TypeAdapter<SubtaskEntity> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SubtaskEntityAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class SubtaskStatusAdapter extends TypeAdapter<SubtaskStatus> {
+  @override
+  final int typeId = 8;
+
+  @override
+  SubtaskStatus read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return SubtaskStatus.inProgress;
+      case 1:
+        return SubtaskStatus.completed;
+      default:
+        return SubtaskStatus.inProgress;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, SubtaskStatus obj) {
+    switch (obj) {
+      case SubtaskStatus.inProgress:
+        writer.writeByte(0);
+        break;
+      case SubtaskStatus.completed:
+        writer.writeByte(1);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SubtaskStatusAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

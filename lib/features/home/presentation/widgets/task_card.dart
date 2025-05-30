@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
-import 'package:taskify/core/functions/convert_time_to_12h_format.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/utils/task_dialog_utils.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/core/widgets/custom_button.dart';
@@ -39,11 +38,10 @@ class _TaskCardState extends State<TaskCard> {
   @override
   void initState() {
     super.initState();
-    _selectedTaskDueDate =
-        DateFormat('yyyy-MM-dd').format(widget.taskEntity.dueDate);
+    _selectedTaskDueDate = DateTimeUtils.formatDate(widget.taskEntity.dueDate);
     _selectedTaskStartTime =
-        convertTimeTo12HourFormat(widget.taskEntity.startTime);
-    _selectedTaskEndTime = convertTimeTo12HourFormat(widget.taskEntity.endTime);
+        DateTimeUtils.formatTime(widget.taskEntity.startTime);
+    _selectedTaskEndTime = DateTimeUtils.formatTime(widget.taskEntity.endTime);
     _loadCustomCategoriesFromHive();
   }
 
@@ -82,23 +80,23 @@ class _TaskCardState extends State<TaskCard> {
                           context: context,
                           initialDate: DateTime.parse(
                             _selectedTaskDueDate ??
-                                DateFormat('yyyy-MM-dd')
-                                    .format(widget.taskEntity.dueDate),
+                                DateTimeUtils.formatDate(
+                                    widget.taskEntity.dueDate),
                           ),
                           isOverdueTask: true,
                         );
                         if (pickedDate != null) {
                           setState(() {
                             _selectedTaskDueDate =
-                                DateFormat('yyyy-MM-dd').format(pickedDate);
+                                DateTimeUtils.formatDate(pickedDate);
                           });
                         }
                       },
                       child: AbsorbPointer(
                         child: CustomTextFormField(
                           hintText: _selectedTaskDueDate ??
-                              DateFormat('yyyy-MM-dd')
-                                  .format(widget.taskEntity.dueDate),
+                              DateTimeUtils.formatDate(
+                                  widget.taskEntity.dueDate),
                           isReadOnly: true,
                           suffixIcon: const Icon(Icons.calendar_today_outlined),
                         ),
@@ -112,13 +110,14 @@ class _TaskCardState extends State<TaskCard> {
                           label: 'Start Time',
                           widget: GestureDetector(
                             onTap: () async {
+                              String initialTime = _selectedTaskStartTime ??
+                                  DateTimeUtils.formatTime(
+                                      widget.taskEntity.startTime);
                               String? pickedStartTime = await TaskDialogUtils
                                   .showCustomTimePickerDialog(
                                 isStartTime: true,
                                 context: context,
-                                initialTime: _selectedTaskStartTime ??
-                                    convertTimeTo12HourFormat(
-                                        widget.taskEntity.startTime),
+                                initialTime: initialTime,
                               );
                               if (pickedStartTime != null) {
                                 setState(() {
@@ -129,7 +128,7 @@ class _TaskCardState extends State<TaskCard> {
                             child: AbsorbPointer(
                               child: CustomTextFormField(
                                 hintText: _selectedTaskStartTime ??
-                                    convertTimeTo12HourFormat(
+                                    DateTimeUtils.formatTime(
                                         widget.taskEntity.startTime),
                                 isReadOnly: true,
                                 suffixIcon:
@@ -145,13 +144,14 @@ class _TaskCardState extends State<TaskCard> {
                           label: 'End Time',
                           widget: GestureDetector(
                             onTap: () async {
+                              String initialTime = _selectedTaskEndTime ??
+                                  DateTimeUtils.formatTime(
+                                      widget.taskEntity.endTime);
                               String? pickedEndTime = await TaskDialogUtils
                                   .showCustomTimePickerDialog(
                                 isStartTime: false,
                                 context: context,
-                                initialTime: _selectedTaskEndTime ??
-                                    convertTimeTo12HourFormat(
-                                        widget.taskEntity.endTime),
+                                initialTime: initialTime,
                               );
                               if (pickedEndTime != null) {
                                 setState(() {
@@ -162,7 +162,7 @@ class _TaskCardState extends State<TaskCard> {
                             child: AbsorbPointer(
                               child: CustomTextFormField(
                                 hintText: _selectedTaskEndTime ??
-                                    convertTimeTo12HourFormat(
+                                    DateTimeUtils.formatTime(
                                         widget.taskEntity.endTime),
                                 isReadOnly: true,
                                 suffixIcon:
@@ -188,11 +188,13 @@ class _TaskCardState extends State<TaskCard> {
                                     widget.taskEntity.startTime,
                                 'end_time': _selectedTaskEndTime ??
                                     widget.taskEntity.endTime,
-                                'status': 'In Progress',
+                                'status': TaskStatus.inProgress,
                                 'updated_at': DateTime.now().toIso8601String(),
                               },
                               taskId: widget.taskEntity.id,
                             );
+
+                        if (!context.mounted) return;
                         Navigator.pop(context);
                       } else {
                         _taskAutoValidateMode = AutovalidateMode.always;
@@ -240,10 +242,12 @@ class _TaskCardState extends State<TaskCard> {
                     taskId: widget.taskEntity.id,
                     dataPaths: dataPaths,
                   );
+              if (!context.mounted) return;
               await context.read<TaskCubit>().deleteSingleTask(
                     userId: widget.taskEntity.userId,
                     taskId: widget.taskEntity.id,
                   );
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
           ),
@@ -254,8 +258,12 @@ class _TaskCardState extends State<TaskCard> {
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate =
-        DateFormat('yyyy-MM-dd').format(widget.taskEntity.dueDate);
+    String formattedDate = DateTimeUtils.formatDate(widget.taskEntity.dueDate);
+    final Map<String, dynamic> uncategorizedCategory = {
+      'name': 'Uncategorized',
+      'icon': Icons.help_outline,
+      'color': AppColors.greyColor,
+    };
 
     return Stack(
       children: [
@@ -295,8 +303,8 @@ class _TaskCardState extends State<TaskCard> {
                         color: Colors.black,
                       ),
                       items: [
-                        if (widget.taskEntity.status != 'Completed' &&
-                            widget.taskEntity.status != 'Trash')
+                        if (widget.taskEntity.status != TaskStatus.completed &&
+                            widget.taskEntity.status != TaskStatus.trash)
                           PopupMenuItem(
                             value: 0,
                             onTap: () async {
@@ -321,7 +329,7 @@ class _TaskCardState extends State<TaskCard> {
                               ],
                             ),
                           ),
-                        if (widget.taskEntity.status != 'Trash')
+                        if (widget.taskEntity.status != TaskStatus.trash)
                           PopupMenuItem(
                             value: 1,
                             onTap: () {
@@ -342,7 +350,7 @@ class _TaskCardState extends State<TaskCard> {
                               ],
                             ),
                           ),
-                        if (widget.taskEntity.status == 'Overdue')
+                        if (widget.taskEntity.status == TaskStatus.overdue)
                           PopupMenuItem(
                             value: 5,
                             onTap: () async {
@@ -360,7 +368,7 @@ class _TaskCardState extends State<TaskCard> {
                               ],
                             ),
                           ),
-                        if (widget.taskEntity.status != 'Trash')
+                        if (widget.taskEntity.status != TaskStatus.trash)
                           PopupMenuItem(
                             value: 2,
                             onTap: () async {
@@ -387,7 +395,7 @@ class _TaskCardState extends State<TaskCard> {
                               ],
                             ),
                           ),
-                        if (widget.taskEntity.status == 'Trash')
+                        if (widget.taskEntity.status == TaskStatus.trash)
                           PopupMenuItem(
                             value: 3,
                             onTap: () async {
@@ -478,7 +486,7 @@ class _TaskCardState extends State<TaskCard> {
                           color: AppColors.bodyTextColor,
                         ),
                         Text(
-                          '${convertTimeTo12HourFormat(widget.taskEntity.startTime)} - ${convertTimeTo12HourFormat(widget.taskEntity.endTime)}',
+                          '${DateTimeUtils.formatTime(widget.taskEntity.startTime)} - ${DateTimeUtils.formatTime(widget.taskEntity.endTime)}',
                           style: AppTextStyles.regular14
                               .copyWith(color: AppColors.bodyTextColor),
                         ),
@@ -510,16 +518,14 @@ class _TaskCardState extends State<TaskCard> {
                                   return Padding(
                                     padding: const EdgeInsets.only(right: 5),
                                     child: CustomTagContainer(
-                                      iconColor: predefinedCategories[0]
-                                          ['color'],
-                                      iconCodePoint: predefinedCategories[0]
-                                              ['icon']
-                                          .codePoint,
-                                      title: predefinedCategories[0]['name'],
+                                      iconColor: uncategorizedCategory['color'],
+                                      iconCodePoint:
+                                          uncategorizedCategory['icon']
+                                              .codePoint,
+                                      title: uncategorizedCategory['name'],
                                     ),
                                   );
                                 }
-                                return const SizedBox.shrink();
                               }
 
                               return CustomTagContainer(
@@ -531,22 +537,22 @@ class _TaskCardState extends State<TaskCard> {
                           ),
                         ] else
                           CustomTagContainer(
-                            iconColor: predefinedCategories[0]['color'],
+                            iconColor: uncategorizedCategory['color'],
                             iconCodePoint:
-                                predefinedCategories[0]['icon'].codePoint,
-                            title: predefinedCategories[0]['name'],
+                                uncategorizedCategory['icon'].codePoint,
+                            title: uncategorizedCategory['name'],
                           ),
+                        CustomTagContainer(
+                          iconColor: AppColors.bodyTextColor,
+                          iconCodePoint: Icons.attachment_outlined.codePoint,
+                          title: widget.taskEntity.attachmentsCount.toString(),
+                        ),
+                        CustomTagContainer(
+                          iconColor: AppColors.bodyTextColor,
+                          iconCodePoint: Icons.assignment_outlined.codePoint,
+                          title: widget.taskEntity.subtaskCount.toString(),
+                        ),
                       ],
-                    ),
-                    CustomTagContainer(
-                      iconColor: AppColors.bodyTextColor,
-                      iconCodePoint: Icons.attachment_outlined.codePoint,
-                      title: widget.taskEntity.attachmentsCount.toString(),
-                    ),
-                    CustomTagContainer(
-                      iconColor: AppColors.bodyTextColor,
-                      iconCodePoint: Icons.assignment_outlined.codePoint,
-                      title: widget.taskEntity.subtaskCount.toString(),
                     ),
                   ],
                 ),

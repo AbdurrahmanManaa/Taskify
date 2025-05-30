@@ -88,7 +88,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
             Border(top: BorderSide(color: Colors.grey.shade300, width: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(26),
             blurRadius: 10.0,
             spreadRadius: 2.0,
             offset: const Offset(0, -2),
