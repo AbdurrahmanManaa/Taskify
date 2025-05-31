@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
@@ -9,6 +8,7 @@ import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_colors.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/features/home/domain/entities/category_entity.dart';
 
@@ -21,7 +21,7 @@ class TaskDialogUtils {
     TimeOfDay initialTimeOfDay = TimeOfDay.now();
     try {
       initialTimeOfDay =
-          TimeOfDay.fromDateTime(DateFormat('hh:mm a').parse(initialTime));
+          TimeOfDay.fromDateTime(DateTimeUtils.parseTime(initialTime));
     } catch (e) {
       log("Error parsing time: $e");
     }

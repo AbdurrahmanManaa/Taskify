@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:taskify/core/extensions/subtask_status_extension.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/widgets/custom_pop_up_menu_button.dart';
@@ -156,8 +157,9 @@ class _SubtasksTabState extends State<SubtasksTab> {
       taskId: widget.taskDetails.id,
       subtaskId: taskSubtasks[index].id,
       data: {
-        'status': value ? 'Completed' : 'In Progress',
-        'updated_at': DateTime.now().toIso8601String(),
+        'status': value
+            ? SubtaskStatus.completed.label
+            : SubtaskStatus.inProgress.label,
       },
     );
   }
@@ -216,7 +218,6 @@ class _SubtasksTabState extends State<SubtasksTab> {
                           data: {
                             'title': _titleController.text,
                             'note': _noteController.text,
-                            'updated_at': DateTime.now().toIso8601String(),
                           },
                         );
                         _titleController.clear();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:taskify/core/extensions/task_status_extension.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
@@ -71,7 +72,9 @@ class CalenderItem extends StatelessWidget {
                             value: 0,
                             onTap: () {
                               context.read<TaskCubit>().updateTask(
-                                data: {'status': 'Completed'},
+                                data: {
+                                  'status': TaskStatus.completed.label,
+                                },
                                 taskId: taskEntity.id,
                                 userId: taskEntity.userId,
                               );

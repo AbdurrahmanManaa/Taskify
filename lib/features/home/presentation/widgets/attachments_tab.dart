@@ -38,7 +38,6 @@ class AttachmentsTab extends StatefulWidget {
 }
 
 class _AttachmentsTabState extends State<AttachmentsTab> {
-  late final AttachmentCubit _attachmentCubit;
   late final TextEditingController _attachmentController;
   final GlobalKey<FormState> _attachmentFormKey = GlobalKey();
   AutovalidateMode _attachmentAutoValidateMode = AutovalidateMode.disabled;
@@ -51,7 +50,6 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
   @override
   void initState() {
     super.initState();
-    _attachmentCubit = context.read<AttachmentCubit>();
     _attachmentController = TextEditingController();
   }
 
@@ -185,14 +183,17 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
             onPressed: () async {
-              await _attachmentCubit.deleteAttachmentsFromStorage(
+              await context
+                  .read<AttachmentCubit>()
+                  .deleteAttachmentsFromStorage(
                 dataPaths: [attachment.filePath],
                 taskId: widget.taskDetails.id,
               );
-              await _attachmentCubit.deleteSingleAttachment(
-                attachmentId: attachment.id,
-                taskId: widget.taskDetails.id,
-              );
+              if (!context.mounted) return;
+              await context.read<AttachmentCubit>().deleteSingleAttachment(
+                    attachmentId: attachment.id,
+                    taskId: widget.taskDetails.id,
+                  );
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -253,12 +254,14 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                           filePath: newPath,
                           fileName: p.basename(newPath),
                         );
-                        await _attachmentCubit.updateAttachment(
-                          data: AttachmentModel.fromEntity(updatedAttachment)
-                              .toJson(),
-                          attachmentId: updatedAttachment.id,
-                          taskId: widget.taskDetails.id,
-                        );
+                        if (!context.mounted) return;
+                        await context.read<AttachmentCubit>().updateAttachment(
+                              data:
+                                  AttachmentModel.fromEntity(updatedAttachment)
+                                      .toJson(),
+                              attachmentId: updatedAttachment.id,
+                              taskId: widget.taskDetails.id,
+                            );
                         _attachmentController.clear();
                         if (!context.mounted) return;
                         Navigator.pop(context);
@@ -427,12 +430,13 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
     );
 
     if (_mediaAttachments.isNotEmpty) {
-      await _attachmentCubit.addAttachment(
-        files: _mediaFiles,
-        baseEntities: _mediaAttachments,
-        taskId: taskId,
-        userId: userId,
-      );
+      if (!context.mounted) return;
+      await context.read<AttachmentCubit>().addAttachment(
+            files: _mediaFiles,
+            baseEntities: _mediaAttachments,
+            taskId: taskId,
+            userId: userId,
+          );
     }
   }
 
@@ -450,12 +454,13 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
     );
 
     if (_documentAttachments.isNotEmpty) {
-      await _attachmentCubit.addAttachment(
-        files: _documentFiles,
-        baseEntities: _documentAttachments,
-        taskId: taskId,
-        userId: userId,
-      );
+      if (!context.mounted) return;
+      await context.read<AttachmentCubit>().addAttachment(
+            files: _documentFiles,
+            baseEntities: _documentAttachments,
+            taskId: taskId,
+            userId: userId,
+          );
     }
   }
 
@@ -539,8 +544,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
             ),
           );
         } else {
-          final attachments = _attachmentCubit.attachments;
-
+          final attachments = context.watch<AttachmentCubit>().attachments;
           final mediaAttachments = _getMediaAttachments(attachments);
           final documentAttachments = _getDocumentAttachments(attachments);
           return Column(

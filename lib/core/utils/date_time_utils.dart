@@ -21,6 +21,10 @@ class DateTimeUtils {
     return DateFormat('hh:mm a').parse(formattedTime);
   }
 
+  static String formatDateTimeWithSeconds(DateTime dateTime) {
+    return DateFormat('yyyy-MM-dd hh:mm:ss').format(dateTime);
+  }
+
   static String formatTimeTo24HourWithSeconds(DateTime time) {
     return DateFormat('HH:mm:ss').format(time);
   }

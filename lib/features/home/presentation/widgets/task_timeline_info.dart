@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/features/home/domain/entities/task_entity.dart';
 
 class TaskTimelineInfo extends StatelessWidget {
@@ -11,15 +11,15 @@ class TaskTimelineInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String formattedCreationTime =
-        DateFormat('yyyy-MM-dd hh:mm:ss').format(taskDetails.createdAt!);
+        DateTimeUtils.formatDateTimeWithSeconds(taskDetails.createdAt!);
     String? formattedCompletionTime = taskDetails.completedAt != null
-        ? DateFormat('yyyy-MM-dd hh:mm:ss').format(taskDetails.completedAt!)
+        ? DateTimeUtils.formatDateTimeWithSeconds(taskDetails.completedAt!)
         : null;
     String? formattedUpdateTime = taskDetails.updatedAt != null
-        ? DateFormat('yyyy-MM-dd hh:mm:ss').format(taskDetails.updatedAt!)
+        ? DateTimeUtils.formatDateTimeWithSeconds(taskDetails.updatedAt!)
         : null;
     String? formattedDeletedTime = taskDetails.deletedAt != null
-        ? DateFormat('yyyy-MM-dd hh:mm:ss').format(taskDetails.deletedAt!)
+        ? DateTimeUtils.formatDateTimeWithSeconds(taskDetails.deletedAt!)
         : null;
 
     return RichText(

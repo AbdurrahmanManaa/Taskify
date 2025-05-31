@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:taskify/core/extensions/task_status_extension.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_colors.dart';
@@ -188,8 +189,7 @@ class _TaskCardState extends State<TaskCard> {
                                     widget.taskEntity.startTime,
                                 'end_time': _selectedTaskEndTime ??
                                     widget.taskEntity.endTime,
-                                'status': TaskStatus.inProgress,
-                                'updated_at': DateTime.now().toIso8601String(),
+                                'status': TaskStatus.inProgress.label,
                               },
                               taskId: widget.taskEntity.id,
                             );
@@ -311,9 +311,7 @@ class _TaskCardState extends State<TaskCard> {
                               await context.read<TaskCubit>().updateTask(
                                     userId: widget.taskEntity.userId,
                                     data: {
-                                      'status': 'Completed',
-                                      'completed_at':
-                                          DateTime.now().toIso8601String(),
+                                      'status': TaskStatus.completed.label,
                                     },
                                     taskId: widget.taskEntity.id,
                                   );
@@ -375,11 +373,7 @@ class _TaskCardState extends State<TaskCard> {
                               await context.read<TaskCubit>().updateTask(
                                     userId: widget.taskEntity.userId,
                                     data: {
-                                      'status': 'Trash',
-                                      'deleted_at':
-                                          DateTime.now().toIso8601String(),
-                                      'updated_at':
-                                          DateTime.now().toIso8601String(),
+                                      'status': TaskStatus.trash.label,
                                     },
                                     taskId: widget.taskEntity.id,
                                   );
@@ -402,10 +396,7 @@ class _TaskCardState extends State<TaskCard> {
                               await context.read<TaskCubit>().updateTask(
                                     userId: widget.taskEntity.userId,
                                     data: {
-                                      'status': 'In Progress',
-                                      'deleted_at': null,
-                                      'updated_at':
-                                          DateTime.now().toIso8601String(),
+                                      'status': TaskStatus.inProgress.label,
                                     },
                                     taskId: widget.taskEntity.id,
                                   );

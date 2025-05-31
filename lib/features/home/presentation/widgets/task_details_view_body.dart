@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:taskify/core/extensions/task_status_extension.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_routes.dart';
@@ -113,7 +113,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                         if (pickedDate != null) {
                           setState(() {
                             formattedDate =
-                                DateFormat('yyyy-MM-dd').format(pickedDate);
+                                DateTimeUtils.formatDate(pickedDate);
                           });
                         }
                       },
@@ -198,8 +198,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                                 'due_date': formattedDate,
                                 'start_time': selectedTaskStartTime,
                                 'end_time': selectedTaskEndTime,
-                                'status': TaskStatus.inProgress,
-                                'updated_at': DateTime.now().toIso8601String(),
+                                'status': TaskStatus.inProgress.label,
                               },
                               taskId: taskEntity.id,
                             );
@@ -295,8 +294,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                 await context.read<TaskCubit>().updateTask(
                       userId: taskDetails.userId,
                       data: {
-                        'status': TaskStatus.completed,
-                        'completed_at': DateTime.now().toIso8601String(),
+                        'status': TaskStatus.completed.label,
                       },
                       taskId: taskDetails.id,
                     );
@@ -363,9 +361,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                 await context.read<TaskCubit>().updateTask(
                       userId: taskDetails.userId,
                       data: {
-                        'status': TaskStatus.trash,
-                        'deleted_at': DateTime.now().toIso8601String(),
-                        'updated_at': DateTime.now().toIso8601String(),
+                        'status': TaskStatus.trash.label,
                       },
                       taskId: taskEntity.id,
                     );
@@ -388,9 +384,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                 await context.read<TaskCubit>().updateTask(
                       userId: taskDetails.userId,
                       data: {
-                        'status': TaskStatus.inProgress,
-                        'deleted_at': null,
-                        'updated_at': DateTime.now().toIso8601String(),
+                        'status': TaskStatus.inProgress.label,
                       },
                       taskId: taskEntity.id,
                     );
