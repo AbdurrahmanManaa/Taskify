@@ -23,12 +23,16 @@ import 'package:taskify/core/widgets/custom_pop_up_menu_button.dart';
 import 'package:taskify/core/widgets/custom_progress_hud.dart';
 import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/core/widgets/field_item.dart';
-import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
+import 'package:taskify/features/home/domain/entities/subtask/subtask_status.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/attachments_cubit/attachment_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit/sub_task_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
@@ -72,7 +76,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
   late final TextEditingController _subtaskNoteController;
   late final TextEditingController _taskRepeatIntervalController;
   late final TextEditingController _taskRepeatCountController;
-  List<CategoryEntity> _selectedTaskCategories = [];
+  List<TaskCategoryEntity> _selectedTaskCategories = [];
   final List<SubtaskEntity> _subtasks = [];
   final List<AttachmentEntity> _attachments = [];
   final List<File> _pickedFiles = [];
@@ -193,7 +197,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
   }
 
   void _predefinedCategoriesActions(
-      bool selected, BuildContext context, CategoryEntity category) {
+      bool selected, BuildContext context, TaskCategoryEntity category) {
     setState(
       () {
         if (selected) {
@@ -217,7 +221,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
   }
 
   Future<void> _deleteCustomTaskCategory(
-      BuildContext context, CategoryEntity category) async {
+      BuildContext context, TaskCategoryEntity category) async {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -251,7 +255,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
   }
 
   void _customCategoriesActions(
-      bool selected, BuildContext context, CategoryEntity category) {
+      bool selected, BuildContext context, TaskCategoryEntity category) {
     setState(
       () {
         if (selected) {
@@ -739,7 +743,8 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                             children: [
                               ...predefinedCategories.map(
                                 (categoryMap) {
-                                  CategoryEntity category = CategoryEntity(
+                                  TaskCategoryEntity category =
+                                      TaskCategoryEntity(
                                     name: categoryMap['name'],
                                     icon: categoryMap['icon'],
                                     color: categoryMap['color'],
@@ -767,7 +772,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                   );
                                 },
                               ),
-                              ValueListenableBuilder<List<CategoryEntity>>(
+                              ValueListenableBuilder<List<TaskCategoryEntity>>(
                                 valueListenable: HiveService.categoriesNotifier,
                                 builder: (context, customCategories, child) {
                                   return Wrap(
@@ -836,7 +841,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                     );
                                     return;
                                   }
-                                  CategoryEntity? newCategory =
+                                  TaskCategoryEntity? newCategory =
                                       await TaskDialogUtils
                                           .showCustomCategoryDialog(context);
                                   if (newCategory != null) {

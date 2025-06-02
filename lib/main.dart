@@ -17,13 +17,21 @@ import 'package:taskify/core/utils/app_theme.dart';
 import 'package:taskify/core/utils/custom_bloc_observer.dart';
 import 'package:taskify/features/auth/domain/entities/user_entity.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
-import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
-import 'package:taskify/features/home/domain/entities/user_preferences_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_icon_badge_style.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_language.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_lock_type.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_theme_mode.dart';
+import 'package:taskify/features/home/domain/entities/subtask/subtask_status.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/preferences/user_preferences_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/attachments_cubit/attachment_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit/sub_task_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
@@ -46,7 +54,7 @@ void main() async {
     TaskStatusAdapter(),
   );
   Hive.registerAdapter(
-    CategoryEntityAdapter(),
+    TaskCategoryEntityAdapter(),
   );
   Hive.registerAdapter(
     TaskReminderEntityAdapter(),
@@ -66,9 +74,11 @@ void main() async {
   Hive.registerAdapter(
     AttachmentStatusAdapter(),
   );
-
   Hive.registerAdapter(
     UserPreferencesEntityAdapter(),
+  );
+  Hive.registerAdapter(
+    AppThemeModeAdapter(),
   );
   Hive.registerAdapter(
     AppLanguageAdapter(),
@@ -208,7 +218,11 @@ class _MyAppState extends State<MyApp> {
             onGenerateRoute: onGenerateRoute,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
-            themeMode: value.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            themeMode: value.appThemeMode == AppThemeMode.system
+                ? ThemeMode.system
+                : value.appThemeMode == AppThemeMode.dark
+                    ? ThemeMode.dark
+                    : ThemeMode.light,
             initialRoute: AppRoutes.initial,
           );
         },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_theme_mode.dart';
 import 'package:taskify/features/home/presentation/widgets/settings_section.dart';
 import 'package:taskify/core/widgets/option_item.dart';
 
@@ -60,19 +61,16 @@ class PreferencesSettingsSection extends StatelessWidget {
             style: AppTextStyles.medium18
                 .copyWith(color: AppColors.primaryLightColor),
           ),
-          trailing: GestureDetector(
-            onTap: appIconBadgesOnTap,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.settingsSectionBackgroundColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'Dot',
-                style: AppTextStyles.regular16
-                    .copyWith(color: AppColors.primaryLightColor),
-              ),
+          trailing: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.settingsSectionBackgroundColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              'Dot',
+              style: AppTextStyles.regular16
+                  .copyWith(color: AppColors.primaryLightColor),
             ),
           ),
         ),
@@ -95,7 +93,7 @@ class PreferencesSettingsSection extends StatelessWidget {
             valueListenable: HiveService.preferencesNotifier,
             builder: (context, value, child) {
               return Switch(
-                value: value.isDarkMode,
+                value: value.appThemeMode == AppThemeMode.light,
                 onChanged: toggleDarkMode,
               );
             },
@@ -106,6 +104,7 @@ class PreferencesSettingsSection extends StatelessWidget {
           child: Divider(),
         ),
         OptionItem(
+          onTap: languageOnTap,
           leading: Icon(
             Icons.language,
             size: 30,
@@ -116,19 +115,16 @@ class PreferencesSettingsSection extends StatelessWidget {
             style: AppTextStyles.medium18
                 .copyWith(color: AppColors.primaryLightColor),
           ),
-          trailing: GestureDetector(
-            onTap: languageOnTap,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.settingsSectionBackgroundColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'English',
-                style: AppTextStyles.regular16
-                    .copyWith(color: AppColors.primaryLightColor),
-              ),
+          trailing: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.settingsSectionBackgroundColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              'English',
+              style: AppTextStyles.regular16
+                  .copyWith(color: AppColors.primaryLightColor),
             ),
           ),
         ),

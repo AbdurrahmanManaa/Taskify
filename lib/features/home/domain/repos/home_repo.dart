@@ -1,8 +1,10 @@
 import 'dart:io';
 
-import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
-import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 
 abstract class HomeRepo {
   Future<void> addTaskData({required TaskEntity taskEntity});

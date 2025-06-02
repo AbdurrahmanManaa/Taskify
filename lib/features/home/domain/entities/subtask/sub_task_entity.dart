@@ -1,14 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:taskify/features/home/domain/entities/subtask/subtask_status.dart';
 
 part 'sub_task_entity.g.dart';
-
-@HiveType(typeId: 8)
-enum SubtaskStatus {
-  @HiveField(0)
-  inProgress,
-  @HiveField(1)
-  completed,
-}
 
 @HiveType(typeId: 7)
 class SubtaskEntity extends HiveObject {

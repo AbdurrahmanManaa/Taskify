@@ -12,6 +12,7 @@ import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/widgets/option_item.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_theme_mode.dart';
 import 'package:taskify/features/home/presentation/widgets/account_settings_section.dart';
 import 'package:taskify/features/home/presentation/widgets/edit_user_view_body.dart';
 import 'package:taskify/features/home/presentation/widgets/preferences_settings_section.dart';
@@ -134,7 +135,8 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
 
   void toggleDarkMode(bool value, BuildContext context) {
     final prefs = HiveService.preferencesNotifier.value;
-    final updatedPrefs = prefs.copyWith(isDarkMode: value);
+    final updatedPrefs = prefs.copyWith(
+        appThemeMode: value ? AppThemeMode.dark : AppThemeMode.light);
     HiveService().setUserPreferences(updatedPrefs);
   }
 

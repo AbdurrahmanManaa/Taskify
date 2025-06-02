@@ -1,22 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'category_entity.dart';
+part of 'task_category_entity.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class CategoryEntityAdapter extends TypeAdapter<CategoryEntity> {
+class TaskCategoryEntityAdapter extends TypeAdapter<TaskCategoryEntity> {
   @override
   final int typeId = 4;
 
   @override
-  CategoryEntity read(BinaryReader reader) {
+  TaskCategoryEntity read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return CategoryEntity(
+    return TaskCategoryEntity(
       name: fields[0] as String,
       icon: IconData(
         fields[1] as int,
@@ -27,7 +27,7 @@ class CategoryEntityAdapter extends TypeAdapter<CategoryEntity> {
   }
 
   @override
-  void write(BinaryWriter writer, CategoryEntity obj) {
+  void write(BinaryWriter writer, TaskCategoryEntity obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
@@ -44,7 +44,7 @@ class CategoryEntityAdapter extends TypeAdapter<CategoryEntity> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CategoryEntityAdapter &&
+      other is TaskCategoryEntityAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

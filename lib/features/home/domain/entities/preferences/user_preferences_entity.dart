@@ -1,32 +1,10 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_icon_badge_style.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_language.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_lock_type.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_theme_mode.dart';
 
 part 'user_preferences_entity.g.dart';
-
-@HiveType(typeId: 12)
-enum AppLanguage {
-  @HiveField(0)
-  english,
-  @HiveField(1)
-  arabic,
-}
-
-@HiveType(typeId: 13)
-enum AppIconBadgeStyle {
-  @HiveField(0)
-  number,
-  @HiveField(1)
-  dot,
-}
-
-@HiveType(typeId: 14)
-enum AppLockType {
-  @HiveField(0)
-  none,
-  @HiveField(1)
-  pin,
-  @HiveField(2)
-  password,
-}
 
 @HiveType(typeId: 11)
 class UserPreferencesEntity extends HiveObject {
@@ -35,13 +13,13 @@ class UserPreferencesEntity extends HiveObject {
   @HiveField(1)
   final bool isNotificationEnabled;
   @HiveField(2)
-  final AppIconBadgeStyle appIconBadgeStyle;
+  final bool isAppLockEnabled;
   @HiveField(3)
-  final bool isDarkMode;
+  final AppThemeMode appThemeMode;
   @HiveField(4)
   final AppLanguage appLanguage;
   @HiveField(5)
-  final bool isAppLockEnabled;
+  final AppIconBadgeStyle appIconBadgeStyle;
   @HiveField(6)
   final AppLockType appLockType;
   @HiveField(7)
@@ -53,7 +31,7 @@ class UserPreferencesEntity extends HiveObject {
     this.isOnboardingSeen = false,
     this.isNotificationEnabled = true,
     this.appIconBadgeStyle = AppIconBadgeStyle.number,
-    this.isDarkMode = false,
+    this.appThemeMode = AppThemeMode.light,
     this.appLanguage = AppLanguage.english,
     this.isAppLockEnabled = false,
     this.appLockType = AppLockType.none,
@@ -65,7 +43,7 @@ class UserPreferencesEntity extends HiveObject {
     bool? isOnboardingSeen,
     bool? isNotificationEnabled,
     AppIconBadgeStyle? appIconBadgeStyle,
-    bool? isDarkMode,
+    AppThemeMode? appThemeMode,
     AppLanguage? appLanguage,
     bool? isAppLockEnabled,
     AppLockType? appLockType,
@@ -77,7 +55,7 @@ class UserPreferencesEntity extends HiveObject {
       isNotificationEnabled:
           isNotificationEnabled ?? this.isNotificationEnabled,
       appIconBadgeStyle: appIconBadgeStyle ?? this.appIconBadgeStyle,
-      isDarkMode: isDarkMode ?? this.isDarkMode,
+      appThemeMode: appThemeMode ?? this.appThemeMode,
       appLanguage: appLanguage ?? this.appLanguage,
       isAppLockEnabled: isAppLockEnabled ?? this.isAppLockEnabled,
       appLockType: appLockType ?? this.appLockType,

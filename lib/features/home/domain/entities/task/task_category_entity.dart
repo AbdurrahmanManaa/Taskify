@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-part 'category_entity.g.dart';
+
+part 'task_category_entity.g.dart';
 
 @HiveType(typeId: 4)
-class CategoryEntity extends HiveObject {
+class TaskCategoryEntity extends HiveObject {
   @HiveField(0)
   final String name;
   @HiveField(1)
@@ -11,7 +12,7 @@ class CategoryEntity extends HiveObject {
   @HiveField(2)
   final int colorValue;
 
-  CategoryEntity({
+  TaskCategoryEntity({
     required this.name,
     required IconData icon,
     required Color color,

@@ -9,15 +9,15 @@ import 'package:taskify/core/utils/schedule_parser.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/core/widgets/field_item.dart';
 import 'package:taskify/core/widgets/field_label.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_tag_container.dart';
 
 class TaskBasicInfo extends StatelessWidget {
   const TaskBasicInfo(
       {super.key, required this.taskDetails, required this.customCategories});
   final TaskEntity taskDetails;
-  final List<CategoryEntity> customCategories;
+  final List<TaskCategoryEntity> customCategories;
 
   @override
   Widget build(BuildContext context) {

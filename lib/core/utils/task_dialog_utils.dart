@@ -10,7 +10,7 @@ import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_text_form_field.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
 
 class TaskDialogUtils {
   static Future<String?> showCustomTimePickerDialog({
@@ -87,7 +87,7 @@ class TaskDialogUtils {
     }
   }
 
-  static Future<CategoryEntity?> showCustomCategoryDialog(
+  static Future<TaskCategoryEntity?> showCustomCategoryDialog(
       BuildContext context) async {
     String categoryName = 'Uncategorized';
     Color categoryColor = AppColors.greyColor;
@@ -197,7 +197,7 @@ class TaskDialogUtils {
                     );
                   } else {
                     await HiveService().addCustomCategory(
-                      CategoryEntity(
+                      TaskCategoryEntity(
                         name: categoryName,
                         icon: categoryIcon,
                         color: categoryColor,
@@ -206,7 +206,7 @@ class TaskDialogUtils {
                     if (!context.mounted) return;
                     Navigator.pop(
                       dialogContext,
-                      CategoryEntity(
+                      TaskCategoryEntity(
                         name: categoryName,
                         icon: categoryIcon,
                         color: categoryColor,

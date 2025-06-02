@@ -15,10 +15,12 @@ import 'package:taskify/core/utils/task_dialog_utils.dart';
 import 'package:taskify/core/widgets/custom_button.dart';
 import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/core/widgets/field_item.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 
 class EditTaskViewBody extends StatefulWidget {
@@ -39,13 +41,13 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
   late TaskReminderEntity _reminderEntity;
   late TaskRepeatEntity _repeatEntity;
   late TaskPriority? _selectedTaskPriority;
-  late List<CategoryEntity> _selectedTaskCategories;
+  late List<TaskCategoryEntity> _selectedTaskCategories;
   late String? _selectedTaskDueDate;
   late String? _selectedTaskStartTime;
   late String? _selectedTaskEndTime;
   late String? _selectedTaskReminder;
   late String? _selectedTaskRepeat;
-  late List<CategoryEntity> _customCategories = [];
+  late List<TaskCategoryEntity> _customCategories = [];
 
   @override
   void initState() {
@@ -98,7 +100,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
             'due_date': _selectedTaskDueDate ?? taskEntity.dueDate,
             'start_time': _selectedTaskStartTime ?? taskEntity.startTime,
             'end_time': _selectedTaskEndTime ?? taskEntity.endTime,
-            'priority': (_selectedTaskPriority ?? taskEntity.priority).name,
+            'priority': (_selectedTaskPriority ?? taskEntity.priority).label,
             'reminder': _reminderEntity,
             'repeat': _repeatEntity,
             'categories': _selectedTaskCategories,
@@ -166,14 +168,14 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
 
   Future<void> _loadCustomCategoriesFromHive() async {
     var categoriesBox = await Hive.openBox(AppConstants.categoriesBox);
-    List<CategoryEntity> categories =
-        List<CategoryEntity>.from(categoriesBox.values);
+    List<TaskCategoryEntity> categories =
+        List<TaskCategoryEntity>.from(categoriesBox.values);
     setState(() {
       _customCategories = categories;
     });
   }
 
-  void _handleAddCustomCategory(CategoryEntity category) async {
+  void _handleAddCustomCategory(TaskCategoryEntity category) async {
     bool alreadyExists = _customCategories.any(
       (c) =>
           c.name == category.name &&
@@ -194,7 +196,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
   }
 
   void _predefinedCategoriesActions(
-      bool selected, BuildContext context, CategoryEntity category) {
+      bool selected, BuildContext context, TaskCategoryEntity category) {
     setState(
       () {
         if (selected) {
@@ -218,7 +220,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
   }
 
   Future<void> _deleteCustomTaskCategory(
-      BuildContext context, CategoryEntity category) async {
+      BuildContext context, TaskCategoryEntity category) async {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -257,7 +259,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
   }
 
   void _customCategoriesActions(
-      bool selected, BuildContext context, CategoryEntity category) {
+      bool selected, BuildContext context, TaskCategoryEntity category) {
     setState(
       () {
         if (selected) {
@@ -506,7 +508,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                       children: [
                         ...predefinedCategories.map(
                           (categoryMap) {
-                            CategoryEntity category = CategoryEntity(
+                            TaskCategoryEntity category = TaskCategoryEntity(
                               name: categoryMap['name'],
                               icon: categoryMap['icon'],
                               color: categoryMap['color'],
@@ -592,7 +594,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                               );
                               return;
                             }
-                            CategoryEntity? newCategory =
+                            TaskCategoryEntity? newCategory =
                                 await TaskDialogUtils.showCustomCategoryDialog(
                                     context);
                             if (newCategory != null) {

@@ -1,4 +1,4 @@
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 
 extension TaskStatusX on TaskStatus {
   String get label {

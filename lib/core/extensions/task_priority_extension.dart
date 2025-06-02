@@ -1,4 +1,4 @@
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
 
 extension TaskPriorityX on TaskPriority {
   String get label {

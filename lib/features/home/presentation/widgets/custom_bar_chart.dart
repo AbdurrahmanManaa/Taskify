@@ -4,7 +4,8 @@ import 'package:taskify/core/functions/filter_tasks.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
 
 class CustomBarChart extends StatefulWidget {
   const CustomBarChart(

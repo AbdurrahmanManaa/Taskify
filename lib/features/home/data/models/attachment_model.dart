@@ -1,5 +1,7 @@
+import 'package:taskify/core/extensions/attachment_status_extension.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
-import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
 
 class AttachmentModel {
   final String id;
@@ -34,7 +36,9 @@ class AttachmentModel {
       fileType: json['file_type'],
       fileSize: json['file_size'],
       filePath: json['file_path'],
-      status: json['status'],
+      status: json['status'] != null
+          ? AttachmentStatusX.fromString(json['status'])
+          : AttachmentStatus.pending,
       createdAt: json['created_at'] != null
           ? DateTimeUtils.parseIsoDateTime(json['created_at'])
           : null,
@@ -52,7 +56,7 @@ class AttachmentModel {
       'file_type': fileType,
       'file_size': fileSize,
       'file_path': filePath,
-      'status': status,
+      'status': status.label,
     };
   }
 

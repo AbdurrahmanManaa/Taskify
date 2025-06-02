@@ -7,7 +7,7 @@ import 'package:taskify/features/auth/presentation/views/reset_password_view.dar
 import 'package:taskify/features/auth/presentation/views/signin_view.dart';
 import 'package:taskify/features/auth/presentation/views/signup_view.dart';
 import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/presentation/views/add_task_view.dart';
 import 'package:taskify/features/home/presentation/views/app_lock_type_view.dart';
 import 'package:taskify/features/home/presentation/views/calender_view.dart';

@@ -6,7 +6,8 @@ import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 
 class CalenderItem extends StatelessWidget {

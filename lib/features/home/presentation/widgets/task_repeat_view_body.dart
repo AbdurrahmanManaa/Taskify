@@ -9,7 +9,7 @@ import 'package:taskify/core/widgets/custom_animated_switcher.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/widgets/custom_wrapper_container.dart';
 import 'package:taskify/core/widgets/option_item.dart';
-import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class TaskRepeatViewBody extends StatefulWidget {

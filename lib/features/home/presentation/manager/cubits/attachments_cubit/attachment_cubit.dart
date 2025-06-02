@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taskify/core/utils/endpoints.dart';
-import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
 import 'package:taskify/features/home/domain/repos/home_repo.dart';
 
 part 'attachment_state.dart';

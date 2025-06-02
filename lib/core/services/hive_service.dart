@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/features/auth/domain/entities/user_entity.dart';
-import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
-import 'package:taskify/features/home/domain/entities/user_preferences_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/preferences/user_preferences_entity.dart';
 
 class HiveService {
-  static final ValueNotifier<List<CategoryEntity>> categoriesNotifier =
+  static final ValueNotifier<List<TaskCategoryEntity>> categoriesNotifier =
       ValueNotifier([]);
 
   static final ValueNotifier<UserPreferencesEntity> preferencesNotifier =
@@ -67,13 +67,14 @@ class HiveService {
 
   static Future<void> initializeCategories() async {
     var categoriesBox = Hive.box(AppConstants.categoriesBox);
-    categoriesNotifier.value = List<CategoryEntity>.from(categoriesBox.values);
+    categoriesNotifier.value =
+        List<TaskCategoryEntity>.from(categoriesBox.values);
   }
 
-  Future<void> addCustomCategory(CategoryEntity category) async {
+  Future<void> addCustomCategory(TaskCategoryEntity category) async {
     var categoriesBox = Hive.box(AppConstants.categoriesBox);
-    List<CategoryEntity> existingCategories =
-        List<CategoryEntity>.from(categoriesBox.values);
+    List<TaskCategoryEntity> existingCategories =
+        List<TaskCategoryEntity>.from(categoriesBox.values);
 
     bool alreadyExists = existingCategories.any((c) =>
         c.name == category.name && c.icon.codePoint == category.icon.codePoint);
@@ -84,9 +85,9 @@ class HiveService {
     }
   }
 
-  Future<List<CategoryEntity>> getAllCategories() async {
+  Future<List<TaskCategoryEntity>> getAllCategories() async {
     var categoriesBox = Hive.box(AppConstants.categoriesBox);
-    return List<CategoryEntity>.from(categoriesBox.values);
+    return List<TaskCategoryEntity>.from(categoriesBox.values);
   }
 
   Future<void> deleteCategory(String name) async {
@@ -153,6 +154,7 @@ class HiveService {
   }
 
   void _updateCategoriesNotifier(Box categoriesBox) {
-    categoriesNotifier.value = List<CategoryEntity>.from(categoriesBox.values);
+    categoriesNotifier.value =
+        List<TaskCategoryEntity>.from(categoriesBox.values);
   }
 }

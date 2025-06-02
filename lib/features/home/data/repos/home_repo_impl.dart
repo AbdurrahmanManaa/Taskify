@@ -10,9 +10,12 @@ import 'package:taskify/core/utils/file_manager.dart';
 import 'package:taskify/features/home/data/models/attachment_model.dart';
 import 'package:taskify/features/home/data/models/sub_task_model.dart';
 import 'package:taskify/features/home/data/models/task_model.dart';
-import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
-import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
+import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/domain/repos/home_repo.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -212,7 +215,6 @@ class HomeRepoImpl implements HomeRepo {
           fileType: fileType,
           fileSize: fileSize,
           status: AttachmentStatus.uploaded,
-          createdAt: DateTime.now(),
         );
 
         final data = AttachmentModel.fromEntity(updatedAttachment).toJson();

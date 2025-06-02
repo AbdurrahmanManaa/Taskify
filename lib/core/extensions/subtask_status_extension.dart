@@ -1,4 +1,4 @@
-import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
+import 'package:taskify/features/home/domain/entities/subtask/subtask_status.dart';
 
 extension SubtaskStatusX on SubtaskStatus {
   String get label {

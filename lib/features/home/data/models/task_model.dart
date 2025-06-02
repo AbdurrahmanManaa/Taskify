@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:taskify/core/extensions/task_priority_extension.dart';
 import 'package:taskify/core/extensions/task_status_extension.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 
 class TaskModel {
   final String id;
@@ -18,7 +20,7 @@ class TaskModel {
   final TaskReminderEntity reminder;
   final TaskRepeatEntity repeat;
   final TaskPriority priority;
-  final List<CategoryEntity> categories;
+  final List<TaskCategoryEntity> categories;
   final TaskStatus status;
   final DateTime? createdAt;
   final DateTime? completedAt;
@@ -79,7 +81,7 @@ class TaskModel {
           ? TaskPriorityX.fromString(json['priority'])
           : TaskPriority.medium,
       categories: (json['categories'] as List)
-          .map((e) => CategoryEntity(
+          .map((e) => TaskCategoryEntity(
                 name: e['name'],
                 icon: IconData(e['icon'], fontFamily: 'MaterialIcons'),
                 color: Color(e['color']),

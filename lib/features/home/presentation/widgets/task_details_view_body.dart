@@ -15,8 +15,9 @@ import 'package:taskify/core/widgets/custom_button.dart';
 import 'package:taskify/core/widgets/custom_pop_up_menu_button.dart';
 import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/core/widgets/field_item.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/attachments_cubit/attachment_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit/sub_task_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
@@ -38,7 +39,7 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
   late final TaskEntity taskEntity;
   final GlobalKey<FormState> _formKey = GlobalKey();
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
-  late List<CategoryEntity> _customCategories;
+  late List<TaskCategoryEntity> _customCategories;
   int _selectedTabIndex = 0;
 
   @override
@@ -67,8 +68,8 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
 
   Future<void> _loadCustomCategoriesFromHive() async {
     var categoriesBox = await Hive.openBox(AppConstants.categoriesBox);
-    List<CategoryEntity> categories =
-        List<CategoryEntity>.from(categoriesBox.values);
+    List<TaskCategoryEntity> categories =
+        List<TaskCategoryEntity>.from(categoriesBox.values);
     setState(() {
       _customCategories = categories;
     });

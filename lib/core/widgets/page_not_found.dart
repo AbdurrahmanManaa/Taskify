@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:taskify/core/utils/app_assets.dart';
 import 'package:taskify/core/utils/app_constants.dart';
-import 'package:taskify/core/widgets/custom_appbar.dart';
+import 'package:taskify/core/utils/app_routes.dart';
+import 'package:taskify/core/widgets/custom_button.dart';
 
 class PageNotFound extends StatelessWidget {
   const PageNotFound({super.key});
@@ -16,9 +17,7 @@ class PageNotFound extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 20),
-              CustomAppbar(title: ''),
-              const SizedBox(height: 60),
+              const SizedBox(height: 100),
               Lottie.asset(
                 AppAssets.animationsPageNotFound,
                 filterQuality: FilterQuality.high,
@@ -33,6 +32,14 @@ class PageNotFound extends StatelessWidget {
               const Text(
                 "We couldn't find the page you're looking for.",
                 style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 50),
+              CustomButton(
+                title: 'Go Home',
+                onPressed: () {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      AppRoutes.main, (route) => false);
+                },
               ),
             ],
           ),

@@ -1,14 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
 
 part 'attachment_entity.g.dart';
-
-@HiveType(typeId: 10)
-enum AttachmentStatus {
-  @HiveField(0)
-  pending,
-  @HiveField(1)
-  uploaded,
-}
 
 @HiveType(typeId: 9)
 class AttachmentEntity {

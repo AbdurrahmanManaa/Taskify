@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 
 List<TaskEntity> filterTasks(List<TaskEntity> tasks, String filterType) {
   DateTime now = DateTime.now();

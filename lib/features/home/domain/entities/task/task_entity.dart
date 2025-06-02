@@ -1,32 +1,12 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 
-import 'category_entity.dart';
+import 'task_category_entity.dart';
 
 part 'task_entity.g.dart';
-
-@HiveType(typeId: 2)
-enum TaskPriority {
-  @HiveField(0)
-  low,
-  @HiveField(1)
-  medium,
-  @HiveField(2)
-  high,
-}
-
-@HiveType(typeId: 3)
-enum TaskStatus {
-  @HiveField(0)
-  inProgress,
-  @HiveField(1)
-  completed,
-  @HiveField(2)
-  overdue,
-  @HiveField(3)
-  trash,
-}
 
 @HiveType(typeId: 1)
 class TaskEntity extends HiveObject {
@@ -51,7 +31,7 @@ class TaskEntity extends HiveObject {
   @HiveField(9)
   final TaskPriority priority;
   @HiveField(10)
-  final List<CategoryEntity> categories;
+  final List<TaskCategoryEntity> categories;
   @HiveField(11)
   final TaskStatus status;
   @HiveField(12)
@@ -99,7 +79,7 @@ class TaskEntity extends HiveObject {
     TaskReminderEntity? reminder,
     TaskRepeatEntity? repeat,
     TaskPriority? priority,
-    List<CategoryEntity>? categories,
+    List<TaskCategoryEntity>? categories,
     TaskStatus? status,
     DateTime? createdAt,
     DateTime? completedAt,

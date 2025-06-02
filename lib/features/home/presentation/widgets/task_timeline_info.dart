@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 
 class TaskTimelineInfo extends StatelessWidget {
   const TaskTimelineInfo({super.key, required this.taskDetails});

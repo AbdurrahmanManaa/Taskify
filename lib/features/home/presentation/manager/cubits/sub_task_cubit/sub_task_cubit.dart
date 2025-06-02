@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:taskify/core/utils/endpoints.dart';
-import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
+import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
 import 'package:taskify/features/home/domain/repos/home_repo.dart';
 
 part 'sub_task_state.dart';

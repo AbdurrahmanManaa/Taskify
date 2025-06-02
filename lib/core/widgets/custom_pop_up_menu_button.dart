@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taskify/core/utils/app_colors.dart';
-import 'package:taskify/features/home/domain/entities/sub_task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 
 class CustomPopupMenuButton extends StatelessWidget {
   const CustomPopupMenuButton({

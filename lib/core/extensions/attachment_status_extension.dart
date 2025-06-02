@@ -1,4 +1,4 @@
-import 'package:taskify/features/home/domain/entities/attachment_entity.dart';
+import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
 
 extension AttachmentStatusX on AttachmentStatus {
   String get label {

@@ -18,10 +18,12 @@ import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/core/widgets/custom_pop_up_menu_button.dart';
 import 'package:taskify/core/widgets/custom_search_text_field.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_home_app_bar.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_tab_bar.dart';
@@ -39,9 +41,9 @@ class _HomeViewBodyState extends State<HomeViewBody> {
   late TextEditingController _searchController;
   List<TaskStatus> _selectedStatuses = [];
   List<TaskPriority> _selectedPriorities = [];
-  List<CategoryEntity> _selectedCategories = [];
+  List<TaskCategoryEntity> _selectedCategories = [];
   List<String> _selectedDueDates = [];
-  List<CategoryEntity> _customCategories = [];
+  List<TaskCategoryEntity> _customCategories = [];
   String _selectedSortField = 'dueDate';
   bool _isDateAscending = true;
   bool _isPriorityAscending = true;
@@ -70,8 +72,8 @@ class _HomeViewBodyState extends State<HomeViewBody> {
 
   Future<void> _loadCustomCategoriesFromHive() async {
     var categoriesBox = await Hive.openBox(AppConstants.categoriesBox);
-    List<CategoryEntity> categories =
-        List<CategoryEntity>.from(categoriesBox.values);
+    List<TaskCategoryEntity> categories =
+        List<TaskCategoryEntity>.from(categoriesBox.values);
     setState(() {
       _customCategories = categories;
     });
@@ -79,8 +81,8 @@ class _HomeViewBodyState extends State<HomeViewBody> {
 
   Future<void> _showFiltersAndSort(BuildContext context) async {
     List<TaskStatus> tempStatuses = List<TaskStatus>.from(_selectedStatuses);
-    List<CategoryEntity> tempCategories =
-        List<CategoryEntity>.from(_selectedCategories);
+    List<TaskCategoryEntity> tempCategories =
+        List<TaskCategoryEntity>.from(_selectedCategories);
     List<String> tempDueDates = List<String>.from(_selectedDueDates);
     List<TaskPriority> tempPriorities =
         List<TaskPriority>.from(_selectedPriorities);
@@ -123,7 +125,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                       children: [
                         ...predefinedCategories.map(
                           (categoryMap) {
-                            final category = CategoryEntity(
+                            final category = TaskCategoryEntity(
                               name: categoryMap['name'],
                               icon: categoryMap['icon'],
                               color: categoryMap['color'],

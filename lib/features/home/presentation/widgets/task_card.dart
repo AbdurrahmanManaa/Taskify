@@ -14,8 +14,9 @@ import 'package:taskify/core/widgets/custom_button.dart';
 import 'package:taskify/core/widgets/custom_pop_up_menu_button.dart';
 import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/core/widgets/field_item.dart';
-import 'package:taskify/features/home/domain/entities/category_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/attachments_cubit/attachment_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_tag_container.dart';
@@ -34,7 +35,7 @@ class _TaskCardState extends State<TaskCard> {
   late String? _selectedTaskDueDate;
   late String? _selectedTaskStartTime;
   late String? _selectedTaskEndTime;
-  List<CategoryEntity> _customCategories = [];
+  List<TaskCategoryEntity> _customCategories = [];
 
   @override
   void initState() {
@@ -48,8 +49,8 @@ class _TaskCardState extends State<TaskCard> {
 
   Future<void> _loadCustomCategoriesFromHive() async {
     var categoriesBox = await Hive.openBox(AppConstants.categoriesBox);
-    List<CategoryEntity> categories =
-        List<CategoryEntity>.from(categoriesBox.values);
+    List<TaskCategoryEntity> categories =
+        List<TaskCategoryEntity>.from(categoriesBox.values);
     setState(() {
       _customCategories = categories;
     });

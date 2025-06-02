@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:intl/intl.dart';
-import 'package:taskify/features/home/domain/entities/task_reminder_entity.dart';
-import 'package:taskify/features/home/domain/entities/task_repeat_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.dart';
+import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
 
 class ScheduleParser {
   static TaskRepeatEntity parseRepeatToEntity(String repeatString) {
