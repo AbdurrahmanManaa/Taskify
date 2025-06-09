@@ -38,7 +38,6 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
   bool _isSelected = false;
   bool _isDurationSelected = false;
   DateTime _focusedDate = DateTime.now();
-  CalendarFormat _calendarFormat = CalendarFormat.month;
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
@@ -89,6 +88,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
 
   TableCalendar<dynamic> _buildTableCalender() {
     return TableCalendar(
+      headerVisible: false,
       headerStyle: const HeaderStyle(
         titleTextStyle: AppTextStyles.medium20,
       ),
@@ -103,7 +103,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
         ),
       ),
       weekendDays: [DateTime.friday, DateTime.saturday],
-      calendarFormat: _calendarFormat,
+      calendarFormat: CalendarFormat.month,
       focusedDay: _focusedDate,
       selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
       enabledDayPredicate: (day) => day.month == _focusedDate.month,
@@ -112,13 +112,6 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
         setState(() {
           _focusedDate = focusedDay;
         });
-      },
-      onFormatChanged: (format) {
-        if (_calendarFormat != format) {
-          setState(() {
-            _calendarFormat = format;
-          });
-        }
       },
       firstDay: DateTime.now(),
       lastDay: DateTime.now().add(

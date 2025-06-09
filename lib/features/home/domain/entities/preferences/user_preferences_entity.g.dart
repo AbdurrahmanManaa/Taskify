@@ -23,9 +23,9 @@ class UserPreferencesEntityAdapter extends TypeAdapter<UserPreferencesEntity> {
       appThemeMode: fields[3] as AppThemeMode,
       appLanguage: fields[4] as AppLanguage,
       isAppLockEnabled: fields[2] as bool,
-      appLockType: fields[6] as AppLockType,
-      hashedPassword: fields[7] as String,
-      autoLockAfterMinutes: fields[8] as int,
+      appLockType: fields[6] as AppLockType?,
+      hashedPassword: fields[7] as String?,
+      autoLockAfterMinutes: fields[8] as int?,
     );
   }
 

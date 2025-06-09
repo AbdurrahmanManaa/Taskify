@@ -8,11 +8,13 @@ class AccountSettingsSection extends StatelessWidget {
   const AccountSettingsSection({
     super.key,
     this.profileOnTap,
-    this.connectedAccountsOnTap,
     this.deleteAccountOnTap,
+    this.signOutOnTap,
+    this.connectedAccountsOnTap,
   });
   final Function()? profileOnTap;
   final Function()? connectedAccountsOnTap;
+  final Function()? signOutOnTap;
   final Function()? deleteAccountOnTap;
 
   @override
@@ -57,6 +59,22 @@ class AccountSettingsSection extends StatelessWidget {
           trailing: Icon(
             Icons.arrow_forward_ios,
             color: AppColors.primaryLightColor,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Divider(),
+        ),
+        OptionItem(
+          onTap: signOutOnTap,
+          leading: Icon(
+            Icons.logout_outlined,
+            size: 30,
+            color: AppColors.errorColor,
+          ),
+          title: Text(
+            'Sign out',
+            style: AppTextStyles.medium18.copyWith(color: AppColors.errorColor),
           ),
         ),
         Padding(

@@ -24,7 +24,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
     return [
       PersistentTabConfig(
         screen: ChangeNotifierProvider.value(
-            value: _scrollControllers[0], child: HomeView()),
+          value: _scrollControllers[0],
+          child: HomeView(),
+        ),
         scrollController: _scrollControllers[0],
         item: ItemConfig(
           icon: Icon(Icons.home, color: AppColors.primaryLightColor, size: 32),
@@ -34,7 +36,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       ),
       PersistentTabConfig(
         screen: ChangeNotifierProvider.value(
-            value: _scrollControllers[1], child: CalenderView()),
+          value: _scrollControllers[1],
+          child: CalenderView(),
+        ),
         scrollController: _scrollControllers[1],
         item: ItemConfig(
           icon: Icon(Icons.calendar_month,
@@ -45,7 +49,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       ),
       PersistentTabConfig(
         screen: ChangeNotifierProvider.value(
-            value: _scrollControllers[2], child: AddTaskView()),
+          value: _scrollControllers[2],
+          child: AddTaskView(),
+        ),
         scrollController: _scrollControllers[2],
         item: ItemConfig(
           icon:
@@ -56,7 +62,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       ),
       PersistentTabConfig(
         screen: ChangeNotifierProvider.value(
-            value: _scrollControllers[3], child: StatisticsView()),
+          value: _scrollControllers[3],
+          child: StatisticsView(),
+        ),
         scrollController: _scrollControllers[3],
         item: ItemConfig(
           icon: Icon(Icons.bar_chart,
@@ -67,7 +75,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       ),
       PersistentTabConfig(
         screen: ChangeNotifierProvider.value(
-            value: _scrollControllers[4], child: SettingsView()),
+          value: _scrollControllers[4],
+          child: SettingsView(),
+        ),
         scrollController: _scrollControllers[4],
         item: ItemConfig(
           icon: Icon(Icons.settings,

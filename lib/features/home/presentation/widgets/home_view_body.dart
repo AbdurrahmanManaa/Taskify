@@ -18,6 +18,7 @@ import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/core/widgets/custom_pop_up_menu_button.dart';
 import 'package:taskify/core/widgets/custom_search_text_field.dart';
+import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
@@ -53,15 +54,22 @@ class _HomeViewBodyState extends State<HomeViewBody> {
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController();
+    getUserData();
     getTasks();
     _loadCustomCategoriesFromHive();
+    _searchController = TextEditingController();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> getUserData() async {
+    await context
+        .read<UserCubit>()
+        .getUserData(userId: widget.supabase.auth.currentUser!.id);
   }
 
   Future<void> getTasks() async {

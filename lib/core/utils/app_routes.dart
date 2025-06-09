@@ -20,7 +20,6 @@ abstract class AppRoutes {
   static const statistics = 'statistics';
   static const settings = 'settings';
   static const connectedAccounts = 'connectedAccounts';
+  static const appLock = 'appLock';
   static const appLockType = 'appLockType';
-  static const pinLockType = 'pinLockType';
-  static const passwordLockType = 'passwordLockType';
 }

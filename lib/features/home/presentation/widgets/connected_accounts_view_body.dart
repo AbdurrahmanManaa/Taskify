@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -52,8 +50,7 @@ class _ConnectedAccountsViewBodyState extends State<ConnectedAccountsViewBody> {
           const SizedBox(height: 20),
           CustomAppbar(title: 'Connected Accounts'),
           const SizedBox(height: 30),
-          BlocConsumer<UserCubit, UserState>(
-            listener: (context, state) {},
+          BlocBuilder<UserCubit, UserState>(
             builder: (context, state) {
               if (state is UserLoading) {
                 return Skeletonizer(
@@ -87,7 +84,6 @@ class _ConnectedAccountsViewBodyState extends State<ConnectedAccountsViewBody> {
                 );
               } else {
                 var userIdentities = context.watch<UserCubit>().userIdentities;
-                log(userIdentities.toString());
                 final providerIcons = {
                   'google': AppAssets.imagesGoogle,
                 };

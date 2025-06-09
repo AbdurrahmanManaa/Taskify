@@ -202,8 +202,6 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
         ],
       ),
     );
-    if (!context.mounted) return;
-    Navigator.pop(context);
   }
 
   Future<void> _renameAttachment(
@@ -286,8 +284,6 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
         );
       },
     );
-    if (!context.mounted) return;
-    Navigator.pop(context);
   }
 
   Future<void> _attachmentActions(
@@ -330,6 +326,9 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                         context,
                         attachment,
                       );
+
+                      if (!context.mounted) return;
+                      Navigator.pop(context);
                     },
                     child: Icon(
                       FontAwesomeIcons.trash,
@@ -384,6 +383,9 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                             context,
                             attachment,
                           );
+
+                          if (!context.mounted) return;
+                          Navigator.pop(context);
                         },
                         child: Container(
                           width: 70,
@@ -528,9 +530,13 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
     return BlocConsumer<AttachmentCubit, AttachmentState>(
       listener: (context, state) {
         if (state is AttachmentSuccess) {
-          buildSnackbar(context, message: state.message!);
+          if (state.message != null) {
+            buildSnackbar(context, message: state.message!);
+          }
         } else if (state is AttachmentFailure) {
-          buildSnackbar(context, message: state.message!);
+          if (state.message != null) {
+            buildSnackbar(context, message: state.message!);
+          }
         }
       },
       builder: (context, state) {

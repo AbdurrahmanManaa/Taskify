@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_constants.dart';
@@ -35,14 +34,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
   @override
   void initState() {
     super.initState();
-    getUserData();
     _getTimezone();
-  }
-
-  Future<void> getUserData() async {
-    await context
-        .read<UserCubit>()
-        .getUserData(userId: widget.supabase.auth.currentUser!.id);
   }
 
   Future<void> _getTimezone() async {
@@ -237,11 +229,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
   Widget build(BuildContext context) {
     return BlocBuilder<UserCubit, UserState>(
       builder: (context, state) {
-        if (state is UserLoading) {
-          return Center(
-            child: const CircularProgressIndicator(color: Colors.grey),
-          );
-        } else if (state is UserFailure) {
+        if (state is UserFailure) {
           return Center(
             child: Text('Faild to load user data.'),
           );
@@ -260,107 +248,84 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
           return Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: AppConstants.horizontalPadding),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 20),
-                  CustomAppbar(title: 'Profile'),
-                  const SizedBox(height: 50),
-                  GestureDetector(
-                    onTap: () async {
-                      await _updateProfilepicture(
-                        context,
-                        userImagePath,
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: UserProfileImage(
-                            size: 200,
-                            broderWidth: 4,
-                            imageUrl: userImageUrl,
-                          ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                CustomAppbar(title: 'Profile'),
+                const SizedBox(height: 50),
+                GestureDetector(
+                  onTap: () async {
+                    await _updateProfilepicture(
+                      context,
+                      userImagePath,
+                    );
+                  },
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: UserProfileImage(
+                          size: 200,
+                          broderWidth: 4,
+                          imageUrl: userImageUrl,
                         ),
-                        Positioned(
-                          bottom: 0,
-                          right: MediaQuery.sizeOf(context).width / 2 - 80,
-                          child: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: AppColors.primaryLightColor,
-                            child: Icon(
-                              Icons.camera_alt_outlined,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 50),
-                  UserInfoWidget(
-                    onTap: () {
-                      Navigator.of(context, rootNavigator: true).pushNamed(
-                        AppRoutes.editUser,
-                        arguments: EditUserEntity(
-                          userEntity: userEntity,
-                          mode: EditProfileType.name,
-                        ),
-                      );
-                    },
-                    title: 'Full Name',
-                    userData: userFullName,
-                  ),
-                  const SizedBox(height: 40),
-                  UserInfoWidget(
-                    onTap: () {
-                      Navigator.of(context, rootNavigator: true).pushNamed(
-                        AppRoutes.editUser,
-                        arguments: EditUserEntity(
-                          userEntity: userEntity,
-                          mode: EditProfileType.email,
-                        ),
-                      );
-                    },
-                    title: 'Email',
-                    userData: userEmail,
-                  ),
-                  const SizedBox(height: 40),
-                  UserInfoWidget(
-                    title: 'Timezone',
-                    userData: _timezone,
-                    showArrow: false,
-                  ),
-                  const SizedBox(height: 40),
-                  UserInfoWidget(
-                    title: 'Member Since',
-                    userData: userCreatedAt,
-                    showArrow: false,
-                  ),
-                  const Divider(height: 50),
-                  BlocListener<UserCubit, UserState>(
-                    listener: (context, state) async {
-                      if (state is UserLoggedOut) {
-                        buildSnackbar(context,
-                            message: 'You have successfully logged out.');
-                      } else if (state is UserFailure) {
-                        buildSnackbar(context, message: 'Failed to sign out.');
-                      }
-                    },
-                    child: TextButton(
-                      onPressed: () async {
-                        await context.read<UserCubit>().signOut();
-                      },
-                      child: Text(
-                        'Sign Out',
-                        style: AppTextStyles.semiBold16
-                            .copyWith(color: AppColors.errorColor),
                       ),
-                    ),
+                      Positioned(
+                        bottom: 0,
+                        right: MediaQuery.sizeOf(context).width / 2 - 80,
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: AppColors.primaryLightColor,
+                          child: Icon(
+                            Icons.camera_alt_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 50),
+                UserInfoWidget(
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: true).pushNamed(
+                      AppRoutes.editUser,
+                      arguments: EditUserEntity(
+                        userEntity: userEntity,
+                        mode: EditProfileType.name,
+                      ),
+                    );
+                  },
+                  title: 'Full Name',
+                  userData: userFullName,
+                ),
+                const SizedBox(height: 40),
+                UserInfoWidget(
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: true).pushNamed(
+                      AppRoutes.editUser,
+                      arguments: EditUserEntity(
+                        userEntity: userEntity,
+                        mode: EditProfileType.email,
+                      ),
+                    );
+                  },
+                  title: 'Email',
+                  userData: userEmail,
+                ),
+                const SizedBox(height: 40),
+                UserInfoWidget(
+                  title: 'Timezone',
+                  userData: _timezone,
+                  showArrow: false,
+                ),
+                const SizedBox(height: 40),
+                UserInfoWidget(
+                  title: 'Member Since',
+                  userData: userCreatedAt,
+                  showArrow: false,
+                ),
+              ],
             ),
           );
         }

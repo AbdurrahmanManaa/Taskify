@@ -392,6 +392,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                             isStartTime: false,
                             context: context,
                             initialTime: initialTime,
+                            compareWithTime: _selectedTaskStartTime,
                           );
                           if (pickedEndTime != null) {
                             setState(() {

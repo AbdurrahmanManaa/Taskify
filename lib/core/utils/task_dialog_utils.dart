@@ -17,6 +17,7 @@ class TaskDialogUtils {
     required bool isStartTime,
     required BuildContext context,
     required String initialTime,
+    String? compareWithTime,
   }) async {
     TimeOfDay initialTimeOfDay = TimeOfDay.now();
     try {
@@ -45,7 +46,35 @@ class TaskDialogUtils {
       initialTime: initialTimeOfDay,
       initialEntryMode: TimePickerEntryMode.input,
     );
+
     if (pickedTime != null) {
+      final now = DateTime.now();
+      final selectedTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+
+      if (isStartTime) {
+        if (selectedTime.isBefore(now)) {
+          if (!context.mounted) return null;
+          buildSnackbar(context, message: "Start time cannot be in the past.");
+          return null;
+        }
+      } else {
+        if (compareWithTime != null) {
+          final startTime = DateTimeUtils.parseTime(compareWithTime);
+          if (selectedTime.isBefore(startTime)) {
+            if (!context.mounted) return null;
+            buildSnackbar(context,
+                message: "End time must be after start time.");
+            return null;
+          }
+        }
+      }
+
       if (!context.mounted) return null;
       return pickedTime.format(context);
     } else {

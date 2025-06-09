@@ -13,26 +13,9 @@ import 'package:taskify/core/widgets/custom_icon_button.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 
-class CustomHomeAppBar extends StatefulWidget {
+class CustomHomeAppBar extends StatelessWidget {
   const CustomHomeAppBar({super.key, required this.supabase});
   final SupabaseClient supabase;
-
-  @override
-  State<CustomHomeAppBar> createState() => _CustomHomeAppBarState();
-}
-
-class _CustomHomeAppBarState extends State<CustomHomeAppBar> {
-  @override
-  void initState() {
-    super.initState();
-    getUserData();
-  }
-
-  Future<void> getUserData() async {
-    await context
-        .read<UserCubit>()
-        .getUserData(userId: widget.supabase.auth.currentUser!.id);
-  }
 
   String formatFirstName(String fullName) {
     final parts = fullName.trim().split(RegExp(r'\s+'));

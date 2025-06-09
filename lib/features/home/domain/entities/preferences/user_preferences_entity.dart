@@ -21,11 +21,11 @@ class UserPreferencesEntity extends HiveObject {
   @HiveField(5)
   final AppIconBadgeStyle appIconBadgeStyle;
   @HiveField(6)
-  final AppLockType appLockType;
+  final AppLockType? appLockType;
   @HiveField(7)
-  final String hashedPassword;
+  final String? hashedPassword;
   @HiveField(8)
-  final int autoLockAfterMinutes;
+  final int? autoLockAfterMinutes;
 
   UserPreferencesEntity({
     this.isOnboardingSeen = false,
@@ -34,9 +34,9 @@ class UserPreferencesEntity extends HiveObject {
     this.appThemeMode = AppThemeMode.light,
     this.appLanguage = AppLanguage.english,
     this.isAppLockEnabled = false,
-    this.appLockType = AppLockType.none,
-    this.hashedPassword = '',
-    this.autoLockAfterMinutes = 5,
+    this.appLockType,
+    this.hashedPassword,
+    this.autoLockAfterMinutes,
   });
 
   UserPreferencesEntity copyWith({

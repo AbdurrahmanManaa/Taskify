@@ -14,27 +14,22 @@ class AppLockTypeAdapter extends TypeAdapter<AppLockType> {
   AppLockType read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return AppLockType.none;
-      case 1:
         return AppLockType.pin;
-      case 2:
+      case 1:
         return AppLockType.password;
       default:
-        return AppLockType.none;
+        return AppLockType.pin;
     }
   }
 
   @override
   void write(BinaryWriter writer, AppLockType obj) {
     switch (obj) {
-      case AppLockType.none:
+      case AppLockType.pin:
         writer.writeByte(0);
         break;
-      case AppLockType.pin:
-        writer.writeByte(1);
-        break;
       case AppLockType.password:
-        writer.writeByte(2);
+        writer.writeByte(1);
         break;
     }
   }

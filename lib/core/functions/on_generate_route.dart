@@ -10,6 +10,7 @@ import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/presentation/views/add_task_view.dart';
 import 'package:taskify/features/home/presentation/views/app_lock_type_view.dart';
+import 'package:taskify/features/home/presentation/views/app_lock_view.dart';
 import 'package:taskify/features/home/presentation/views/calender_view.dart';
 import 'package:taskify/features/home/presentation/views/connected_accounts_view.dart';
 import 'package:taskify/features/home/presentation/views/edit_task_view.dart';
@@ -17,7 +18,6 @@ import 'package:taskify/features/home/presentation/views/edit_user_view.dart';
 import 'package:taskify/features/home/presentation/views/home_view.dart';
 import 'package:taskify/features/home/presentation/views/main_view.dart';
 import 'package:taskify/features/home/presentation/views/notifications_view.dart';
-import 'package:taskify/features/home/presentation/views/pin_lock_type_view.dart';
 import 'package:taskify/features/home/presentation/views/profile_view.dart';
 import 'package:taskify/features/home/presentation/views/settings_view.dart';
 import 'package:taskify/features/home/presentation/views/statistics_view.dart';
@@ -109,13 +109,10 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     case AppRoutes.connectedAccounts:
       return MaterialPageRoute(builder: (_) => const ConnectedAccountsView());
 
+    case AppRoutes.appLock:
+      return MaterialPageRoute(builder: (_) => const AppLockView());
+
     case AppRoutes.appLockType:
-      return MaterialPageRoute(builder: (_) => const AppLockTypeView());
-
-    case AppRoutes.pinLockType:
-      return MaterialPageRoute(builder: (_) => const PinLockTypeView());
-
-    case AppRoutes.passwordLockType:
       return MaterialPageRoute(builder: (_) => const AppLockTypeView());
 
     default:
