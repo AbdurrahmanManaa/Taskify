@@ -19,38 +19,35 @@ class UserPreferencesEntityAdapter extends TypeAdapter<UserPreferencesEntity> {
     return UserPreferencesEntity(
       isOnboardingSeen: fields[0] as bool,
       isNotificationEnabled: fields[1] as bool,
-      appIconBadgeStyle: fields[5] as AppIconBadgeStyle,
-      appThemeMode: fields[3] as AppThemeMode,
-      appLanguage: fields[4] as AppLanguage,
-      isAppLockEnabled: fields[2] as bool,
-      appLockType: fields[6] as AppLockType?,
-      hashedPassword: fields[7] as String?,
-      autoLockAfterMinutes: fields[8] as int?,
+      appIconBadgeStyle: fields[4] as AppIconBadgeStyle,
+      appThemeMode: fields[2] as AppThemeMode,
+      appLanguage: fields[3] as AppLanguage,
+      appLockType: fields[5] as AppLockType,
+      hashedPassword: fields[6] as String?,
+      autoLockAfter: fields[7] as AutoLockAfter,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserPreferencesEntity obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.isOnboardingSeen)
       ..writeByte(1)
       ..write(obj.isNotificationEnabled)
       ..writeByte(2)
-      ..write(obj.isAppLockEnabled)
-      ..writeByte(3)
       ..write(obj.appThemeMode)
-      ..writeByte(4)
+      ..writeByte(3)
       ..write(obj.appLanguage)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.appIconBadgeStyle)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj.appLockType)
-      ..writeByte(7)
+      ..writeByte(6)
       ..write(obj.hashedPassword)
-      ..writeByte(8)
-      ..write(obj.autoLockAfterMinutes);
+      ..writeByte(7)
+      ..write(obj.autoLockAfter);
   }
 
   @override

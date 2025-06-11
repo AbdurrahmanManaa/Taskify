@@ -5,7 +5,10 @@ import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/widgets/app_lock_type_field.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
+import 'package:taskify/core/widgets/page_not_found.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_lock_type.dart';
+
+enum _LockPhase { firstEntry, confirmEntry }
 
 class AppLockTypeViewBody extends StatefulWidget {
   const AppLockTypeViewBody({super.key});
@@ -17,12 +20,15 @@ class AppLockTypeViewBody extends StatefulWidget {
 class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
   late final AppLockType appLockType;
   late final TextEditingController _controller;
+  _LockPhase _phase = _LockPhase.firstEntry;
+  String? _firstInput;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
     appLockType = context.read<AppLockType>();
+    _controller = TextEditingController();
   }
 
   @override
@@ -37,6 +43,8 @@ class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
         return _buildPinEditor();
       case AppLockType.password:
         return _buildPasswordEditor();
+      default:
+        return PageNotFound();
     }
   }
 
@@ -62,6 +70,14 @@ class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
           keyboardType: TextInputType.number,
           isPassword: false,
         ),
+        if (_error != null) ...[
+          SizedBox(height: 10),
+          Text(
+            _error!,
+            style: TextStyle(color: AppColors.errorColor),
+            textAlign: TextAlign.center,
+          ),
+        ],
         SizedBox(height: 30),
         Row(
           children: [
@@ -80,11 +96,30 @@ class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
             Expanded(
               child: TextButton(
                 onPressed: () {
-                  final lock = _controller.text.trim();
-                  Navigator.pop(context, lock);
+                  final input = _controller.text.trim();
+                  if (input.isEmpty) return;
+                  if (_phase == _LockPhase.firstEntry) {
+                    setState(() {
+                      _firstInput = input;
+                      _controller.clear();
+                      _phase = _LockPhase.confirmEntry;
+                      _error = null;
+                    });
+                  } else {
+                    if (_firstInput == input) {
+                      Navigator.pop(context, input);
+                    } else {
+                      setState(() {
+                        _error = 'Values do not match. Try again.';
+                        _firstInput = null;
+                        _controller.clear();
+                        _phase = _LockPhase.firstEntry;
+                      });
+                    }
+                  }
                 },
                 child: Text(
-                  'Confirm',
+                  _phase == _LockPhase.firstEntry ? 'Continue' : 'OK',
                   style: AppTextStyles.medium18
                       .copyWith(color: AppColors.primaryLightColor),
                 ),
@@ -113,6 +148,14 @@ class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
         ),
         SizedBox(height: 30),
         AppLockTypeField(controller: _controller),
+        if (_error != null) ...[
+          SizedBox(height: 10),
+          Text(
+            _error!,
+            style: TextStyle(color: AppColors.errorColor),
+            textAlign: TextAlign.center,
+          ),
+        ],
         SizedBox(height: 30),
         Row(
           children: [
@@ -131,11 +174,30 @@ class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
             Expanded(
               child: TextButton(
                 onPressed: () {
-                  final lock = _controller.text.trim();
-                  Navigator.pop(context, lock);
+                  final input = _controller.text.trim();
+                  if (input.isEmpty) return;
+                  if (_phase == _LockPhase.firstEntry) {
+                    setState(() {
+                      _firstInput = input;
+                      _controller.clear();
+                      _phase = _LockPhase.confirmEntry;
+                      _error = null;
+                    });
+                  } else {
+                    if (_firstInput == input) {
+                      Navigator.pop(context, input);
+                    } else {
+                      setState(() {
+                        _error = 'Values do not match. Try again.';
+                        _firstInput = null;
+                        _controller.clear();
+                        _phase = _LockPhase.firstEntry;
+                      });
+                    }
+                  }
                 },
                 child: Text(
-                  'Confirm',
+                  _phase == _LockPhase.firstEntry ? 'Continue' : 'OK',
                   style: AppTextStyles.medium18
                       .copyWith(color: AppColors.primaryLightColor),
                 ),
@@ -152,8 +214,10 @@ class _AppLockTypeViewBodyState extends State<AppLockTypeViewBody> {
     return Padding(
       padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.horizontalPadding),
-      child: SingleChildScrollView(
-        child: _buildBody(),
+      child: Center(
+        child: SingleChildScrollView(
+          child: _buildBody(),
+        ),
       ),
     );
   }

@@ -106,7 +106,10 @@ class HiveService {
     final box = Hive.box(AppConstants.userPreferencesBox);
     final existing = box.get(AppConstants.userPreferencesKey);
 
-    if (existing != null) return existing;
+    if (existing != null) {
+      preferencesNotifier.value = existing;
+      return existing;
+    }
 
     final defaultPrefs = UserPreferencesEntity();
     await box.put(AppConstants.userPreferencesKey, defaultPrefs);
@@ -118,39 +121,6 @@ class HiveService {
     final box = Hive.box(AppConstants.userPreferencesBox);
     await box.put(AppConstants.userPreferencesKey, preferences);
     preferencesNotifier.value = preferences;
-  }
-
-  Future<String?> getCachedFilePath(String fileName) async {
-    var fileCacheBox = Hive.box(AppConstants.fileCacheBox);
-    final fileData = fileCacheBox.get(fileName);
-    return fileData?['filePath'];
-  }
-
-  Future<void> setFileCacheData({
-    required String fileName,
-    required String filePath,
-    required String supabasePath,
-  }) async {
-    var fileCacheBox = Hive.box(AppConstants.fileCacheBox);
-    await fileCacheBox.put(fileName, {
-      'filePath': filePath,
-      'supabasePath': supabasePath,
-    });
-  }
-
-  Future<void> clearCache() async {
-    try {
-      Hive.box(AppConstants.userBox).clear();
-      Hive.box(AppConstants.taskBox).clear();
-      Hive.box(AppConstants.subtaskBox).clear();
-      Hive.box(AppConstants.attachmentsBox).clear();
-      Hive.box(AppConstants.fileCacheBox).clear();
-      Hive.box(AppConstants.categoriesBox).clear();
-      Hive.box(AppConstants.userPreferencesBox).clear();
-      log("Cache cleared successfully.");
-    } catch (e) {
-      log("Error clearing cache: $e");
-    }
   }
 
   void _updateCategoriesNotifier(Box categoriesBox) {

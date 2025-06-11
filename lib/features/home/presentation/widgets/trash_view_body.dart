@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/functions/filter_tasks.dart';
 import 'package:taskify/core/utils/app_assets.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_constants.dart';
-import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
@@ -21,6 +22,7 @@ import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.
 import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
+import 'package:taskify/features/home/presentation/views/task_details_view.dart';
 import 'package:taskify/features/home/presentation/widgets/task_card.dart';
 
 class TrashViewBody extends StatefulWidget {
@@ -639,9 +641,12 @@ class _TrashViewBodyState extends State<TrashViewBody> {
                       padding: const EdgeInsets.only(bottom: 10),
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.of(context, rootNavigator: true).pushNamed(
-                            AppRoutes.taskDetails,
-                            arguments: trashTasks[index],
+                          pushScreenWithoutNavBar(
+                            context,
+                            Provider.value(
+                              value: trashTasks[index],
+                              child: const TaskDetailsView(),
+                            ),
                           );
                         },
                         child: TaskCard(

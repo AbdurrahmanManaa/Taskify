@@ -1,8 +1,10 @@
 import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:taskify/features/home/domain/entities/preferences/app_icon_badge_style.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_language.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_lock_type.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_theme_mode.dart';
+import 'package:taskify/features/home/domain/entities/preferences/auto_lock_after.dart';
 
 part 'user_preferences_entity.g.dart';
 
@@ -13,19 +15,17 @@ class UserPreferencesEntity extends HiveObject {
   @HiveField(1)
   final bool isNotificationEnabled;
   @HiveField(2)
-  final bool isAppLockEnabled;
-  @HiveField(3)
   final AppThemeMode appThemeMode;
-  @HiveField(4)
+  @HiveField(3)
   final AppLanguage appLanguage;
-  @HiveField(5)
+  @HiveField(4)
   final AppIconBadgeStyle appIconBadgeStyle;
+  @HiveField(5)
+  final AppLockType appLockType;
   @HiveField(6)
-  final AppLockType? appLockType;
-  @HiveField(7)
   final String? hashedPassword;
-  @HiveField(8)
-  final int? autoLockAfterMinutes;
+  @HiveField(7)
+  final AutoLockAfter autoLockAfter;
 
   UserPreferencesEntity({
     this.isOnboardingSeen = false,
@@ -33,34 +33,31 @@ class UserPreferencesEntity extends HiveObject {
     this.appIconBadgeStyle = AppIconBadgeStyle.number,
     this.appThemeMode = AppThemeMode.light,
     this.appLanguage = AppLanguage.english,
-    this.isAppLockEnabled = false,
-    this.appLockType,
+    this.appLockType = AppLockType.none,
     this.hashedPassword,
-    this.autoLockAfterMinutes,
+    this.autoLockAfter = AutoLockAfter.thirtySeconds,
   });
 
   UserPreferencesEntity copyWith({
     bool? isOnboardingSeen,
     bool? isNotificationEnabled,
-    AppIconBadgeStyle? appIconBadgeStyle,
     AppThemeMode? appThemeMode,
     AppLanguage? appLanguage,
-    bool? isAppLockEnabled,
+    AppIconBadgeStyle? appIconBadgeStyle,
     AppLockType? appLockType,
     String? hashedPassword,
-    int? autoLockAfterMinutes,
+    AutoLockAfter? autoLockAfter,
   }) {
     return UserPreferencesEntity(
       isOnboardingSeen: isOnboardingSeen ?? this.isOnboardingSeen,
       isNotificationEnabled:
           isNotificationEnabled ?? this.isNotificationEnabled,
-      appIconBadgeStyle: appIconBadgeStyle ?? this.appIconBadgeStyle,
       appThemeMode: appThemeMode ?? this.appThemeMode,
       appLanguage: appLanguage ?? this.appLanguage,
-      isAppLockEnabled: isAppLockEnabled ?? this.isAppLockEnabled,
+      appIconBadgeStyle: appIconBadgeStyle ?? this.appIconBadgeStyle,
       appLockType: appLockType ?? this.appLockType,
       hashedPassword: hashedPassword ?? this.hashedPassword,
-      autoLockAfterMinutes: autoLockAfterMinutes ?? this.autoLockAfterMinutes,
+      autoLockAfter: autoLockAfter ?? this.autoLockAfter,
     );
   }
 }

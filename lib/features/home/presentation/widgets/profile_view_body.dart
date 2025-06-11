@@ -6,8 +6,9 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/services/image_picker_service.dart';
@@ -16,6 +17,7 @@ import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/widgets/user_profile_image.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
+import 'package:taskify/features/home/presentation/views/edit_task_view.dart';
 import 'package:taskify/features/home/presentation/widgets/edit_user_view_body.dart';
 import 'package:taskify/features/home/presentation/widgets/user_info_widget.dart';
 
@@ -288,11 +290,14 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                 const SizedBox(height: 50),
                 UserInfoWidget(
                   onTap: () {
-                    Navigator.of(context, rootNavigator: true).pushNamed(
-                      AppRoutes.editUser,
-                      arguments: EditUserEntity(
-                        userEntity: userEntity,
-                        mode: EditProfileType.name,
+                    pushScreenWithoutNavBar(
+                      context,
+                      Provider.value(
+                        value: EditUserEntity(
+                          userEntity: userEntity,
+                          mode: EditProfileType.name,
+                        ),
+                        child: const EditTaskView(),
                       ),
                     );
                   },
@@ -302,11 +307,14 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                 const SizedBox(height: 40),
                 UserInfoWidget(
                   onTap: () {
-                    Navigator.of(context, rootNavigator: true).pushNamed(
-                      AppRoutes.editUser,
-                      arguments: EditUserEntity(
-                        userEntity: userEntity,
-                        mode: EditProfileType.email,
+                    pushScreenWithoutNavBar(
+                      context,
+                      Provider.value(
+                        value: EditUserEntity(
+                          userEntity: userEntity,
+                          mode: EditProfileType.email,
+                        ),
+                        child: const EditTaskView(),
                       ),
                     );
                   },

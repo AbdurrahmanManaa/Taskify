@@ -3,11 +3,13 @@ import 'dart:developer';
 
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_lock/flutter_app_lock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:taskify/core/extensions/user_preferences_extension.dart';
 import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
@@ -15,6 +17,8 @@ import 'package:taskify/core/functions/on_generate_route.dart';
 import 'package:taskify/core/services/get_it_service.dart';
 import 'package:taskify/core/utils/app_theme.dart';
 import 'package:taskify/core/utils/custom_bloc_observer.dart';
+import 'package:taskify/core/widgets/inactive_screen.dart';
+import 'package:taskify/core/widgets/lock_screen.dart';
 import 'package:taskify/features/auth/domain/entities/user_entity.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
@@ -23,6 +27,7 @@ import 'package:taskify/features/home/domain/entities/preferences/app_icon_badge
 import 'package:taskify/features/home/domain/entities/preferences/app_language.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_lock_type.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_theme_mode.dart';
+import 'package:taskify/features/home/domain/entities/preferences/auto_lock_after.dart';
 import 'package:taskify/features/home/domain/entities/subtask/subtask_status.dart';
 import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
 import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
@@ -89,6 +94,9 @@ void main() async {
   Hive.registerAdapter(
     AppLockTypeAdapter(),
   );
+  Hive.registerAdapter(
+    AutoLockAfterAdapter(),
+  );
 
   await Hive.openBox(AppConstants.userBox);
   await Hive.openBox(AppConstants.taskBox);
@@ -97,6 +105,7 @@ void main() async {
   await Hive.openBox(AppConstants.categoriesBox);
   await Hive.openBox(AppConstants.userPreferencesBox);
   await Hive.openBox(AppConstants.fileCacheBox);
+  await HiveService().getUserPreferences();
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_API_Key']!,
@@ -157,8 +166,6 @@ class _MyAppState extends State<MyApp> {
           case AuthChangeEvent.passwordRecovery:
             navigatorKey.currentState?.pushNamed(AppRoutes.resetPassword);
             break;
-          case AuthChangeEvent.mfaChallengeVerified:
-            break;
           default:
             break;
         }
@@ -211,19 +218,30 @@ class _MyAppState extends State<MyApp> {
       ],
       child: ValueListenableBuilder(
         valueListenable: HiveService.preferencesNotifier,
-        builder: (context, value, child) {
+        builder: (context, value, _) {
+          final autoLockerAfter = value.autoLockAfter;
+          final appThemeMode = value.appThemeMode;
+          final appLockEnabled = value.appLockType != AppLockType.none;
+
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
             onGenerateRoute: onGenerateRoute,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
-            themeMode: value.appThemeMode == AppThemeMode.system
-                ? ThemeMode.system
-                : value.appThemeMode == AppThemeMode.dark
-                    ? ThemeMode.dark
-                    : ThemeMode.light,
+            themeMode: switch (appThemeMode) {
+              AppThemeMode.system => ThemeMode.system,
+              AppThemeMode.dark => ThemeMode.dark,
+              AppThemeMode.light => ThemeMode.light,
+            },
             initialRoute: AppRoutes.initial,
+            builder: (context, child) => AppLock(
+              builder: (context, arg) => child!,
+              lockScreenBuilder: (context) => LockScreen(),
+              inactiveBuilder: (context) => InActiveScreen(),
+              initiallyEnabled: appLockEnabled,
+              initialBackgroundLockLatency: autoLockerAfter.duration,
+            ),
           );
         },
       ),

@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:taskify/core/extensions/task_priority_extension.dart';
+import 'package:taskify/core/extensions/task_enum_extensions.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
-import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/utils/file_manager.dart';
 import 'package:taskify/core/services/hive_service.dart';
@@ -37,6 +37,8 @@ import 'package:taskify/features/home/presentation/manager/cubits/attachments_cu
 import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit/sub_task_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 import 'package:path/path.dart' as p;
+import 'package:taskify/features/home/presentation/views/task_reminder_view.dart';
+import 'package:taskify/features/home/presentation/views/task_repeat_view.dart';
 import 'package:taskify/features/home/presentation/widgets/attachment_item.dart';
 import 'package:taskify/features/home/presentation/widgets/subtask_item.dart';
 import 'package:uuid/uuid.dart';
@@ -652,16 +654,14 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       label: 'Reminder',
                       widget: GestureDetector(
                         onTap: () async {
-                          final result =
-                              await Navigator.of(context, rootNavigator: true)
-                                  .pushNamed(
-                            AppRoutes.taskReminder,
+                          final result = await pushScreenWithoutNavBar(
+                            context,
+                            TaskReminderView(),
                           );
 
                           if (result is TaskReminderEntity) {
                             setState(() {
                               _reminderEntity = result;
-
                               if (result.option == 'Custom') {
                                 if (result.value == 0) {
                                   _selectedTaskReminder = 'At time of event';
@@ -690,10 +690,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       label: 'Repeat',
                       widget: GestureDetector(
                         onTap: () async {
-                          final result =
-                              await Navigator.of(context, rootNavigator: true)
-                                  .pushNamed(
-                            AppRoutes.taskRepeat,
+                          final result = await pushScreenWithoutNavBar(
+                            context,
+                            TaskRepeatView(),
                           );
                           if (result is TaskRepeatEntity) {
                             setState(() {

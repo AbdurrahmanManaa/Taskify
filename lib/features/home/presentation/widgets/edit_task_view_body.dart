@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:taskify/core/extensions/task_priority_extension.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:taskify/core/extensions/task_enum_extensions.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
-import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_constants.dart';
@@ -22,6 +22,8 @@ import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.
 import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
+import 'package:taskify/features/home/presentation/views/task_reminder_view.dart';
+import 'package:taskify/features/home/presentation/views/task_repeat_view.dart';
 
 class EditTaskViewBody extends StatefulWidget {
   const EditTaskViewBody({super.key});
@@ -416,10 +418,9 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 label: 'Reminder',
                 widget: GestureDetector(
                   onTap: () async {
-                    final result =
-                        await Navigator.of(context, rootNavigator: true)
-                            .pushNamed(
-                      AppRoutes.taskReminder,
+                    final result = await pushScreenWithoutNavBar(
+                      context,
+                      TaskReminderView(),
                     );
                     if (result is TaskReminderEntity) {
                       setState(() {
@@ -454,10 +455,9 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 label: 'Repeat',
                 widget: GestureDetector(
                   onTap: () async {
-                    final result =
-                        await Navigator.of(context, rootNavigator: true)
-                            .pushNamed(
-                      AppRoutes.taskRepeat,
+                    final result = await pushScreenWithoutNavBar(
+                      context,
+                      TaskRepeatView(),
                     );
                     if (result is TaskRepeatEntity) {
                       setState(() {

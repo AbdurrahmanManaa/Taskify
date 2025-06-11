@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:taskify/core/extensions/task_status_extension.dart';
+import 'package:taskify/core/extensions/task_enum_extensions.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
 import 'package:taskify/features/home/domain/entities/task/task_status.dart';

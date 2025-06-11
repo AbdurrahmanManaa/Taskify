@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,6 +19,7 @@ import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.
 import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
+import 'package:taskify/features/home/presentation/views/task_details_view.dart';
 import 'package:taskify/features/home/presentation/widgets/calender_item.dart';
 
 class CalenderViewBody extends StatefulWidget {
@@ -321,9 +323,12 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
                       padding: const EdgeInsets.only(bottom: 10),
                       child: CalenderItem(
                         onTap: () {
-                          Navigator.of(context, rootNavigator: true).pushNamed(
-                            'taskDetails',
-                            arguments: _filterTasks(filteredTasks)[index],
+                          pushScreenWithoutNavBar(
+                            context,
+                            Provider.value(
+                              value: _filterTasks(filteredTasks)[index],
+                              child: const TaskDetailsView(),
+                            ),
                           );
                         },
                         taskEntity: filteredTasks[index],

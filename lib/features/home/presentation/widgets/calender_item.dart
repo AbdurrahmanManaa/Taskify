@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:taskify/core/extensions/task_status_extension.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:provider/provider.dart';
+import 'package:taskify/core/extensions/task_enum_extensions.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
@@ -9,6 +10,7 @@ import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
+import 'package:taskify/features/home/presentation/views/edit_task_view.dart';
 
 class CalenderItem extends StatelessWidget {
   const CalenderItem({super.key, required this.taskEntity, this.onTap});
@@ -94,10 +96,12 @@ class CalenderItem extends StatelessWidget {
                           PopupMenuItem(
                             value: 1,
                             onTap: () {
-                              Navigator.of(context, rootNavigator: true)
-                                  .pushNamed(
-                                'editTask',
-                                arguments: taskEntity,
+                              pushScreenWithoutNavBar(
+                                context,
+                                Provider.value(
+                                  value: taskEntity,
+                                  child: const EditTaskView(),
+                                ),
                               );
                             },
                             child: Row(

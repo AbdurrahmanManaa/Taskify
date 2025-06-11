@@ -18,7 +18,7 @@ class _OnboardingViewBodyState extends State<OnboardingViewBody> {
   final _introKey = GlobalKey<IntroductionScreenState>();
 
   void _onIntroEnd(BuildContext context) async {
-    final prefs = await HiveService().getUserPreferences();
+    final prefs = HiveService.preferencesNotifier.value;
     await HiveService().setUserPreferences(
       prefs.copyWith(isOnboardingSeen: true),
     );

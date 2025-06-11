@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:taskify/core/extensions/task_priority_extension.dart';
-import 'package:taskify/core/extensions/task_status_extension.dart';
+import 'package:taskify/core/extensions/task_enum_extensions.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';

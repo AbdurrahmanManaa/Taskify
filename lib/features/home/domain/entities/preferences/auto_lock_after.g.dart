@@ -1,40 +1,45 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'app_lock_type.dart';
+part of 'auto_lock_after.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class AppLockTypeAdapter extends TypeAdapter<AppLockType> {
+class AutoLockAfterAdapter extends TypeAdapter<AutoLockAfter> {
   @override
-  final int typeId = 15;
+  final int typeId = 16;
 
   @override
-  AppLockType read(BinaryReader reader) {
+  AutoLockAfter read(BinaryReader reader) {
     switch (reader.readByte()) {
       case 0:
-        return AppLockType.none;
+        return AutoLockAfter.immediately;
       case 1:
-        return AppLockType.pin;
+        return AutoLockAfter.tenSeconds;
       case 2:
-        return AppLockType.password;
+        return AutoLockAfter.thirtySeconds;
+      case 3:
+        return AutoLockAfter.sixtySeconds;
       default:
-        return AppLockType.none;
+        return AutoLockAfter.immediately;
     }
   }
 
   @override
-  void write(BinaryWriter writer, AppLockType obj) {
+  void write(BinaryWriter writer, AutoLockAfter obj) {
     switch (obj) {
-      case AppLockType.none:
+      case AutoLockAfter.immediately:
         writer.writeByte(0);
         break;
-      case AppLockType.pin:
+      case AutoLockAfter.tenSeconds:
         writer.writeByte(1);
         break;
-      case AppLockType.password:
+      case AutoLockAfter.thirtySeconds:
         writer.writeByte(2);
+        break;
+      case AutoLockAfter.sixtySeconds:
+        writer.writeByte(3);
         break;
     }
   }
@@ -45,7 +50,7 @@ class AppLockTypeAdapter extends TypeAdapter<AppLockType> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AppLockTypeAdapter &&
+      other is AutoLockAfterAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

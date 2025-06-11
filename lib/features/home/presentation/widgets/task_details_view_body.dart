@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:taskify/core/extensions/task_status_extension.dart';
+import 'package:taskify/core/extensions/task_enum_extensions.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
-import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
@@ -21,6 +22,8 @@ import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/attachments_cubit/attachment_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit/sub_task_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
+import 'package:taskify/features/home/presentation/views/edit_task_view.dart';
+import 'package:taskify/features/home/presentation/views/main_view.dart';
 import 'package:taskify/features/home/presentation/widgets/attachments_tab.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_tab_bar.dart';
 import 'package:taskify/features/home/presentation/widgets/subtasks_tab.dart';
@@ -259,10 +262,11 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
                     taskId: taskEntity.id,
                   );
               if (!context.mounted) return;
-              Navigator.pushNamedAndRemoveUntil(
+              pushReplacementWithoutNavBar(
                 context,
-                AppRoutes.main,
-                (route) => false,
+                MaterialPageRoute(
+                  builder: (_) => const MainView(),
+                ),
               );
             },
           ),
@@ -315,9 +319,12 @@ class _TaskDetailsViewBodyState extends State<TaskDetailsViewBody> {
             PopupMenuItem(
               value: 1,
               onTap: () {
-                Navigator.of(context, rootNavigator: true).pushNamed(
-                  'editTask',
-                  arguments: taskDetails,
+                pushScreenWithoutNavBar(
+                  context,
+                  Provider.value(
+                    value: taskDetails,
+                    child: const EditTaskView(),
+                  ),
                 );
               },
               child: Row(

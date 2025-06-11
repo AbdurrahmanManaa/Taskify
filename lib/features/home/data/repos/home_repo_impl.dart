@@ -201,12 +201,6 @@ class HomeRepoImpl implements HomeRepo {
           file: file,
         );
 
-        await _hiveService.setFileCacheData(
-          fileName: fileName,
-          filePath: file.path,
-          supabasePath: path,
-        );
-
         final updatedAttachment = base.copyWith(
           id: Uuid().v4(),
           taskId: taskId,
