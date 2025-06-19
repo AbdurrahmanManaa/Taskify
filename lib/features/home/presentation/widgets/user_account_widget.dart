@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/features/home/domain/entities/user_identity_entity.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class UserAccountWidget extends StatelessWidget {
   const UserAccountWidget({
@@ -18,12 +19,10 @@ class UserAccountWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final providerName =
         userIdentityEntity.providerIcon.split('/').last.split('.').first;
-
     final displayProvider =
         providerName[0].toUpperCase() + providerName.substring(1);
-
     final email = userIdentityEntity.userIdentity?.identityData?['email'] ??
-        'Not connected';
+        S.of(context).notConnected;
 
     return Row(
       children: [

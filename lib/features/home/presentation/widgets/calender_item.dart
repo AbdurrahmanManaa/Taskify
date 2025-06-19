@@ -57,7 +57,7 @@ class CalenderItem extends StatelessWidget {
                         ],
                       ),
                       Spacer(),
-                      TaskUIHelper.buildStatusTag(taskEntity.status),
+                      TaskUIHelper.buildStatusTag(context, taskEntity.status),
                       PopupMenuButton(
                         icon: Icon(
                           Icons.more_horiz,

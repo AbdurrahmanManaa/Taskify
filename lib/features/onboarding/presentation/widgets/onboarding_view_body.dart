@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:taskify/core/functions/show_language_selection_modal_sheet.dart';
+import 'package:taskify/core/functions/show_theme_mode_selection_modal_sheet.dart';
 import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_assets.dart';
 import 'package:taskify/core/utils/app_colors.dart';
-import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_routes.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class OnboardingViewBody extends StatefulWidget {
   const OnboardingViewBody({super.key});
@@ -49,22 +51,41 @@ class _OnboardingViewBodyState extends State<OnboardingViewBody> {
     return IntroductionScreen(
       key: _introKey,
       scrollPhysics: BouncingScrollPhysics(),
+      globalHeader: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () async {
+                await showThemeModeSelectionModalSheet(context);
+              },
+              icon: Icon(Icons.dark_mode),
+            ),
+            IconButton(
+              onPressed: () async {
+                await showLanguageSelectionModalSheet(context);
+              },
+              icon: Icon(Icons.language),
+            ),
+          ],
+        ),
+      ),
       pages: [
         PageViewModel(
-          title: AppConstants.onBoardingTitle1,
-          body: AppConstants.onBoardingSubTitle1,
+          title: S.of(context).onBoardingTitle1,
+          body: S.of(context).onBoardingBody1,
           image: Image.asset(AppAssets.imagesOnBoarding1),
           decoration: pageDecoration,
         ),
         PageViewModel(
-          title: AppConstants.onBoardingTitle2,
-          body: AppConstants.onBoardingSubTitle2,
+          title: S.of(context).onBoardingTitle2,
+          body: S.of(context).onBoardingBody2,
           image: Image.asset(AppAssets.imagesOnBoarding2),
           decoration: pageDecoration,
         ),
         PageViewModel(
-          title: AppConstants.onBoardingTitle3,
-          body: AppConstants.onBoardingSubTitle3,
+          title: S.of(context).onBoardingTitle3,
+          body: S.of(context).onBoardingBody3,
           image: Image.asset(AppAssets.imagesOnBoarding3),
           decoration: pageDecoration,
         ),
@@ -77,7 +98,7 @@ class _OnboardingViewBodyState extends State<OnboardingViewBody> {
       nextFlex: 0,
       showBackButton: false,
       skip: Text(
-        'Skip',
+        S.of(context).skip,
         style: AppTextStyles.semiBold20
             .copyWith(color: AppColors.primaryLightColor),
       ),
@@ -87,7 +108,7 @@ class _OnboardingViewBodyState extends State<OnboardingViewBody> {
         size: 30,
       ),
       done: Text(
-        'Get Started',
+        S.of(context).getStarted,
         style: AppTextStyles.semiBold20
             .copyWith(color: AppColors.primaryLightColor),
       ),

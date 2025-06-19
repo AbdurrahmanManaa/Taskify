@@ -11,6 +11,7 @@ import 'package:taskify/core/widgets/custom_wrapper_container.dart';
 import 'package:taskify/core/widgets/option_item.dart';
 import 'package:taskify/features/home/domain/entities/task/task_repeat_entity.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class TaskRepeatViewBody extends StatefulWidget {
   const TaskRepeatViewBody({super.key});
@@ -22,12 +23,9 @@ class TaskRepeatViewBody extends StatefulWidget {
 class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
   late final TextEditingController _intervalController;
   late final TextEditingController _countController;
-  String _selectedOption = 'Don\'t repeat';
-  String _selectedDuration = 'Forever';
-  List<String> _selectedWeekDays = weekDays
-      .where((day) => day.isSelected == true)
-      .map((day) => day.dayKey)
-      .toList();
+  late String _selectedOption;
+  late String _selectedDuration;
+  late List<String> _selectedWeekDays;
   DateTime _selectedDate = DateTime(
     DateTime.now().year,
     DateTime.now().month + 1,
@@ -146,7 +144,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
     setState(() {
       _isSelected = !_isSelected;
       if (_isSelected) {
-        _selectedOption = 'Custom';
+        _selectedOption = S.of(context).custom;
       }
     });
   }
@@ -155,7 +153,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
     setState(() {
       _isDurationSelected = !_isDurationSelected;
       if (_isDurationSelected) {
-        _selectedDuration = 'Custom';
+        _selectedDuration = S.of(context).custom;
       }
     });
   }
@@ -205,7 +203,9 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
     );
   }
 
-  SelectWeekDays _buildWeekDaysWidget() {
+  SelectWeekDays _buildWeekDaysWidget(BuildContext context) {
+    final weekDays = ScheduleParser.getWeekDays(context);
+
     return SelectWeekDays(
       onSelect: (days) => setState(() {
         _selectedWeekDays = days;
@@ -228,45 +228,63 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
     );
   }
 
-  Text _formatUnit({required String unit}) {
+  Text _formatUnit(BuildContext context) {
+    if (_intervalController.text.isEmpty) {
+      return Text('');
+    }
+    final count = int.tryParse(_intervalController.text) ?? 0;
+    final repeatOption = _selectedOption;
+    final repeatUnit = ScheduleParser.getRepeatUnit(context, repeatOption);
+    final unit = ScheduleParser.formatUnit(context, count, repeatUnit);
     return Text(
-      _intervalController.text.isEmpty
-          ? unit
-          : ' ${ScheduleParser.formatUnit(
-              _selectedInterval,
-              ScheduleParser.getRepeatUnit(_selectedOption),
-              '${ScheduleParser.getRepeatUnit(_selectedOption)}s',
-            )}',
+      ' $unit',
       style: AppTextStyles.medium16.copyWith(color: Colors.black),
     );
   }
 
-  String _formatRepeatText() {
-    if (_selectedOption == 'Don\'t repeat') {
-      return 'This event doesn\'t repeat';
-    } else if (_selectedOption == 'Everyday') {
+  String _formatRepeatText(BuildContext context) {
+    List<String> selectedDays = _selectedWeekDays;
+
+    if (_selectedOption == S.of(context).repeatOption1) {
+      return S.of(context).repeatDescriptionDontRepeat;
+    } else if (_selectedOption == S.of(context).repeatOption2) {
       return _selectedInterval == 0
-          ? 'This event will repeat every day'
-          : 'This event will repeat every $_selectedInterval day${_selectedInterval > 1 ? 's' : ''}';
-    } else if (_selectedOption == 'Every week') {
-      List<String> selectedDays = _selectedWeekDays;
+          ? S.of(context).repeatDescriptionEveryday
+          : S
+              .of(context)
+              .repeatDescriptionEveryOtherDay(_selectedInterval.toString());
+    } else if (_selectedOption == S.of(context).repeatOption3) {
       return _selectedInterval == 0
-          ? 'This event will repeat every week on ${selectedDays.join(', ')}'
-          : 'This event will repeat every $_selectedInterval week${_selectedInterval > 1 ? 's' : ''} on ${selectedDays.join(', ')}';
-    } else if (_selectedOption == 'Every month') {
+          ? S.of(context).repeatDescriptionEveryWeek(selectedDays.join(', '))
+          : S.of(context).repeatDescriptionEveryOtherWeek(
+              _selectedInterval.toString(), selectedDays.join(', '));
+    } else if (_selectedOption == S.of(context).repeatOption4) {
       return _selectedInterval == 0
-          ? 'This event will repeat every month'
-          : 'This event will repeat every $_selectedInterval month${_selectedInterval > 1 ? 's' : ''}';
-    } else if (_selectedOption == 'Every year') {
+          ? S.of(context).repeatDescriptionEveryMonth
+          : S
+              .of(context)
+              .repeatDescriptionEveryOtherMonth(_selectedInterval.toString());
+    } else if (_selectedOption == S.of(context).repeatOption5) {
       return _selectedInterval == 0
-          ? 'This event will repeat every year'
-          : 'This event will repeat every $_selectedInterval year${_selectedInterval > 1 ? 's' : ''}';
+          ? S.of(context).repeatDescriptionEveryYear
+          : S
+              .of(context)
+              .repeatDescriptionEveryOtherYear(_selectedInterval.toString());
     }
+
     return '';
   }
 
   @override
   Widget build(BuildContext context) {
+    _selectedOption = S.of(context).repeatOption1;
+    _selectedDuration = S.of(context).repeatDuration1;
+    final repeatMaxValues = ScheduleParser.getRepeatMaxValues(context);
+    _selectedWeekDays = ScheduleParser.getWeekDays(context)
+        .where((day) => day.isSelected == true)
+        .map((day) => day.dayKey)
+        .toList();
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppConstants.horizontalPadding),
       child: SingleChildScrollView(
@@ -275,7 +293,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
           children: [
             const SizedBox(height: 20),
             CustomAppbar(
-              title: 'Task Repeat',
+              title: S.of(context).repeatAppBar,
               result: TaskRepeatEntity(
                 interval: _selectedInterval,
                 option: _selectedOption,
@@ -285,9 +303,9 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                 untilDate: _selectedDate,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             Text(
-              _formatRepeatText(),
+              _formatRepeatText(context),
               style: AppTextStyles.medium18,
             ),
             const SizedBox(height: 20),
@@ -296,7 +314,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                 children: [
                   OptionItem(
                     leading: Radio(
-                      value: 'Don\'t repeat',
+                      value: S.of(context).repeatOption1,
                       groupValue: _selectedOption,
                       onChanged: (value) {
                         setState(() {
@@ -306,17 +324,17 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                       },
                     ),
                     title: Text(
-                      'Don\'t repeat',
+                      S.of(context).repeatOption1,
                       style:
                           AppTextStyles.medium18.copyWith(color: Colors.black),
                     ),
                   ),
                   Divider(),
                   CustomAnimatedSwitcher(
-                    child: _selectedOption == 'Everyday'
+                    child: _selectedOption == S.of(context).repeatOption2
                         ? OptionItem(
                             leading: Radio(
-                              value: 'Everyday',
+                              value: S.of(context).repeatOption2,
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
@@ -329,7 +347,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Every ',
+                                  S.of(context).every,
                                   style: AppTextStyles.medium16
                                       .copyWith(color: Colors.black),
                                 ),
@@ -369,13 +387,13 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                     });
                                   },
                                 ),
-                                _formatUnit(unit: 'day'),
+                                _formatUnit(context),
                               ],
                             ),
                           )
                         : OptionItem(
                             leading: Radio(
-                              value: 'Everyday',
+                              value: S.of(context).repeatOption2,
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
@@ -385,7 +403,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                               },
                             ),
                             title: Text(
-                              'Everyday',
+                              S.of(context).repeatOption2,
                               style: AppTextStyles.medium18
                                   .copyWith(color: Colors.black),
                             ),
@@ -393,12 +411,12 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                   ),
                   Divider(),
                   CustomAnimatedSwitcher(
-                    child: _selectedOption == 'Every week'
+                    child: _selectedOption == S.of(context).repeatOption3
                         ? Column(
                             children: [
                               OptionItem(
                                 leading: Radio(
-                                  value: 'Every week',
+                                  value: S.of(context).repeatOption3,
                                   groupValue: _selectedOption,
                                   onChanged: (value) {
                                     setState(() {
@@ -411,7 +429,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Every ',
+                                      S.of(context).every,
                                       style: AppTextStyles.medium16
                                           .copyWith(color: Colors.black),
                                     ),
@@ -452,17 +470,17 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                         });
                                       },
                                     ),
-                                    _formatUnit(unit: 'week'),
+                                    _formatUnit(context),
                                   ],
                                 ),
                               ),
                               SizedBox(height: 10),
-                              _buildWeekDaysWidget(),
+                              _buildWeekDaysWidget(context),
                             ],
                           )
                         : OptionItem(
                             leading: Radio(
-                              value: 'Every week',
+                              value: S.of(context).repeatOption3,
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
@@ -472,7 +490,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                               },
                             ),
                             title: Text(
-                              'Every week',
+                              S.of(context).repeatOption3,
                               style: AppTextStyles.medium18
                                   .copyWith(color: Colors.black),
                             ),
@@ -480,10 +498,10 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                   ),
                   Divider(),
                   CustomAnimatedSwitcher(
-                    child: _selectedOption == 'Every month'
+                    child: _selectedOption == S.of(context).repeatOption4
                         ? OptionItem(
                             leading: Radio(
-                              value: 'Every month',
+                              value: S.of(context).repeatOption4,
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
@@ -496,7 +514,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Every ',
+                                  S.of(context).every,
                                   style: AppTextStyles.medium16
                                       .copyWith(color: Colors.black),
                                 ),
@@ -536,13 +554,13 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                     });
                                   },
                                 ),
-                                _formatUnit(unit: 'month'),
+                                _formatUnit(context),
                               ],
                             ),
                           )
                         : OptionItem(
                             leading: Radio(
-                              value: 'Every month',
+                              value: S.of(context).repeatOption4,
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
@@ -552,7 +570,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                               },
                             ),
                             title: Text(
-                              'Every month',
+                              S.of(context).repeatOption4,
                               style: AppTextStyles.medium18
                                   .copyWith(color: Colors.black),
                             ),
@@ -560,10 +578,10 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                   ),
                   Divider(),
                   CustomAnimatedSwitcher(
-                    child: _selectedOption == 'Every year'
+                    child: _selectedOption == S.of(context).repeatOption5
                         ? OptionItem(
                             leading: Radio(
-                              value: 'Every year',
+                              value: S.of(context).repeatOption5,
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
@@ -576,7 +594,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Every ',
+                                  S.of(context).every,
                                   style: AppTextStyles.medium16
                                       .copyWith(color: Colors.black),
                                 ),
@@ -616,13 +634,13 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                     });
                                   },
                                 ),
-                                _formatUnit(unit: 'year'),
+                                _formatUnit(context),
                               ],
                             ),
                           )
                         : OptionItem(
                             leading: Radio(
-                              value: 'Every year',
+                              value: S.of(context).repeatOption5,
                               groupValue: _selectedOption,
                               onChanged: (value) {
                                 setState(() {
@@ -632,7 +650,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                               },
                             ),
                             title: Text(
-                              'Every year',
+                              S.of(context).repeatOption5,
                               style: AppTextStyles.medium18
                                   .copyWith(color: Colors.black),
                             ),
@@ -643,12 +661,12 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
             ),
             const SizedBox(height: 20),
             Visibility(
-              visible: _selectedOption != 'Don\'t repeat',
+              visible: _selectedOption != S.of(context).repeatOption1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Duration',
+                    S.of(context).duration,
                     style: AppTextStyles.medium18,
                   ),
                   const SizedBox(height: 10),
@@ -661,7 +679,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                           children: [
                             OptionItem(
                               leading: Radio(
-                                value: 'Forever',
+                                value: S.of(context).repeatDuration1,
                                 groupValue: _selectedDuration,
                                 onChanged: (value) {
                                   setState(() {
@@ -671,7 +689,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                 },
                               ),
                               title: Text(
-                                'Forever',
+                                S.of(context).repeatDuration1,
                                 style: AppTextStyles.medium18
                                     .copyWith(color: Colors.black),
                               ),
@@ -679,10 +697,10 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                             Divider(),
                             CustomAnimatedSwitcher(
                                 child: _selectedDuration ==
-                                        'Specific number of times'
+                                        S.of(context).repeatDuration2
                                     ? OptionItem(
                                         leading: Radio(
-                                          value: 'Specific number of times',
+                                          value: S.of(context).repeatDuration2,
                                           groupValue: _selectedDuration,
                                           onChanged: (value) {
                                             setState(() {
@@ -717,8 +735,10 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                                   () {
                                                     int? newCount =
                                                         int.tryParse(newValue);
-                                                    int maxValue = repeatMaxValues[
-                                                        'Specific number of times']!;
+                                                    int maxValue =
+                                                        repeatMaxValues[S
+                                                            .of(context)
+                                                            .repeatDuration2]!;
                                                     if (newCount != null) {
                                                       newCount = newCount.clamp(
                                                           1, maxValue);
@@ -743,12 +763,11 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                             const SizedBox(width: 10),
                                             Text(
                                               _countController.text
-                                                      .trim()
-                                                      .isEmpty
-                                                  ? 'time total'
-                                                  : (_selectedCount == 1
-                                                      ? 'time total'
-                                                      : 'times total'),
+                                                          .trim()
+                                                          .isEmpty ||
+                                                      _selectedCount == 1
+                                                  ? S.of(context).timeTotal
+                                                  : S.of(context).timesTotal,
                                               style: AppTextStyles.medium16
                                                   .copyWith(
                                                       color: Colors.black),
@@ -758,7 +777,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                       )
                                     : OptionItem(
                                         leading: Radio(
-                                          value: 'Specific number of times',
+                                          value: S.of(context).repeatDuration2,
                                           groupValue: _selectedDuration,
                                           onChanged: (value) {
                                             setState(() {
@@ -768,19 +787,21 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                           },
                                         ),
                                         title: Text(
-                                          'Specific number of times',
+                                          S.of(context).repeatDuration2,
                                           style: AppTextStyles.medium18
                                               .copyWith(color: Colors.black),
                                         ),
                                       )),
                             Divider(),
                             CustomAnimatedSwitcher(
-                              child: _selectedDuration == 'Until'
+                              child: _selectedDuration ==
+                                      S.of(context).repeatDuration3
                                   ? Column(
                                       children: [
                                         OptionItem(
                                           leading: Radio(
-                                            value: 'Until',
+                                            value:
+                                                S.of(context).repeatDuration3,
                                             groupValue: _selectedDuration,
                                             onChanged: (value) {
                                               setState(() {
@@ -794,7 +815,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                                 MainAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Until ',
+                                                S.of(context).repeatDuration3,
                                                 style: AppTextStyles.medium16
                                                     .copyWith(
                                                         color: Colors.black),
@@ -814,7 +835,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                     )
                                   : OptionItem(
                                       leading: Radio(
-                                        value: 'Until',
+                                        value: S.of(context).repeatDuration3,
                                         groupValue: _selectedDuration,
                                         onChanged: (value) {
                                           setState(() {
@@ -824,7 +845,7 @@ class _TaskRepeatViewBodyState extends State<TaskRepeatViewBody> {
                                         },
                                       ),
                                       title: Text(
-                                        'Until',
+                                        S.of(context).repeatDuration3,
                                         style: AppTextStyles.medium18
                                             .copyWith(color: Colors.black),
                                       ),

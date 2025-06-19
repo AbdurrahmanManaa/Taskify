@@ -3,6 +3,7 @@ import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/features/home/presentation/widgets/settings_section.dart';
 import 'package:taskify/core/widgets/option_item.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class SecuritySettingsSection extends StatelessWidget {
   const SecuritySettingsSection(
@@ -13,7 +14,7 @@ class SecuritySettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsSection(
-      title: 'Security',
+      title: S.of(context).securitySectionTitle,
       widgets: [
         const SizedBox(height: 20),
         OptionItem(
@@ -24,7 +25,7 @@ class SecuritySettingsSection extends StatelessWidget {
             color: AppColors.primaryLightColor,
           ),
           title: Text(
-            'Change Password',
+            S.of(context).changePasswordOptionItem,
             style: AppTextStyles.medium18
                 .copyWith(color: AppColors.primaryLightColor),
           ),
@@ -45,7 +46,7 @@ class SecuritySettingsSection extends StatelessWidget {
             color: AppColors.primaryLightColor,
           ),
           title: Text(
-            'App Lock',
+            S.of(context).appLockOptionItem,
             style: AppTextStyles.medium18
                 .copyWith(color: AppColors.primaryLightColor),
           ),

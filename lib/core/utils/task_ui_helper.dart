@@ -6,9 +6,10 @@ import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
 import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 
 class TaskUIHelper {
-  static Widget buildStatusTag(TaskStatus status) {
+  static Widget buildStatusTag(BuildContext context, TaskStatus status) {
     final details = getStatusDetails(status);
     final Color statusColor = details['color'] as Color;
+    final label = status.label(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -17,7 +18,7 @@ class TaskUIHelper {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        status.label,
+        label,
         style: TextStyle(
           color: statusColor,
           fontWeight: FontWeight.w600,

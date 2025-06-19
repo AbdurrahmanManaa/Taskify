@@ -18,7 +18,7 @@ class CustomBottomNavBar extends StatefulWidget {
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   final List<ScrollController> _scrollControllers =
-      List.generate(5, (_) => ScrollController());
+      List.generate(4, (_) => ScrollController());
 
   List<PersistentTabConfig> get _tabs {
     return [
@@ -61,11 +61,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         ),
       ),
       PersistentTabConfig(
-        screen: ChangeNotifierProvider.value(
-          value: _scrollControllers[3],
-          child: StatisticsView(),
-        ),
-        scrollController: _scrollControllers[3],
+        screen: StatisticsView(),
         item: ItemConfig(
           icon: Icon(Icons.bar_chart,
               color: AppColors.primaryLightColor, size: 32),
@@ -75,10 +71,10 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       ),
       PersistentTabConfig(
         screen: ChangeNotifierProvider.value(
-          value: _scrollControllers[4],
+          value: _scrollControllers[3],
           child: SettingsView(),
         ),
-        scrollController: _scrollControllers[4],
+        scrollController: _scrollControllers[3],
         item: ItemConfig(
           icon: Icon(Icons.settings,
               color: AppColors.primaryLightColor, size: 32),

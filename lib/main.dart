@@ -5,6 +5,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_lock/flutter_app_lock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,9 +24,11 @@ import 'package:taskify/features/auth/domain/entities/user_entity.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
 import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_fonts.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_icon_badge_style.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_language.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_lock_type.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_scheme.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_theme_mode.dart';
 import 'package:taskify/features/home/domain/entities/preferences/auto_lock_after.dart';
 import 'package:taskify/features/home/domain/entities/subtask/subtask_status.dart';
@@ -40,6 +43,7 @@ import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/attachments_cubit/attachment_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit/sub_task_cubit.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
+import 'package:taskify/generated/l10n.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -86,7 +90,13 @@ void main() async {
     AppThemeModeAdapter(),
   );
   Hive.registerAdapter(
+    AppSchemeAdapter(),
+  );
+  Hive.registerAdapter(
     AppLanguageAdapter(),
+  );
+  Hive.registerAdapter(
+    AppFontsAdapter(),
   );
   Hive.registerAdapter(
     AppIconBadgeStyleAdapter(),
@@ -106,6 +116,7 @@ void main() async {
   await Hive.openBox(AppConstants.userPreferencesBox);
   await Hive.openBox(AppConstants.fileCacheBox);
   await HiveService().getUserPreferences();
+  await HiveService().initializeCategories();
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_API_Key']!,
@@ -222,11 +233,23 @@ class _MyAppState extends State<MyApp> {
           final autoLockerAfter = value.autoLockAfter;
           final appThemeMode = value.appThemeMode;
           final appLockEnabled = value.appLockType != AppLockType.none;
+          final appLanguage = value.appLanguage;
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
             onGenerateRoute: onGenerateRoute,
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.delegate.supportedLocales,
+            locale: switch (appLanguage) {
+              AppLanguage.english => const Locale('en'),
+              AppLanguage.arabic => const Locale('ar'),
+            },
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: switch (appThemeMode) {

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:taskify/core/extensions/task_enum_extensions.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
+import 'package:taskify/core/functions/handle_category_selection.dart';
+import 'package:taskify/core/functions/delete_custom_task_categories.dart';
+import 'package:taskify/core/functions/show_priority_selection_modal_bottom_sheet.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/utils/app_constants.dart';
@@ -24,6 +26,7 @@ import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 import 'package:taskify/features/home/presentation/views/task_reminder_view.dart';
 import 'package:taskify/features/home/presentation/views/task_repeat_view.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class EditTaskViewBody extends StatefulWidget {
   const EditTaskViewBody({super.key});
@@ -49,14 +52,12 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
   late String? _selectedTaskEndTime;
   late String? _selectedTaskReminder;
   late String? _selectedTaskRepeat;
-  late List<TaskCategoryEntity> _customCategories = [];
 
   @override
   void initState() {
     super.initState();
     taskEntity = context.read<TaskEntity>();
     _loadTaskDetails();
-    _loadCustomCategoriesFromHive();
   }
 
   void _loadTaskDetails() {
@@ -76,8 +77,6 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
     _selectedTaskDueDate = DateTimeUtils.formatDate(taskEntity.dueDate);
     _selectedTaskStartTime = DateTimeUtils.formatTime(taskEntity.startTime);
     _selectedTaskEndTime = DateTimeUtils.formatTime(taskEntity.endTime);
-    _selectedTaskReminder = ScheduleParser.formatReminder(taskEntity.reminder);
-    _selectedTaskRepeat = ScheduleParser.formatRepeat(taskEntity.repeat);
   }
 
   @override
@@ -102,190 +101,31 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
             'due_date': _selectedTaskDueDate ?? taskEntity.dueDate,
             'start_time': _selectedTaskStartTime ?? taskEntity.startTime,
             'end_time': _selectedTaskEndTime ?? taskEntity.endTime,
-            'priority': (_selectedTaskPriority ?? taskEntity.priority).label,
+            'priority': _selectedTaskPriority!.labelDB,
             'reminder': _reminderEntity,
             'repeat': _repeatEntity,
             'categories': _selectedTaskCategories,
           },
           taskId: taskEntity.id,
         );
-
     if (!context.mounted) return;
     Navigator.pop(context);
   }
 
-  Future _prioritySelection(BuildContext context) {
-    return showModalBottomSheet(
-      showDragHandle: true,
-      backgroundColor: AppColors.scaffoldLightBackgroundColor,
-      useSafeArea: true,
-      context: context,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 23,
-            right: 23,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 80,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select Priority',
-                style: AppTextStyles.medium24.copyWith(
-                  color: AppColors.primaryLightColor,
-                ),
-              ),
-              Divider(),
-              ...List.generate(TaskPriority.values.length, (index) {
-                final e = TaskPriority.values[index];
-                final isLast = index == TaskPriority.values.length - 1;
-                final isSelected = e == _selectedTaskPriority;
-
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        e.label,
-                        style: AppTextStyles.medium18,
-                      ),
-                      trailing: isSelected
-                          ? Icon(Icons.check,
-                              color: AppColors.primaryLightColor)
-                          : null,
-                      onTap: () {
-                        Navigator.pop(context, e);
-                      },
-                    ),
-                    if (!isLast) Divider(),
-                  ],
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _loadCustomCategoriesFromHive() async {
-    var categoriesBox = await Hive.openBox(AppConstants.categoriesBox);
-    List<TaskCategoryEntity> categories =
-        List<TaskCategoryEntity>.from(categoriesBox.values);
-    setState(() {
-      _customCategories = categories;
-    });
-  }
-
-  void _handleAddCustomCategory(TaskCategoryEntity category) async {
-    bool alreadyExists = _customCategories.any(
-      (c) =>
-          c.name == category.name &&
-          c.icon.codePoint == category.icon.codePoint,
-    );
-    if (alreadyExists) {
-      return;
-    }
-
-    setState(() {
-      _customCategories.add(category);
-      if (!_selectedTaskCategories.contains(category)) {
-        _selectedTaskCategories.add(category);
-      }
-    });
-
-    await HiveService().addCustomCategory(category);
-  }
-
-  void _predefinedCategoriesActions(
-      bool selected, BuildContext context, TaskCategoryEntity category) {
-    setState(
-      () {
-        if (selected) {
-          if (_selectedTaskCategories.length >= 3) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('You can select up to 3 categories only.'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-            return;
-          }
-          if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
-            _selectedTaskCategories.add(category);
-          }
-        } else {
-          _selectedTaskCategories.removeWhere((c) => c.name == category.name);
-        }
-      },
-    );
-  }
-
-  Future<void> _deleteCustomTaskCategory(
-      BuildContext context, TaskCategoryEntity category) async {
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.scaffoldLightBackgroundColor,
-        title: const Text('Delete Category Permanently'),
-        content: const Text(
-            'Are you sure you want to delete this Category permanently?'),
-        actions: [
-          TextButton(
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.primaryLightColor),
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
-          TextButton(
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: AppColors.primaryLightColor),
-            ),
-            onPressed: () async {
-              await HiveService().deleteCategory(category.name);
-              setState(() {
-                _customCategories.remove(category);
-                _selectedTaskCategories
-                    .removeWhere((c) => c.name == category.name);
-              });
-
-              if (!context.mounted) return;
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _customCategoriesActions(
-      bool selected, BuildContext context, TaskCategoryEntity category) {
-    setState(
-      () {
-        if (selected) {
-          if (_selectedTaskCategories.length >= 3) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('You can select up to 3 categories only.'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-            return;
-          }
-          if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
-            _selectedTaskCategories.add(category);
-          }
-        } else {
-          _selectedTaskCategories.removeWhere((c) => c.name == category.name);
-        }
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    _selectedTaskReminder = ScheduleParser.formatReminder(
+      context,
+      taskEntity.reminder,
+    );
+    _selectedTaskRepeat = ScheduleParser.formatRepeat(
+      context,
+      taskEntity.repeat,
+    );
+    String selectedTaskPriorityLabel = _selectedTaskPriority!.label(context);
+    String taskEntityPriorityLabel = taskEntity.priority.label(context);
+    final predefinedCategories = predefinedTaskCategories(context);
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppConstants.horizontalPadding),
       child: Form(
@@ -295,12 +135,12 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              CustomAppbar(title: 'Edit Task'),
+              CustomAppbar(title: S.of(context).editTaskAppBar),
               const SizedBox(height: 20),
               FieldItem(
-                label: 'Title',
+                label: S.of(context).titleTextField,
                 widget: CustomTextFormField(
-                  hintText: 'Enter title',
+                  hintText: S.of(context).titleTextFieldHint,
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.next,
                   maxLength: 100,
@@ -308,9 +148,9 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 ),
               ),
               FieldItem(
-                label: 'Description',
+                label: S.of(context).descriptionTextField,
                 widget: CustomTextFormField(
-                  hintText: 'Enter Description ',
+                  hintText: S.of(context).descriptionTextFieldHint,
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.done,
                   controller: _taskDescriptionController,
@@ -319,12 +159,11 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 ),
               ),
               FieldItem(
-                label: 'Due Date',
+                label: S.of(context).dueDateTextField,
                 widget: GestureDetector(
                   onTap: () async {
                     bool isOverdueTask =
                         taskEntity.status == TaskStatus.overdue;
-
                     DateTime? pickedDate =
                         await TaskDialogUtils.showCustomDatePickerDialog(
                       context: context,
@@ -354,7 +193,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 children: [
                   Expanded(
                     child: FieldItem(
-                      label: 'Start Time',
+                      label: S.of(context).startTimeTextField,
                       widget: GestureDetector(
                         onTap: () async {
                           String initialTime = _selectedTaskStartTime ??
@@ -384,7 +223,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: FieldItem(
-                      label: 'End Time',
+                      label: S.of(context).endTimeTextField,
                       widget: GestureDetector(
                         onTap: () async {
                           String initialTime = _selectedTaskEndTime ??
@@ -415,7 +254,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 ],
               ),
               FieldItem(
-                label: 'Reminder',
+                label: S.of(context).reminderTextField,
                 widget: GestureDetector(
                   onTap: () async {
                     final result = await pushScreenWithoutNavBar(
@@ -426,12 +265,15 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                       setState(() {
                         _reminderEntity = result;
 
-                        if (result.option == 'Custom') {
+                        if (result.option == S.of(context).custom) {
                           if (result.value == 0) {
-                            _selectedTaskReminder = 'At time of event';
-                          } else {
                             _selectedTaskReminder =
-                                '${result.value} ${result.unit.toLowerCase()} before';
+                                S.of(context).reminderOption1;
+                          } else {
+                            _selectedTaskReminder = S
+                                .of(context)
+                                .selectedTaskReminder(result.value.toString(),
+                                    result.unit.toLowerCase());
                           }
                         } else {
                           _selectedTaskReminder = result.option;
@@ -442,7 +284,10 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                   child: AbsorbPointer(
                     child: CustomTextFormField(
                       hintText: _selectedTaskReminder ??
-                          ScheduleParser.formatReminder(taskEntity.reminder),
+                          ScheduleParser.formatReminder(
+                            context,
+                            taskEntity.reminder,
+                          ),
                       suffixIcon: const Icon(
                         Icons.arrow_forward_ios,
                         size: 18,
@@ -452,7 +297,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 ),
               ),
               FieldItem(
-                label: 'Repeat',
+                label: S.of(context).repeatTextField,
                 widget: GestureDetector(
                   onTap: () async {
                     final result = await pushScreenWithoutNavBar(
@@ -462,15 +307,20 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                     if (result is TaskRepeatEntity) {
                       setState(() {
                         _repeatEntity = result;
-                        _selectedTaskRepeat =
-                            ScheduleParser.formatRepeat(result);
+                        _selectedTaskRepeat = ScheduleParser.formatRepeat(
+                          context,
+                          result,
+                        );
                       });
                     }
                   },
                   child: AbsorbPointer(
                     child: CustomTextFormField(
                       hintText: _selectedTaskRepeat ??
-                          ScheduleParser.formatRepeat(taskEntity.repeat),
+                          ScheduleParser.formatRepeat(
+                            context,
+                            taskEntity.repeat,
+                          ),
                       suffixIcon: const Icon(
                         Icons.arrow_forward_ios,
                         size: 18,
@@ -480,10 +330,13 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                 ),
               ),
               FieldItem(
-                label: 'Priority',
+                label: S.of(context).priorityTextField,
                 widget: GestureDetector(
                   onTap: () async {
-                    final selected = await _prioritySelection(context);
+                    final selected = await showPrioritySelectionModalSheet(
+                      context,
+                      _selectedTaskPriority ?? taskEntity.priority,
+                    );
                     if (selected != null) {
                       setState(() {
                         _selectedTaskPriority = selected;
@@ -493,19 +346,20 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                   child: AbsorbPointer(
                     child: CustomTextFormField(
                       hintText: _selectedTaskPriority != null
-                          ? _selectedTaskPriority!.label
-                          : taskEntity.priority.label,
+                          ? selectedTaskPriorityLabel
+                          : taskEntityPriorityLabel,
                       suffixIcon: const Icon(Icons.keyboard_arrow_down),
                     ),
                   ),
                 ),
               ),
               FieldItem(
-                label: 'Categories (${_selectedTaskCategories.length})',
+                label: S.of(context).categoriesLength(
+                    _selectedTaskCategories.length.toString()),
                 widget: Column(
                   children: [
                     Wrap(
-                      spacing: 8.0,
+                      spacing: 8,
                       children: [
                         ...predefinedCategories.map(
                           (categoryMap) {
@@ -528,70 +382,81 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                               selectedColor: category.color.withAlpha(51),
                               selected: isSelected,
                               onSelected: (bool selected) {
-                                _predefinedCategoriesActions(
-                                  selected,
-                                  context,
-                                  category,
-                                );
+                                setState(() {
+                                  handleCategorySelection(
+                                    selected: selected,
+                                    context: context,
+                                    category: category,
+                                    selectedCategories: _selectedTaskCategories,
+                                  );
+                                });
                               },
                             );
                           },
                         ),
-                        ..._customCategories.map(
-                          (category) {
-                            bool isSelected = _selectedTaskCategories
-                                .any((c) => c.name == category.name);
-                            return GestureDetector(
-                              onLongPress: () async {
-                                await _deleteCustomTaskCategory(
-                                  context,
-                                  category,
-                                );
-                              },
-                              child: FilterChip(
-                                showCheckmark: false,
-                                backgroundColor:
-                                    AppColors.scaffoldLightBackgroundColor,
-                                label: Text(
-                                  category.name,
-                                ),
-                                avatar: Icon(
-                                  IconData(
-                                    category.icon.codePoint,
-                                    fontFamilyFallback: [
-                                      'MaterialIcons',
-                                      'CupertinoIcons'
-                                    ],
-                                  ),
-                                  color: Color(category.color.toARGB32()),
-                                ),
-                                selectedColor: category.color.withAlpha(51),
-                                selected: isSelected,
-                                onSelected: (bool selected) {
-                                  _customCategoriesActions(
-                                    selected,
-                                    context,
-                                    category,
+                        ValueListenableBuilder<List<TaskCategoryEntity>>(
+                          valueListenable: HiveService.categoriesNotifier,
+                          builder: (context, customCategories, _) {
+                            return Wrap(
+                              spacing: 8,
+                              children: customCategories.map(
+                                (category) {
+                                  bool isSelected = _selectedTaskCategories
+                                      .any((c) => c.name == category.name);
+                                  return GestureDetector(
+                                    onLongPress: () async {
+                                      await deleteCustomTaskCategory(
+                                        context,
+                                        category,
+                                      );
+                                    },
+                                    child: FilterChip(
+                                      showCheckmark: false,
+                                      backgroundColor: AppColors
+                                          .scaffoldLightBackgroundColor,
+                                      label: Text(category.name),
+                                      avatar: Icon(
+                                        IconData(
+                                          category.icon.codePoint,
+                                          fontFamilyFallback: ['MaterialIcons'],
+                                        ),
+                                        color: Color(
+                                          category.color.toARGB32(),
+                                        ),
+                                      ),
+                                      selectedColor:
+                                          category.color.withAlpha(51),
+                                      selected: isSelected,
+                                      onSelected: (bool selected) {
+                                        setState(() {
+                                          handleCategorySelection(
+                                            selected: selected,
+                                            context: context,
+                                            category: category,
+                                            selectedCategories:
+                                                _selectedTaskCategories,
+                                          );
+                                        });
+                                      },
+                                    ),
                                   );
                                 },
-                              ),
+                              ).toList(),
                             );
                           },
                         ),
                         ChoiceChip(
                           backgroundColor:
                               AppColors.scaffoldLightBackgroundColor,
-                          label: const Text('Add Category'),
+                          label: Text(S.of(context).addCategoryLabel),
                           avatar: const Icon(Icons.add, color: Colors.grey),
                           selected: false,
                           onSelected: (_) async {
                             if (_selectedTaskCategories.length >= 3) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      'You can select up to 3 categories only.'),
-                                  duration: Duration(seconds: 2),
-                                ),
+                              buildSnackbar(
+                                context,
+                                message:
+                                    'You can select up to 3 categories only',
                               );
                               return;
                             }
@@ -599,7 +464,8 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                                 await TaskDialogUtils.showCustomCategoryDialog(
                                     context);
                             if (newCategory != null) {
-                              _handleAddCustomCategory(newCategory);
+                              await HiveService()
+                                  .addCustomCategory(newCategory);
                             }
                           },
                         ),
@@ -614,7 +480,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                               .copyWith(color: AppColors.bodyTextColor),
                           children: [
                             TextSpan(
-                              text: 'Maximum category limit: ',
+                              text: S.of(context).maximumCategoryLimit,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             TextSpan(
@@ -638,7 +504,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                   }
                 },
                 child: CustomButton(
-                  title: 'Edit Task',
+                  title: S.of(context).editTaskAppBar,
                   onPressed: () async {
                     if (_taskFormKey.currentState!.validate()) {
                       await _updateTask(context);
@@ -648,7 +514,7 @@ class _EditTaskViewBodyState extends State<EditTaskViewBody> {
                   },
                 ),
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 30),
             ],
           ),
         ),

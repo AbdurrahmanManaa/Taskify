@@ -21,6 +21,7 @@ import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 import 'package:taskify/features/home/presentation/views/task_details_view.dart';
 import 'package:taskify/features/home/presentation/widgets/calender_item.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class CalenderViewBody extends StatefulWidget {
   const CalenderViewBody({super.key, required this.supabase});
@@ -241,7 +242,7 @@ class _CalenderViewBodyState extends State<CalenderViewBody> {
             padding: EdgeInsets.symmetric(
                 horizontal: AppConstants.horizontalPadding),
             child: CustomAppbar(
-              title: 'Calender',
+              title: S.of(context).calenderAppBar,
               showBackButton: false,
             ),
           ),

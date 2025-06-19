@@ -2,8 +2,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:flutter_iconpicker/flutter_iconpicker.dart';
-import 'package:flutter_iconpicker/Models/configuration.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/services/hive_service.dart';
@@ -206,6 +204,9 @@ class TaskDialogUtils {
                   bool alreadyExists = categoriesBox.values.any((category) =>
                       category.name == categoryName &&
                       category.icon.codePoint == categoryIcon.codePoint);
+                  if (!context.mounted) return;
+                  final predefinedCategories =
+                      predefinedTaskCategories(context);
 
                   if (alreadyExists) {
                     if (!context.mounted) return;
@@ -262,7 +263,7 @@ class TaskDialogUtils {
     Color selectedColor = initialColor;
     HSVColor pickerHsvColor = HSVColor.fromColor(initialColor);
 
-    await showDialog(
+    return await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.scaffoldLightBackgroundColor,
@@ -288,6 +289,13 @@ class TaskDialogUtils {
         actions: [
           TextButton(
             child: const Text(
+              "Cancel",
+              style: TextStyle(color: AppColors.primaryLightColor),
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text(
               "Pick",
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
@@ -296,24 +304,75 @@ class TaskDialogUtils {
         ],
       ),
     );
-
-    return selectedColor;
   }
 
   static Future<IconData?> showCustomIconPickerDialog(
       BuildContext context) async {
-    IconPickerIcon? icon = await showIconPicker(
-      context,
-      configuration: const SinglePickerConfiguration(
-        closeChild: Text(
-          'Close',
-          textScaler: TextScaler.linear(1.25),
-          style: TextStyle(color: AppColors.primaryLightColor),
-        ),
-        backgroundColor: AppColors.scaffoldLightBackgroundColor,
-        iconPackModes: [IconPack.allMaterial],
-      ),
+    final entries = customMaterialIcons.entries.toList();
+    List<MapEntry<String, int>> filteredIcons = List.from(entries);
+    final TextEditingController controller = TextEditingController();
+
+    return await showDialog<IconData>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void updateSearch(String value) {
+              setState(() {
+                filteredIcons = entries.where((entry) {
+                  return entry.key.toLowerCase().contains(value.toLowerCase());
+                }).toList();
+              });
+            }
+
+            return AlertDialog(
+              title: const Text('Select Icon'),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 400,
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        hintText: 'Search icons...',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                      onChanged: updateSearch,
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: GridView.builder(
+                        itemCount: filteredIcons.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemBuilder: (context, index) {
+                          final iconEntry = filteredIcons[index];
+                          final iconData = IconData(
+                            iconEntry.value,
+                            fontFamily: 'MaterialIcons',
+                          );
+                          return Tooltip(
+                            message: iconEntry.key,
+                            child: IconButton(
+                              icon: Icon(iconData),
+                              onPressed: () => Navigator.pop(context, iconData),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
-    return icon?.data;
   }
 }

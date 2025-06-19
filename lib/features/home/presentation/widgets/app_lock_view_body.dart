@@ -8,14 +8,13 @@ import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
-import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/core/widgets/custom_wrapper_container.dart';
-import 'package:taskify/core/widgets/field_item.dart';
 import 'package:taskify/core/widgets/option_item.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_lock_type.dart';
 import 'package:taskify/features/home/domain/entities/preferences/auto_lock_after.dart';
 import 'package:taskify/features/home/domain/entities/preferences/user_preferences_entity.dart';
 import 'package:taskify/features/home/presentation/views/app_lock_type_view.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class AppLockViewBody extends StatelessWidget {
   const AppLockViewBody({super.key});
@@ -39,56 +38,6 @@ class AppLockViewBody extends StatelessWidget {
       );
       HiveService().setUserPreferences(updated);
     }
-  }
-
-  Future<AutoLockAfter?> _autoLockAfterSelection(
-      BuildContext context, AutoLockAfter current) {
-    return showModalBottomSheet(
-      showDragHandle: true,
-      backgroundColor: AppColors.scaffoldLightBackgroundColor,
-      useSafeArea: true,
-      context: context,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 23,
-            right: 23,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 80,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Auto-lock After',
-                style: AppTextStyles.medium24.copyWith(
-                  color: AppColors.primaryLightColor,
-                ),
-              ),
-              Divider(),
-              ...AutoLockAfter.values.map((e) {
-                final isSelected = e == current;
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        e.label,
-                        style: AppTextStyles.medium18,
-                      ),
-                      trailing: isSelected
-                          ? Icon(Icons.check,
-                              color: AppColors.primaryLightColor)
-                          : null,
-                      onTap: () => Navigator.pop(context, e),
-                    ),
-                    if (e != AutoLockAfter.values.last) Divider(),
-                  ],
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   Future<void> _disableAppLock(
@@ -153,7 +102,7 @@ class AppLockViewBody extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               CustomAppbar(
-                title: 'App Lock',
+                title: S.of(context).appLockAppBar,
               ),
               const SizedBox(height: 20),
               CustomWrapperContainer(
@@ -169,19 +118,19 @@ class AppLockViewBody extends StatelessWidget {
                         );
                       },
                       title: Text(
-                        'PIN',
+                        S.of(context).appLockTypePin,
                         style: AppTextStyles.medium22,
                       ),
                       subtitle: currentLock == AppLockType.pin
                           ? RichText(
                               text: TextSpan(
-                                text: 'Medium-high security, ',
+                                text: S.of(context).mediumHighSecurity,
                                 style: AppTextStyles.regular16.copyWith(
                                   color: AppColors.bodyTextColor,
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: 'Current lock type',
+                                    text: S.of(context).currentLockType,
                                     style: AppTextStyles.regular16.copyWith(
                                       color: AppColors.primaryLightColor,
                                       fontWeight: FontWeight.bold,
@@ -191,7 +140,7 @@ class AppLockViewBody extends StatelessWidget {
                               ),
                             )
                           : Text(
-                              'Medium-high security',
+                              S.of(context).mediumHighSecurity,
                               style: AppTextStyles.regular16.copyWith(
                                 color: AppColors.bodyTextColor,
                               ),
@@ -208,19 +157,19 @@ class AppLockViewBody extends StatelessWidget {
                         );
                       },
                       title: Text(
-                        'Password',
+                        S.of(context).appLockTypePassword,
                         style: AppTextStyles.medium22,
                       ),
                       subtitle: currentLock == AppLockType.password
                           ? RichText(
                               text: TextSpan(
-                                text: 'High security, ',
+                                text: S.of(context).highSecurity,
                                 style: AppTextStyles.regular16.copyWith(
                                   color: AppColors.bodyTextColor,
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: 'Current lock type',
+                                    text: S.of(context).currentLockType,
                                     style: AppTextStyles.regular16.copyWith(
                                       color: AppColors.primaryLightColor,
                                       fontWeight: FontWeight.bold,
@@ -230,7 +179,7 @@ class AppLockViewBody extends StatelessWidget {
                               ),
                             )
                           : Text(
-                              'High security',
+                              S.of(context).highSecurity,
                               style: AppTextStyles.regular16.copyWith(
                                 color: AppColors.bodyTextColor,
                               ),
@@ -247,12 +196,12 @@ class AppLockViewBody extends StatelessWidget {
                               );
                             },
                       title: Text(
-                        'None',
+                        S.of(context).appLockTypeNone,
                         style: AppTextStyles.medium22,
                       ),
                       subtitle: currentLock == AppLockType.none
                           ? Text(
-                              'Current lock type',
+                              S.of(context).currentLockType,
                               style: AppTextStyles.regular16.copyWith(
                                 color: AppColors.primaryLightColor,
                                 fontWeight: FontWeight.bold,
@@ -264,24 +213,36 @@ class AppLockViewBody extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              FieldItem(
-                label: 'Auto-lock After',
-                widget: GestureDetector(
-                  onTap: () async {
-                    final selected = await _autoLockAfterSelection(
-                      context,
-                      value.autoLockAfter,
+              Text(
+                S.of(context).autoLockAfter,
+                style: AppTextStyles.medium18,
+              ),
+              SizedBox(height: 10),
+              CustomWrapperContainer(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: AutoLockAfter.values.map((e) {
+                    final label = e.label(context);
+
+                    return RadioListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        label,
+                        style: AppTextStyles.medium18,
+                      ),
+                      value: e,
+                      groupValue: value.autoLockAfter,
+                      activeColor: AppColors.primaryLightColor,
+                      onChanged: (selected) {
+                        if (selected != null &&
+                            selected != value.autoLockAfter) {
+                          final updated =
+                              value.copyWith(autoLockAfter: selected);
+                          HiveService().setUserPreferences(updated);
+                        }
+                      },
                     );
-                    if (selected != null && selected != value.autoLockAfter) {
-                      final updated = value.copyWith(autoLockAfter: selected);
-                      HiveService().setUserPreferences(updated);
-                    }
-                  },
-                  child: AbsorbPointer(
-                    child: CustomTextFormField(
-                      hintText: value.autoLockAfter.label,
-                    ),
-                  ),
+                  }).toList(),
                 ),
               ),
             ],

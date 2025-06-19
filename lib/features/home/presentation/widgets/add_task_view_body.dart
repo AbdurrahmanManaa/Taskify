@@ -8,6 +8,9 @@ import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskify/core/extensions/task_enum_extensions.dart';
+import 'package:taskify/core/functions/delete_custom_task_categories.dart';
+import 'package:taskify/core/functions/handle_category_selection.dart';
+import 'package:taskify/core/functions/show_priority_selection_modal_bottom_sheet.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
@@ -25,6 +28,7 @@ import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/core/widgets/field_item.dart';
 import 'package:taskify/features/home/domain/entities/attachment/attachment_entity.dart';
 import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_language.dart';
 import 'package:taskify/features/home/domain/entities/subtask/subtask_status.dart';
 import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
 import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
@@ -41,6 +45,7 @@ import 'package:taskify/features/home/presentation/views/task_reminder_view.dart
 import 'package:taskify/features/home/presentation/views/task_repeat_view.dart';
 import 'package:taskify/features/home/presentation/widgets/attachment_item.dart';
 import 'package:taskify/features/home/presentation/widgets/subtask_item.dart';
+import 'package:taskify/generated/l10n.dart';
 import 'package:uuid/uuid.dart';
 
 class AddTaskViewBody extends StatefulWidget {
@@ -56,22 +61,11 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
   String _selectedTaskStartTime = DateTimeUtils.formatTime(DateTime.now());
   String _selectedTaskEndTime =
       DateTimeUtils.formatTime(DateTime.now().add(Duration(minutes: 30)));
-  String _selectedTaskReminder = '10 mins before';
-  String _selectedTaskRepeat = 'Don\'t repeat';
+  late String _selectedTaskReminder;
+  late String _selectedTaskRepeat;
   TaskPriority _selectedTaskPriority = TaskPriority.medium;
-  TaskReminderEntity _reminderEntity = TaskReminderEntity(
-    option: '10 mins before',
-    value: 0,
-    unit: 'Minutes',
-  );
-  TaskRepeatEntity _repeatEntity = TaskRepeatEntity(
-    interval: 1,
-    option: 'Don\'t repeat',
-    duration: 'Forever',
-    count: 0,
-    weekDays: [],
-    untilDate: null,
-  );
+  late TaskReminderEntity _reminderEntity;
+  late TaskRepeatEntity _repeatEntity;
   late final TextEditingController _taskTitleController;
   late final TextEditingController _taskDescriptionController;
   late final TextEditingController _subtaskTitleController;
@@ -101,8 +95,6 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
     _taskRepeatCountController = TextEditingController(
       text: '10',
     );
-
-    _initializeCategories();
   }
 
   @override
@@ -139,147 +131,6 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
     }
   }
 
-  Future _prioritySelection(BuildContext context) {
-    return showModalBottomSheet(
-      showDragHandle: true,
-      backgroundColor: AppColors.scaffoldLightBackgroundColor,
-      useSafeArea: true,
-      context: context,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 23,
-            right: 23,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 80,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select Priority',
-                style: AppTextStyles.medium24.copyWith(
-                  color: AppColors.primaryLightColor,
-                ),
-              ),
-              Divider(),
-              ...List.generate(TaskPriority.values.length, (index) {
-                final e = TaskPriority.values[index];
-                final isLast = index == TaskPriority.values.length - 1;
-                final isSelected = e == _selectedTaskPriority;
-
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        e.label,
-                        style: AppTextStyles.medium18,
-                      ),
-                      trailing: isSelected
-                          ? Icon(Icons.check,
-                              color: AppColors.primaryLightColor)
-                          : null,
-                      onTap: () {
-                        Navigator.pop(context, e);
-                      },
-                    ),
-                    if (!isLast) Divider(),
-                  ],
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _initializeCategories() async {
-    await HiveService.initializeCategories();
-    setState(() {});
-  }
-
-  void _predefinedCategoriesActions(
-      bool selected, BuildContext context, TaskCategoryEntity category) {
-    setState(
-      () {
-        if (selected) {
-          if (_selectedTaskCategories.length >= 3) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('You can select up to 3 categories only.'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-            return;
-          }
-          if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
-            _selectedTaskCategories.add(category);
-          }
-        } else {
-          _selectedTaskCategories.removeWhere((c) => c.name == category.name);
-        }
-      },
-    );
-  }
-
-  Future<void> _deleteCustomTaskCategory(
-      BuildContext context, TaskCategoryEntity category) async {
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.scaffoldLightBackgroundColor,
-        title: const Text('Delete Category Permanently'),
-        content: const Text(
-            'Are you sure you want to delete this Category permanently?'),
-        actions: [
-          TextButton(
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.primaryLightColor),
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
-          TextButton(
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: AppColors.primaryLightColor),
-            ),
-            onPressed: () async {
-              await HiveService().deleteCategory(category.name);
-
-              if (!context.mounted) return;
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _customCategoriesActions(
-      bool selected, BuildContext context, TaskCategoryEntity category) {
-    setState(
-      () {
-        if (selected) {
-          if (_selectedTaskCategories.length >= 3) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('You can select up to 3 categories only.'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-            return;
-          }
-          if (!_selectedTaskCategories.any((c) => c.name == category.name)) {
-            _selectedTaskCategories.add(category);
-          }
-        } else {
-          _selectedTaskCategories.removeWhere((c) => c.name == category.name);
-        }
-      },
-    );
-  }
-
   Future<void> _createSubtask(BuildContext context) async {
     await showModalBottomSheet(
       isScrollControlled: true,
@@ -301,9 +152,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
               child: Column(
                 children: [
                   FieldItem(
-                    label: 'Title',
+                    label: S.of(context).titleTextField,
                     widget: CustomTextFormField(
-                      hintText: 'Enter title',
+                      hintText: S.of(context).titleTextFieldHint,
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
                       maxLength: 100,
@@ -311,9 +162,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                     ),
                   ),
                   FieldItem(
-                    label: 'Note',
+                    label: S.of(context).noteTextField,
                     widget: CustomTextFormField(
-                      hintText: 'Enter note',
+                      hintText: S.of(context).noteTextFieldHint,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.done,
                       maxLength: 500,
@@ -343,7 +194,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       }
                     },
                     child: Text(
-                      'Create Subtask',
+                      S.of(context).createSubtaskButton,
                       style:
                           AppTextStyles.medium20.copyWith(color: Colors.white),
                     ),
@@ -381,9 +232,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
               child: Column(
                 children: [
                   FieldItem(
-                    label: 'Title',
+                    label: S.of(context).titleTextField,
                     widget: CustomTextFormField(
-                      hintText: 'Enter title',
+                      hintText: S.of(context).titleTextFieldHint,
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
                       maxLength: 100,
@@ -391,9 +242,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                     ),
                   ),
                   FieldItem(
-                    label: 'Note',
+                    label: S.of(context).noteTextField,
                     widget: CustomTextFormField(
-                      hintText: 'Enter note',
+                      hintText: S.of(context).noteTextFieldHint,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.done,
                       maxLength: 500,
@@ -419,7 +270,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       }
                     },
                     child: Text(
-                      'Update Subtask',
+                      S.of(context).updateSubtaskButton,
                       style:
                           AppTextStyles.medium20.copyWith(color: Colors.white),
                     ),
@@ -503,8 +354,8 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
           DateTimeUtils.formatTime(DateTime.now().add(Duration(hours: 1)));
       _selectedTaskEndTime = DateTimeUtils.formatTime(
           DateTime.now().add(Duration(hours: 1, minutes: 30)));
-      _selectedTaskReminder = '10 mins before';
-      _selectedTaskRepeat = 'Don\'t repeat';
+      _selectedTaskReminder = S.of(context).reminderOption2;
+      _selectedTaskRepeat = S.of(context).repeatOption1;
       _selectedTaskPriority = TaskPriority.medium;
       _selectedTaskCategories = [];
       _attachments.clear();
@@ -514,7 +365,26 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
 
   @override
   Widget build(BuildContext context) {
+    _selectedTaskReminder = S.of(context).reminderOption2;
+    _selectedTaskRepeat = S.of(context).repeatOption1;
+    _repeatEntity = TaskRepeatEntity(
+      interval: 1,
+      option: S.of(context).repeatOption1,
+      duration: S.of(context).repeatDuration1,
+      count: 0,
+      weekDays: [],
+      untilDate: null,
+    );
+    _reminderEntity = TaskReminderEntity(
+      option: S.of(context).reminderOption2,
+      value: 0,
+      unit: S.of(context).reminderUnit1,
+    );
     final scrollController = Provider.of<ScrollController>(context);
+    final prefs = HiveService.preferencesNotifier.value;
+    final language = prefs.appLanguage;
+    final priorityLabel = _selectedTaskPriority.label(context);
+    final predefinedCategories = predefinedTaskCategories(context);
 
     return BlocConsumer<TaskCubit, TaskState>(
       listener: (context, state) {
@@ -539,14 +409,14 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                   children: [
                     const SizedBox(height: 20),
                     CustomAppbar(
-                      title: 'Add Task',
+                      title: S.of(context).addTaskAppBar,
                       showBackButton: false,
                     ),
                     const SizedBox(height: 20),
                     FieldItem(
-                      label: 'Title',
+                      label: S.of(context).titleTextField,
                       widget: CustomTextFormField(
-                        hintText: 'Enter title',
+                        hintText: S.of(context).titleTextFieldHint,
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.next,
                         maxLength: 100,
@@ -554,9 +424,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       ),
                     ),
                     FieldItem(
-                      label: 'Description',
+                      label: S.of(context).descriptionTextField,
                       widget: CustomTextFormField(
-                        hintText: 'Enter Description ',
+                        hintText: S.of(context).descriptionTextFieldHint,
                         keyboardType: TextInputType.multiline,
                         textInputAction: TextInputAction.done,
                         controller: _taskDescriptionController,
@@ -565,7 +435,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       ),
                     ),
                     FieldItem(
-                      label: 'Due Date',
+                      label: S.of(context).dueDateTextField,
                       widget: GestureDetector(
                         onTap: () async {
                           DateTime? pickedDate =
@@ -591,7 +461,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       children: [
                         Expanded(
                           child: FieldItem(
-                            label: 'Start Time',
+                            label: S.of(context).startTimeTextField,
                             widget: GestureDetector(
                               onTap: () async {
                                 String initialTime = _selectedTaskStartTime;
@@ -621,7 +491,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: FieldItem(
-                            label: 'End Time',
+                            label: S.of(context).endTimeTextField,
                             widget: GestureDetector(
                               onTap: () async {
                                 String initialTime = _selectedTaskEndTime;
@@ -651,7 +521,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       ],
                     ),
                     FieldItem(
-                      label: 'Reminder',
+                      label: S.of(context).reminderTextField,
                       widget: GestureDetector(
                         onTap: () async {
                           final result = await pushScreenWithoutNavBar(
@@ -662,12 +532,16 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                           if (result is TaskReminderEntity) {
                             setState(() {
                               _reminderEntity = result;
-                              if (result.option == 'Custom') {
+                              if (result.option == S.of(context).custom) {
                                 if (result.value == 0) {
-                                  _selectedTaskReminder = 'At time of event';
-                                } else {
                                   _selectedTaskReminder =
-                                      '${result.value} ${result.unit.toLowerCase()} before';
+                                      S.of(context).reminderOption1;
+                                } else {
+                                  _selectedTaskReminder = S
+                                      .of(context)
+                                      .selectedTaskReminder(
+                                          result.value.toString(),
+                                          result.unit.toLowerCase());
                                 }
                               } else {
                                 _selectedTaskReminder = result.option;
@@ -687,7 +561,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       ),
                     ),
                     FieldItem(
-                      label: 'Repeat',
+                      label: S.of(context).repeatTextField,
                       widget: GestureDetector(
                         onTap: () async {
                           final result = await pushScreenWithoutNavBar(
@@ -697,8 +571,10 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                           if (result is TaskRepeatEntity) {
                             setState(() {
                               _repeatEntity = result;
-                              _selectedTaskRepeat =
-                                  ScheduleParser.formatRepeat(result);
+                              _selectedTaskRepeat = ScheduleParser.formatRepeat(
+                                context,
+                                result,
+                              );
                             });
                           }
                         },
@@ -714,10 +590,14 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                       ),
                     ),
                     FieldItem(
-                      label: 'Priority',
+                      label: S.of(context).priorityTextField,
                       widget: GestureDetector(
                         onTap: () async {
-                          final selected = await _prioritySelection(context);
+                          final selected =
+                              await showPrioritySelectionModalSheet(
+                            context,
+                            _selectedTaskPriority,
+                          );
                           if (selected != null) {
                             setState(() {
                               _selectedTaskPriority = selected;
@@ -726,7 +606,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                         },
                         child: AbsorbPointer(
                           child: CustomTextFormField(
-                            hintText: _selectedTaskPriority.label,
+                            hintText: priorityLabel,
                             suffixIcon: const Icon(Icons.keyboard_arrow_down),
                           ),
                         ),
@@ -734,11 +614,12 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                     ),
                     const SizedBox(height: 10),
                     FieldItem(
-                      label: 'Categories (${_selectedTaskCategories.length})',
+                      label: S.of(context).categoriesLength(
+                          _selectedTaskCategories.length.toString()),
                       widget: Column(
                         children: [
                           Wrap(
-                            spacing: 8.0,
+                            spacing: 8,
                             children: [
                               ...predefinedCategories.map(
                                 (categoryMap) {
@@ -762,20 +643,24 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                     selectedColor: category.color.withAlpha(51),
                                     selected: isSelected,
                                     onSelected: (bool selected) {
-                                      _predefinedCategoriesActions(
-                                        selected,
-                                        context,
-                                        category,
-                                      );
+                                      setState(() {
+                                        handleCategorySelection(
+                                          selected: selected,
+                                          context: context,
+                                          category: category,
+                                          selectedCategories:
+                                              _selectedTaskCategories,
+                                        );
+                                      });
                                     },
                                   );
                                 },
                               ),
                               ValueListenableBuilder<List<TaskCategoryEntity>>(
                                 valueListenable: HiveService.categoriesNotifier,
-                                builder: (context, customCategories, child) {
+                                builder: (context, customCategories, _) {
                                   return Wrap(
-                                    spacing: 8.0,
+                                    spacing: 8,
                                     children: customCategories.map(
                                       (category) {
                                         bool isSelected =
@@ -783,7 +668,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                                 (c) => c.name == category.name);
                                         return GestureDetector(
                                           onLongPress: () async {
-                                            await _deleteCustomTaskCategory(
+                                            await deleteCustomTaskCategory(
                                               context,
                                               category,
                                             );
@@ -797,8 +682,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                               IconData(
                                                 category.icon.codePoint,
                                                 fontFamilyFallback: [
-                                                  'MaterialIcons',
-                                                  'CupertinoIcons'
+                                                  'MaterialIcons'
                                                 ],
                                               ),
                                               color: Color(
@@ -809,11 +693,15 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                                 category.color.withAlpha(51),
                                             selected: isSelected,
                                             onSelected: (bool selected) {
-                                              _customCategoriesActions(
-                                                selected,
-                                                context,
-                                                category,
-                                              );
+                                              setState(() {
+                                                handleCategorySelection(
+                                                  selected: selected,
+                                                  context: context,
+                                                  category: category,
+                                                  selectedCategories:
+                                                      _selectedTaskCategories,
+                                                );
+                                              });
                                             },
                                           ),
                                         );
@@ -825,18 +713,16 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                               ChoiceChip(
                                 backgroundColor:
                                     AppColors.scaffoldLightBackgroundColor,
-                                label: const Text('Add Category'),
+                                label: Text(S.of(context).addCategoryLabel),
                                 avatar: const Icon(Icons.add,
                                     color: AppColors.greyColor),
                                 selected: false,
                                 onSelected: (_) async {
                                   if (_selectedTaskCategories.length >= 3) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            'You can select up to 3 categories only.'),
-                                        duration: Duration(seconds: 2),
-                                      ),
+                                    buildSnackbar(
+                                      context,
+                                      message:
+                                          'You can select up to 3 categories only',
                                     );
                                     return;
                                   }
@@ -853,19 +739,21 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                           ),
                           const SizedBox(height: 10),
                           Align(
-                            alignment: Alignment.centerLeft,
+                            alignment: language == AppLanguage.english
+                                ? Alignment.centerLeft
+                                : Alignment.centerRight,
                             child: RichText(
                               text: TextSpan(
                                 style: AppTextStyles.regular14
                                     .copyWith(color: AppColors.bodyTextColor),
                                 children: [
                                   TextSpan(
-                                    text: 'Maximum category limit: ',
+                                    text: S.of(context).maximumCategoryLimit,
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   TextSpan(
-                                    text: '3.',
+                                    text: '3',
                                   ),
                                 ],
                               ),
@@ -876,7 +764,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                     ),
                     const SizedBox(height: 20),
                     FieldItem(
-                      label: 'Attachments (${_attachments.length})',
+                      label: S
+                          .of(context)
+                          .attachmentsLength(_attachments.length.toString()),
                       widget: GestureDetector(
                         onTap: () async {
                           await pickFilesAndValidate(
@@ -899,7 +789,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                   color: AppColors.borderColor,
                                 ),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Column(
                                   children: [
                                     Icon(
@@ -909,7 +799,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                     ),
                                     SizedBox(height: 30),
                                     Text(
-                                      'Upload Files',
+                                      S.of(context).uploadFilesContainer,
                                       style: AppTextStyles.regular18,
                                     ),
                                   ],
@@ -918,19 +808,21 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                             ),
                             const SizedBox(height: 10),
                             Align(
-                              alignment: Alignment.centerLeft,
+                              alignment: language == AppLanguage.english
+                                  ? Alignment.centerLeft
+                                  : Alignment.centerRight,
                               child: RichText(
                                 text: TextSpan(
                                   style: AppTextStyles.regular14
                                       .copyWith(color: AppColors.bodyTextColor),
                                   children: [
                                     TextSpan(
-                                      text: 'Upload file size limit: ',
+                                      text: S.of(context).uploadFileSizeLimit,
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
                                     TextSpan(
-                                      text: '50MB.',
+                                      text: S.of(context).fiftyMB,
                                     ),
                                   ],
                                 ),
@@ -978,7 +870,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                         : const SizedBox.shrink(),
                     const SizedBox(height: 10),
                     FieldItem(
-                      label: 'Subtasks (${_subtasks.length})',
+                      label: S
+                          .of(context)
+                          .subtasksLength(_subtasks.length.toString()),
                       widget: Column(
                         children: [
                           Container(
@@ -998,7 +892,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                               },
                               child: Center(
                                 child: Text(
-                                  'Add Subtask',
+                                  S.of(context).addSubtaskButton,
                                   style: AppTextStyles.regular14
                                       .copyWith(fontWeight: FontWeight.w500),
                                 ),
@@ -1040,7 +934,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                                     color: Colors.blue,
                                                   ),
                                                   const SizedBox(width: 8),
-                                                  Text('Edit'),
+                                                  Text(S
+                                                      .of(context)
+                                                      .editSubtaskAction),
                                                 ],
                                               ),
                                             ),
@@ -1058,7 +954,9 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                                                     color: AppColors.errorColor,
                                                   ),
                                                   const SizedBox(width: 8),
-                                                  Text('Delete'),
+                                                  Text(S
+                                                      .of(context)
+                                                      .deleteSubtaskAction),
                                                 ],
                                               ),
                                             ),
@@ -1075,7 +973,7 @@ class _AddTaskViewBodyState extends State<AddTaskViewBody> {
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
-                      title: 'Create Task',
+                      title: S.of(context).createTaskButton,
                       onPressed: () async {
                         if (_taskFormKey.currentState!.validate()) {
                           if (widget.supabase.auth.currentUser != null) {

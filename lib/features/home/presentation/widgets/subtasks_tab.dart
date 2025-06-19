@@ -14,6 +14,7 @@ import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/sub_task_cubit/sub_task_cubit.dart';
 import 'package:taskify/features/home/presentation/widgets/subtask_item.dart';
 import 'package:taskify/features/home/presentation/widgets/subtasks_completion_progress.dart';
+import 'package:taskify/generated/l10n.dart';
 import 'package:uuid/uuid.dart';
 
 class SubtasksTab extends StatefulWidget {
@@ -68,9 +69,9 @@ class _SubtasksTabState extends State<SubtasksTab> {
                   child: Column(
                     children: [
                       FieldItem(
-                        label: 'Title',
+                        label: S.of(context).titleTextField,
                         widget: CustomTextFormField(
-                          hintText: 'Enter title',
+                          hintText: S.of(context).titleTextFieldHint,
                           keyboardType: TextInputType.text,
                           textInputAction: TextInputAction.next,
                           maxLength: 100,
@@ -78,9 +79,9 @@ class _SubtasksTabState extends State<SubtasksTab> {
                         ),
                       ),
                       FieldItem(
-                        label: 'Note',
+                        label: S.of(context).noteTextField,
                         widget: CustomTextFormField(
-                          hintText: 'Enter note',
+                          hintText: S.of(context).noteTextFieldHint,
                           keyboardType: TextInputType.multiline,
                           textInputAction: TextInputAction.done,
                           maxLength: 500,
@@ -117,7 +118,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
                           }
                         },
                         child: Text(
-                          'Create Subtask',
+                          S.of(context).createSubtaskButton,
                           style: AppTextStyles.medium20
                               .copyWith(color: Colors.white),
                         ),
@@ -143,7 +144,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
         ),
         child: Center(
           child: Text(
-            'Add Subtask',
+            S.of(context).addSubtaskButton,
             style:
                 AppTextStyles.regular14.copyWith(fontWeight: FontWeight.w500),
           ),
@@ -189,9 +190,9 @@ class _SubtasksTabState extends State<SubtasksTab> {
               child: Column(
                 children: [
                   FieldItem(
-                    label: 'Title',
+                    label: S.of(context).titleTextField,
                     widget: CustomTextFormField(
-                      hintText: 'Enter title',
+                      hintText: S.of(context).titleTextFieldHint,
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
                       maxLength: 100,
@@ -199,9 +200,9 @@ class _SubtasksTabState extends State<SubtasksTab> {
                     ),
                   ),
                   FieldItem(
-                    label: 'Note',
+                    label: S.of(context).noteTextField,
                     widget: CustomTextFormField(
-                      hintText: 'Enter note',
+                      hintText: S.of(context).noteTextFieldHint,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.done,
                       maxLength: 500,
@@ -233,7 +234,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
                       }
                     },
                     child: Text(
-                      'Update Subtask',
+                      S.of(context).updateSubtaskButton,
                       style:
                           AppTextStyles.medium20.copyWith(color: Colors.white),
                     ),
@@ -254,19 +255,19 @@ class _SubtasksTabState extends State<SubtasksTab> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.scaffoldLightBackgroundColor,
-        title: const Text('Delete Subtask'),
-        content: const Text('Are you sure you want to delete this subtask?'),
+        title: Text(S.of(context).deleteSubtaskDialogTitle),
+        content: Text(S.of(context).deleteSubtaskDialogDescription),
         actions: [
           TextButton(
-            child: const Text(
-              'Cancel',
+            child: Text(
+              S.of(context).cancelModalSheetButton,
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text(
-              'Delete',
+            child: Text(
+              S.of(context).deleteSubtaskAction,
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
             onPressed: () async {
@@ -274,7 +275,6 @@ class _SubtasksTabState extends State<SubtasksTab> {
                     subtaskId: taskSubtasks[index].id,
                     taskId: taskSubtasks[index].taskId,
                   );
-
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -289,7 +289,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
       enabled: true,
       containersColor: AppColors.inputDecorationLightFillColor,
       child: FieldItem(
-        label: 'Todo List',
+        label: S.of(context).todoList,
         widget: ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -396,7 +396,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
                                   color: Colors.blue,
                                 ),
                                 const SizedBox(width: 8),
-                                Text('Edit'),
+                                Text(S.of(context).editSubtaskAction),
                               ],
                             ),
                           ),
@@ -416,7 +416,7 @@ class _SubtasksTabState extends State<SubtasksTab> {
                                   color: AppColors.errorColor,
                                 ),
                                 const SizedBox(width: 8),
-                                Text('Delete'),
+                                Text(S.of(context).deleteSubtaskAction),
                               ],
                             ),
                           ),

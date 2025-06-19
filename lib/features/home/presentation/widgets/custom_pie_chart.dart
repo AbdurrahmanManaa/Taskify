@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:taskify/core/functions/filter_tasks.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/features/home/domain/entities/pie_chart_item_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
+import 'package:taskify/features/home/presentation/widgets/pie_chart_item.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class CustomPieChart extends StatefulWidget {
   const CustomPieChart(
@@ -122,7 +125,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                   style: AppTextStyles.bold24,
                 ),
                 Text(
-                  'Total Tasks',
+                  S.of(context).totalTasks,
                   style: AppTextStyles.regular16,
                 ),
               ],
@@ -133,58 +136,25 @@ class _CustomPieChartState extends State<CustomPieChart> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20,
           children: [
-            StatsItem(
-              title: 'Done',
-              progress: '$completionPercentage%',
-              color: Colors.green,
+            PieChartItem(
+              pieChartItemEntity: PieChartItemEntity(
+                title: S.of(context).taskStatusCompleted,
+                progress: '$completionPercentage%',
+                color: Colors.green,
+              ),
             ),
-            StatsItem(
-              title: 'In Progress',
-              progress: '$inProgressPercentage%',
-              color: Colors.blue,
+            PieChartItem(
+              pieChartItemEntity: PieChartItemEntity(
+                title: S.of(context).taskStatusInProgress,
+                progress: '$inProgressPercentage%',
+                color: Colors.blue,
+              ),
             ),
-            StatsItem(
-              title: 'Overdue',
-              progress: '$overduePercentage%',
-              color: AppColors.errorColor,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class StatsItem extends StatelessWidget {
-  const StatsItem({
-    super.key,
-    required this.title,
-    required this.progress,
-    required this.color,
-  });
-  final String title, progress;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 6,
-          backgroundColor: color,
-        ),
-        const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              progress,
-              style: AppTextStyles.semiBold20,
-            ),
-            Text(
-              title,
-              style: AppTextStyles.regular16.copyWith(
-                color: AppColors.bodyTextColor,
+            PieChartItem(
+              pieChartItemEntity: PieChartItemEntity(
+                title: S.of(context).taskStatusOverdue,
+                progress: '$overduePercentage%',
+                color: AppColors.errorColor,
               ),
             ),
           ],

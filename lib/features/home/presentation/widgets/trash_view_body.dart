@@ -24,6 +24,7 @@ import 'package:taskify/features/home/domain/entities/task/task_status.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/task_cubit.dart';
 import 'package:taskify/features/home/presentation/views/task_details_view.dart';
 import 'package:taskify/features/home/presentation/widgets/task_card.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class TrashViewBody extends StatefulWidget {
   const TrashViewBody({super.key});
@@ -111,7 +112,8 @@ class _TrashViewBodyState extends State<TrashViewBody> {
     );
   }
 
-  Future<void> _showFiltersAndSort(BuildContext context) async {
+  Future<void> _showFiltersAndSort(
+      BuildContext context, List<Map<String, dynamic>> categories) async {
     List<TaskStatus> tempStatuses = List<TaskStatus>.from(_selectedStatuses);
     List<TaskCategoryEntity> tempCategories =
         List<TaskCategoryEntity>.from(_selectedCategories);
@@ -155,7 +157,7 @@ class _TrashViewBodyState extends State<TrashViewBody> {
                     Wrap(
                       spacing: 10,
                       children: [
-                        ...predefinedCategories.map(
+                        ...categories.map(
                           (categoryMap) {
                             final category = TaskCategoryEntity(
                               name: categoryMap['name'],
@@ -199,10 +201,7 @@ class _TrashViewBodyState extends State<TrashViewBody> {
                                   ? null
                                   : IconData(
                                       category.icon.codePoint,
-                                      fontFamilyFallback: [
-                                        'MaterialIcons',
-                                        'CupertinoIcons'
-                                      ],
+                                      fontFamilyFallback: ['MaterialIcons'],
                                     ),
                               color: Color(
                                 category.color.toARGB32(),
@@ -573,6 +572,7 @@ class _TrashViewBodyState extends State<TrashViewBody> {
   Widget build(BuildContext context) {
     final tasks = context.watch<TaskCubit>().filteredTasks;
     final trashTasks = filterTasks(tasks, 'trash');
+    final predefinedCategories = predefinedTaskCategories(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -581,10 +581,10 @@ class _TrashViewBodyState extends State<TrashViewBody> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            CustomAppbar(title: 'Trash'),
-            const SizedBox(height: 40),
+            CustomAppbar(title: S.of(context).trashAppBar),
+            const SizedBox(height: 20),
             Text(
-              'Tasks in the trash will be permanently deleted after 30 days',
+              S.of(context).trashBody,
               style:
                   AppTextStyles.regular18.copyWith(color: AppColors.greyColor),
             ),
@@ -600,7 +600,10 @@ class _TrashViewBodyState extends State<TrashViewBody> {
               ),
               suffixIcon: GestureDetector(
                 onTap: () async {
-                  await _showFiltersAndSort(context);
+                  await _showFiltersAndSort(
+                    context,
+                    predefinedCategories,
+                  );
                 },
                 child: Icon(
                   Icons.filter_alt,
@@ -608,7 +611,7 @@ class _TrashViewBodyState extends State<TrashViewBody> {
                   size: 30,
                 ),
               ),
-              hintText: 'What are you looking for?',
+              hintText: S.of(context).searchBarPlaceholder,
             ),
             const SizedBox(height: 20),
             BlocConsumer<TaskCubit, TaskState>(

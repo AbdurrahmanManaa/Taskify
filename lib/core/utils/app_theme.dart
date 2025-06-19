@@ -7,7 +7,7 @@ abstract class AppTheme {
   static ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.scaffoldLightBackgroundColor,
-    fontFamily: 'Poppins',
+    fontFamily: 'Inter',
     dividerTheme: const DividerThemeData(
       color: AppColors.dividerColor,
       thickness: 1.5,
@@ -93,7 +93,7 @@ abstract class AppTheme {
   static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.scaffoldDarkBackgroundColor,
-    fontFamily: 'Poppins',
+    fontFamily: 'Inter',
     dividerTheme: const DividerThemeData(
       color: Colors.white,
       thickness: 1,

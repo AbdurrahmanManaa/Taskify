@@ -20,6 +20,7 @@ import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
 import 'package:taskify/features/home/presentation/views/edit_task_view.dart';
 import 'package:taskify/features/home/presentation/widgets/edit_user_view_body.dart';
 import 'package:taskify/features/home/presentation/widgets/user_info_widget.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class ProfileViewBody extends StatefulWidget {
   const ProfileViewBody({super.key, required this.supabase});
@@ -31,7 +32,7 @@ class ProfileViewBody extends StatefulWidget {
 
 class _ProfileViewBodyState extends State<ProfileViewBody> {
   File? _imageFile;
-  String _timezone = 'Unknown';
+  String _timezone = '';
 
   @override
   void initState() {
@@ -120,7 +121,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                     ),
                   ),
                   Text(
-                    'Profile Picture',
+                    S.of(context).profilePictureBottomSheet,
                     style: AppTextStyles.semiBold20
                         .copyWith(color: AppColors.primaryLightColor),
                   ),
@@ -181,7 +182,10 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                           ),
                         ),
                       ),
-                      Text('Camera', style: AppTextStyles.regular16),
+                      Text(
+                        S.of(context).camera,
+                        style: AppTextStyles.regular16,
+                      ),
                     ],
                   ),
                   Column(
@@ -214,12 +218,15 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                           ),
                         ),
                       ),
-                      Text('Gallery', style: AppTextStyles.regular16),
+                      Text(
+                        S.of(context).gallery,
+                        style: AppTextStyles.regular16,
+                      ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 20),
             ],
           ),
         );
@@ -254,7 +261,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
-                CustomAppbar(title: 'Profile'),
+                CustomAppbar(title: S.of(context).profileAppBar),
                 const SizedBox(height: 50),
                 GestureDetector(
                   onTap: () async {
@@ -301,7 +308,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                       ),
                     );
                   },
-                  title: 'Full Name',
+                  title: S.of(context).fullNameEditUser,
                   userData: userFullName,
                 ),
                 const SizedBox(height: 40),
@@ -318,18 +325,18 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                       ),
                     );
                   },
-                  title: 'Email',
+                  title: S.of(context).fullNameEditUser,
                   userData: userEmail,
                 ),
                 const SizedBox(height: 40),
                 UserInfoWidget(
-                  title: 'Timezone',
+                  title: S.of(context).timezone,
                   userData: _timezone,
                   showArrow: false,
                 ),
                 const SizedBox(height: 40),
                 UserInfoWidget(
-                  title: 'Member Since',
+                  title: S.of(context).memberSince,
                   userData: userCreatedAt,
                   showArrow: false,
                 ),

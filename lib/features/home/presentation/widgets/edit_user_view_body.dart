@@ -9,6 +9,7 @@ import 'package:taskify/core/widgets/field_item.dart';
 import 'package:taskify/core/widgets/password_text_form_field.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
+import 'package:taskify/generated/l10n.dart';
 
 enum EditProfileType {
   name,
@@ -72,17 +73,17 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
       children: [
         SizedBox(height: 20),
         CustomAppbar(
-          title: 'Edit Full Name',
+          title: S.of(context).editFullNameAppBar,
         ),
         SizedBox(height: 20),
         FieldItem(
-          label: 'New Full Name',
+          label: S.of(context).fullNameTextField,
           widget: ValueListenableBuilder(
             valueListenable: _controller,
             builder: (context, value, _) {
               return CustomTextFormField(
                 controller: _controller,
-                hintText: 'Full Name',
+                hintText: S.of(context).fullNameTextFieldHint,
                 autofocus: true,
                 keyboardType: TextInputType.name,
                 autofillHints: const [AutofillHints.name],
@@ -111,7 +112,7 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
             }
           },
           child: CustomButton(
-            title: 'Edit Full Name',
+            title: S.of(context).editFullNameAppBar,
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 await context.read<UserCubit>().updateUserData(
@@ -138,17 +139,17 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
       children: [
         SizedBox(height: 20),
         CustomAppbar(
-          title: 'Edit Email',
+          title: S.of(context).editEmailAppBar,
         ),
         SizedBox(height: 20),
         FieldItem(
-          label: 'New Email',
+          label: S.of(context).newEmailTextField,
           widget: ValueListenableBuilder(
             valueListenable: _controller,
             builder: (context, value, _) {
               return CustomTextFormField(
                 controller: _controller,
-                hintText: 'Email',
+                hintText: S.of(context).newEmailTextFieldHint,
                 autofocus: true,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
@@ -178,7 +179,7 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
             }
           },
           child: CustomButton(
-            title: 'Edit Email',
+            title: S.of(context).editEmailAppBar,
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 await context.read<UserCubit>().updateUserData(
@@ -206,21 +207,21 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
     return Column(
       children: [
         SizedBox(height: 20),
-        CustomAppbar(title: 'Edit Password'),
+        CustomAppbar(title: S.of(context).editPasswordAppBar),
         SizedBox(height: 20),
         FieldItem(
-          label: 'New Password',
+          label: S.of(context).newPassword,
           widget: PasswordTextFormField(
-            hintText: 'Password',
+            hintText: S.of(context).newPasswordTextFieldHint,
             controller: _controller,
             textInputAction: TextInputAction.next,
             maxLength: 30,
           ),
         ),
         FieldItem(
-          label: 'Confirm New Password',
+          label: S.of(context).confirmPasswordTextField,
           widget: PasswordTextFormField(
-            hintText: 'Confirm Password',
+            hintText: S.of(context).confirmPasswordTextFieldHint,
             controller: _confirmController,
             textInputAction: TextInputAction.done,
             maxLength: 30,
@@ -236,7 +237,7 @@ class _EditUserViewBodyState extends State<EditUserViewBody> {
             }
           },
           child: CustomButton(
-            title: 'Edit Password',
+            title: S.of(context).editPasswordAppBar,
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 if (_controller.text.trim() != _confirmController.text.trim()) {

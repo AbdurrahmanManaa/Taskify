@@ -7,6 +7,7 @@ import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/widgets/custom_wrapper_container.dart';
 import 'package:taskify/core/widgets/option_item.dart';
 import 'package:taskify/features/home/domain/entities/task/task_reminder_entity.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class TaskReminderViewBody extends StatefulWidget {
   const TaskReminderViewBody({super.key});
@@ -17,22 +18,25 @@ class TaskReminderViewBody extends StatefulWidget {
 
 class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
     with TickerProviderStateMixin {
-  String _selectedOption = '10 mins before';
+  late String _selectedOption;
   int _selectedValue = 5;
-  String _selectedUnit = 'Minutes';
+  late String _selectedUnit;
   bool _isSelected = false;
 
   void toggleContent() {
     setState(() {
       _isSelected = !_isSelected;
       if (_isSelected) {
-        _selectedOption = 'Custom';
+        _selectedOption = S.of(context).custom;
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    _selectedOption = S.of(context).reminderOption2;
+    _selectedUnit = S.of(context).reminderUnit1;
+
     return Padding(
       padding: const EdgeInsets.symmetric(
           horizontal: AppConstants.horizontalPadding),
@@ -41,20 +45,20 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
           children: [
             const SizedBox(height: 20),
             CustomAppbar(
-              title: 'Task Reminder',
+              title: S.of(context).reminderAppBar,
               result: TaskReminderEntity(
                 option: _selectedOption,
                 value: _selectedValue,
                 unit: _selectedUnit,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             CustomWrapperContainer(
               child: Column(
                 children: [
                   OptionItem(
                     leading: Radio(
-                      value: 'At time of event',
+                      value: S.of(context).reminderOption1,
                       groupValue: _selectedOption,
                       onChanged: (value) {
                         setState(() {
@@ -64,7 +68,7 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                       },
                     ),
                     title: Text(
-                      'At time of event',
+                      S.of(context).reminderOption1,
                       style:
                           AppTextStyles.medium18.copyWith(color: Colors.black),
                     ),
@@ -72,7 +76,7 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                   Divider(),
                   OptionItem(
                     leading: Radio(
-                      value: '10 mins before',
+                      value: S.of(context).reminderOption2,
                       groupValue: _selectedOption,
                       onChanged: (value) {
                         setState(() {
@@ -82,7 +86,7 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                       },
                     ),
                     title: Text(
-                      '10 mins before',
+                      S.of(context).reminderOption2,
                       style:
                           AppTextStyles.medium18.copyWith(color: Colors.black),
                     ),
@@ -90,7 +94,7 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                   Divider(),
                   OptionItem(
                     leading: Radio(
-                      value: '1 hour before',
+                      value: S.of(context).reminderOption3,
                       groupValue: _selectedOption,
                       onChanged: (value) {
                         setState(() {
@@ -100,7 +104,7 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                       },
                     ),
                     title: Text(
-                      '1 hour before',
+                      S.of(context).reminderOption3,
                       style:
                           AppTextStyles.medium18.copyWith(color: Colors.black),
                     ),
@@ -108,7 +112,7 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                   Divider(),
                   OptionItem(
                     leading: Radio(
-                      value: '1 day before',
+                      value: S.of(context).reminderOption4,
                       groupValue: _selectedOption,
                       onChanged: (value) {
                         setState(() {
@@ -118,7 +122,7 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                       },
                     ),
                     title: Text(
-                      '1 day before',
+                      S.of(context).reminderOption4,
                       style:
                           AppTextStyles.medium18.copyWith(color: Colors.black),
                     ),
@@ -131,13 +135,13 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
               child: GestureDetector(
                 onTap: toggleContent,
                 child: CustomAnimatedSwitcher(
-                  child: _selectedOption == 'Custom'
+                  child: _selectedOption == S.of(context).custom
                       ? Column(
                           children: [
                             Row(
                               children: [
                                 Radio(
-                                  value: 'Custom',
+                                  value: S.of(context).custom,
                                   groupValue: _selectedOption,
                                   onChanged: (value) {
                                     setState(() {
@@ -149,8 +153,11 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                                 SizedBox(width: 10),
                                 Text(
                                   _selectedValue == 0
-                                      ? 'At time of event'
-                                      : '$_selectedValue ${_selectedUnit.substring(0, _selectedUnit.length - 1)} before',
+                                      ? S.of(context).reminderOption1
+                                      : S.of(context).selectedTaskReminder(
+                                          _selectedValue.toString(),
+                                          _selectedUnit.substring(
+                                              0, _selectedUnit.length - 1)),
                                   style: AppTextStyles.regular18,
                                 ),
                               ],
@@ -169,7 +176,8 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                                       onSelectedItemChanged: (index) {
                                         setState(() {
                                           _selectedValue = index;
-                                          _selectedOption = 'Custom';
+                                          _selectedOption =
+                                              S.of(context).custom;
                                         });
                                       },
                                       children: List.generate(
@@ -195,7 +203,8 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                                       onSelectedItemChanged: (index) {
                                         setState(() {
                                           _selectedUnit = reminderUnits[index];
-                                          _selectedOption = 'Custom';
+                                          _selectedOption =
+                                              S.of(context).custom;
                                         });
                                       },
                                       children: reminderUnits.map((unit) {
@@ -222,7 +231,7 @@ class _TaskReminderViewBodyState extends State<TaskReminderViewBody>
                             color: Colors.green,
                           ),
                           title: Text(
-                            'Custom',
+                            S.of(context).custom,
                             style: AppTextStyles.medium18
                                 .copyWith(color: Colors.black),
                           ),

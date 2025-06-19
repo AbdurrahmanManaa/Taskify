@@ -1,7 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:taskify/features/home/domain/entities/attachment/attachment_status.dart';
+import 'package:taskify/generated/l10n.dart';
 
 extension AttachmentStatusX on AttachmentStatus {
-  String get label {
+  String label(BuildContext context) {
+    switch (this) {
+      case AttachmentStatus.pending:
+        return S.of(context).attachmentStatusPending;
+      case AttachmentStatus.uploaded:
+        return S.of(context).attachmentStatusUploaded;
+    }
+  }
+
+  String get labelDB {
     switch (this) {
       case AttachmentStatus.pending:
         return 'Pending';

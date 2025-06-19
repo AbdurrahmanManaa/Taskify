@@ -56,7 +56,7 @@ class AttachmentModel {
       'file_type': fileType,
       'file_size': fileSize,
       'file_path': filePath,
-      'status': status.label,
+      'status': status.labelDB,
     };
   }
 

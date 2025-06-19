@@ -30,13 +30,6 @@ class TaskReminderEntity extends HiveObject {
   }
 }
 
-const List<String> reminderOptions = [
-  'At time of event',
-  '10 mins before',
-  '1 hour before',
-  '1 day before',
-  'Custom',
-];
 const List<String> reminderUnits = [
   'Minutes',
   'Hours',

@@ -4,6 +4,7 @@ import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
 import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_status.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class TaskTimelineInfo extends StatelessWidget {
   const TaskTimelineInfo({super.key, required this.taskDetails});
@@ -28,7 +29,7 @@ class TaskTimelineInfo extends StatelessWidget {
         style: AppTextStyles.regular18.copyWith(color: AppColors.bodyTextColor),
         children: [
           TextSpan(
-            text: 'Created at  ',
+            text: S.of(context).createdAt,
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           TextSpan(
@@ -37,7 +38,7 @@ class TaskTimelineInfo extends StatelessWidget {
           if (taskDetails.completedAt != null &&
               formattedCompletionTime != null) ...[
             TextSpan(
-              text: '\nCompleted at  ',
+              text: S.of(context).completedAt,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             TextSpan(
@@ -47,7 +48,7 @@ class TaskTimelineInfo extends StatelessWidget {
           ],
           if (formattedUpdateTime != null) ...[
             TextSpan(
-              text: '\nUpdated at  ',
+              text: S.of(context).updatedAt,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             TextSpan(
@@ -58,7 +59,7 @@ class TaskTimelineInfo extends StatelessWidget {
           if (taskDetails.status == TaskStatus.trash &&
               formattedDeletedTime != null) ...[
             TextSpan(
-              text: '\nDeleted at  ',
+              text: S.of(context).deletedAt,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             TextSpan(

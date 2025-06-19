@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:taskify/core/extensions/task_enum_extensions.dart';
+import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/date_time_utils.dart';
@@ -11,12 +12,14 @@ import 'package:taskify/core/widgets/field_label.dart';
 import 'package:taskify/features/home/domain/entities/task/task_category_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_tag_container.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class TaskBasicInfo extends StatelessWidget {
-  const TaskBasicInfo(
-      {super.key, required this.taskDetails, required this.customCategories});
+  const TaskBasicInfo({
+    super.key,
+    required this.taskDetails,
+  });
   final TaskEntity taskDetails;
-  final List<TaskCategoryEntity> customCategories;
 
   @override
   Widget build(BuildContext context) {
@@ -25,15 +28,18 @@ class TaskBasicInfo extends StatelessWidget {
     final IconData statusIcon = statusDetails['icon'] as IconData;
     final Color statusColor = statusDetails['color'] as Color;
     final Map<String, dynamic> uncategorizedCategory = {
-      'name': 'Uncategorized',
+      'name': S.of(context).uncategorized,
       'icon': Icons.help_outline,
       'color': AppColors.greyColor,
     };
+    final taskDetailsPriorityLabel = taskDetails.priority.label(context);
+    final taskDetailsStatusLabel = taskDetails.status.label(context);
+    final predefinedCategories = predefinedTaskCategories(context);
 
     return Column(
       children: [
         FieldItem(
-          label: 'Title',
+          label: S.of(context).taskTitle,
           widget: Align(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -47,7 +53,7 @@ class TaskBasicInfo extends StatelessWidget {
         if (taskDetails.description != null &&
             taskDetails.description!.isNotEmpty)
           FieldItem(
-            label: 'Description',
+            label: S.of(context).taskDescription,
             widget: Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -70,7 +76,7 @@ class TaskBasicInfo extends StatelessWidget {
         const SizedBox(height: 20),
         Row(
           children: [
-            FieldLabel(label: 'Status'),
+            FieldLabel(label: S.of(context).taskStatus),
             const SizedBox(width: 10),
             Icon(
               statusIcon,
@@ -80,70 +86,73 @@ class TaskBasicInfo extends StatelessWidget {
             const SizedBox(width: 5),
             Flexible(
               child: Text(
-                taskDetails.status.label,
+                taskDetailsStatusLabel,
                 style: AppTextStyles.regular16,
               ),
             ),
           ],
         ),
         const SizedBox(height: 20),
-        Wrap(
-          spacing: 10,
-          runSpacing: 5,
-          children: [
-            FieldLabel(label: 'Tags'),
-            if (taskDetails.categories.isNotEmpty) ...[
-              ...taskDetails.categories.map(
-                (category) {
-                  bool isValidCategory =
-                      customCategories.any((c) => c.name == category.name) ||
-                          predefinedCategories
-                              .any((c) => c['name'] == category.name);
+        ValueListenableBuilder<List<TaskCategoryEntity>>(
+            valueListenable: HiveService.categoriesNotifier,
+            builder: (context, customCategories, _) {
+              return Wrap(
+                spacing: 10,
+                runSpacing: 5,
+                children: [
+                  FieldLabel(label: S.of(context).taskTags),
+                  if (taskDetails.categories.isNotEmpty) ...[
+                    ...taskDetails.categories.map(
+                      (category) {
+                        bool isValidCategory = customCategories
+                                .any((c) => c.name == category.name) ||
+                            predefinedCategories
+                                .any((c) => c['name'] == category.name);
+                        if (!isValidCategory) {
+                          if (customCategories.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 5),
+                              child: CustomTagContainer(
+                                iconColor: uncategorizedCategory['color'],
+                                iconCodePoint:
+                                    uncategorizedCategory['icon'].codePoint,
+                                title: uncategorizedCategory['name'],
+                              ),
+                            );
+                          }
+                        }
 
-                  if (!isValidCategory) {
-                    if (customCategories.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 5),
-                        child: CustomTagContainer(
-                          iconColor: uncategorizedCategory['color'],
-                          iconCodePoint:
-                              uncategorizedCategory['icon'].codePoint,
-                          title: uncategorizedCategory['name'],
-                        ),
-                      );
-                    }
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 5),
-                    child: CustomTagContainer(
-                      iconColor: category.color,
-                      iconCodePoint: category.icon.codePoint,
-                      title: category.name,
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 5),
+                          child: CustomTagContainer(
+                            iconColor: category.color,
+                            iconCodePoint: category.icon.codePoint,
+                            title: category.name,
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ] else
-              CustomTagContainer(
-                iconColor: uncategorizedCategory['color'],
-                iconCodePoint: uncategorizedCategory['icon'].codePoint,
-                title: uncategorizedCategory['name'],
-              ),
-            CustomTagContainer(
-              iconColor: TaskUIHelper.getPriorityDetails(
-                  taskDetails.priority)['color'],
-              iconCodePoint:
-                  TaskUIHelper.getPriorityDetails(taskDetails.priority)['icon']
-                      .codePoint,
-              title: taskDetails.priority.label,
-            ),
-          ],
-        ),
+                  ] else
+                    CustomTagContainer(
+                      iconColor: uncategorizedCategory['color'],
+                      iconCodePoint: uncategorizedCategory['icon'].codePoint,
+                      title: uncategorizedCategory['name'],
+                    ),
+                  CustomTagContainer(
+                    iconColor: TaskUIHelper.getPriorityDetails(
+                        taskDetails.priority)['color'],
+                    iconCodePoint: TaskUIHelper.getPriorityDetails(
+                            taskDetails.priority)['icon']
+                        .codePoint,
+                    title: taskDetailsPriorityLabel,
+                  ),
+                ],
+              );
+            }),
         const SizedBox(height: 20),
         Row(
           children: [
-            FieldLabel(label: 'Due Date'),
+            FieldLabel(label: S.of(context).taskDueDate),
             const SizedBox(width: 10),
             const Icon(Icons.date_range, color: AppColors.primaryLightColor),
             const SizedBox(width: 5),
@@ -158,7 +167,7 @@ class TaskBasicInfo extends StatelessWidget {
         const SizedBox(height: 20),
         Row(
           children: [
-            FieldLabel(label: 'Due Time'),
+            FieldLabel(label: S.of(context).taskDueTime),
             const SizedBox(width: 10),
             const Icon(
               FontAwesomeIcons.clock,
@@ -175,12 +184,15 @@ class TaskBasicInfo extends StatelessWidget {
         const SizedBox(height: 20),
         Row(
           children: [
-            FieldLabel(label: 'Reminder'),
+            FieldLabel(label: S.of(context).taskReminder),
             const SizedBox(width: 10),
             const Icon(Icons.notifications, color: AppColors.primaryLightColor),
             const SizedBox(width: 5),
             Text(
-              ScheduleParser.formatReminder(taskDetails.reminder),
+              ScheduleParser.formatReminder(
+                context,
+                taskDetails.reminder,
+              ),
               style: AppTextStyles.regular16,
             ),
           ],
@@ -188,13 +200,16 @@ class TaskBasicInfo extends StatelessWidget {
         const SizedBox(height: 20),
         Row(
           children: [
-            FieldLabel(label: 'Repeat'),
+            FieldLabel(label: S.of(context).taskRepeat),
             const SizedBox(width: 10),
             const Icon(Icons.repeat, color: AppColors.primaryLightColor),
             const SizedBox(width: 5),
             Flexible(
               child: Text(
-                ScheduleParser.formatRepeat(taskDetails.repeat),
+                ScheduleParser.formatRepeat(
+                  context,
+                  taskDetails.repeat,
+                ),
                 style: AppTextStyles.regular16,
               ),
             ),

@@ -5,6 +5,7 @@ import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_assets.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class NotificationsViewBody extends StatelessWidget {
   const NotificationsViewBody({super.key});
@@ -34,7 +35,7 @@ class NotificationsViewBody extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            CustomAppbar(title: 'Notifications'),
+            CustomAppbar(title: S.of(context).notificationsAppBar),
             _emptyNotificationsPlaceholder(),
           ],
         ),

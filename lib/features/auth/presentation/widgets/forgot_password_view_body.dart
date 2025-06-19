@@ -10,6 +10,7 @@ import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/widgets/custom_button.dart';
 import 'package:taskify/core/widgets/custom_text_form_field.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class ForgotPasswordViewBody extends StatefulWidget {
   const ForgotPasswordViewBody({super.key});
@@ -44,7 +45,7 @@ class _ForgotPasswordViewBodyState extends State<ForgotPasswordViewBody> {
           frameRate: FrameRate(120),
         ),
         Text(
-          'The reset link will be sent to your email, please check it.',
+          S.of(context).forgotPasswordBody,
           style: AppTextStyles.regular16.copyWith(color: AppColors.greyColor),
         ),
       ],
@@ -62,11 +63,11 @@ class _ForgotPasswordViewBodyState extends State<ForgotPasswordViewBody> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              CustomAppbar(title: 'Forgot Password'),
+              CustomAppbar(title: S.of(context).forgotPasswordAppBar),
               _forgotPasswordPlaceholder(),
               const SizedBox(height: 40),
               CustomTextFormField(
-                hintText: 'Email',
+                hintText: S.of(context).emailTextFieldHint,
                 autofocus: true,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
@@ -76,7 +77,7 @@ class _ForgotPasswordViewBodyState extends State<ForgotPasswordViewBody> {
               ),
               const SizedBox(height: 40),
               CustomButton(
-                title: 'Send',
+                title: S.of(context).sendButton,
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     await context.read<UserCubit>().resetPassword(

@@ -43,7 +43,7 @@ class SubtaskModel {
         'task_id': taskId,
         'title': title,
         'note': note,
-        'status': status.label,
+        'status': status.labelDB,
       };
 
   factory SubtaskModel.fromEntity(SubtaskEntity entity) => SubtaskModel(

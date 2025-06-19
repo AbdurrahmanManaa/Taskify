@@ -11,6 +11,7 @@ import 'package:taskify/core/widgets/custom_button.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/user_identity_entity.dart';
 import 'package:taskify/features/home/presentation/widgets/user_account_widget.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class ConnectedAccountsViewBody extends StatefulWidget {
   const ConnectedAccountsViewBody({super.key});
@@ -39,6 +40,30 @@ class _ConnectedAccountsViewBodyState extends State<ConnectedAccountsViewBody> {
     await context.read<UserCubit>().getUserIdentities();
   }
 
+  Skeletonizer _connectedAccountsPlaceHolder() {
+    return Skeletonizer(
+      child: Column(
+        children: [
+          ListTile(
+            leading: CircleAvatar(
+              radius: 30,
+            ),
+            title: Text('testingemail@gmail.com'),
+            subtitle: Text('Google'),
+          ),
+          const SizedBox(height: 40),
+          ListTile(
+            leading: CircleAvatar(
+              radius: 30,
+            ),
+            title: Text('testingemail@gmail.com'),
+            subtitle: Text('Google'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -48,32 +73,12 @@ class _ConnectedAccountsViewBodyState extends State<ConnectedAccountsViewBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20),
-          CustomAppbar(title: 'Connected Accounts'),
+          CustomAppbar(title: S.of(context).connectedAccountsAppBar),
           const SizedBox(height: 30),
           BlocBuilder<UserCubit, UserState>(
             builder: (context, state) {
               if (state is UserLoading) {
-                return Skeletonizer(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: CircleAvatar(
-                          radius: 30,
-                        ),
-                        title: Text('testingemail@gmail.com'),
-                        subtitle: Text('Google'),
-                      ),
-                      const SizedBox(height: 40),
-                      ListTile(
-                        leading: CircleAvatar(
-                          radius: 30,
-                        ),
-                        title: Text('testingemail@gmail.com'),
-                        subtitle: Text('Google'),
-                      ),
-                    ],
-                  ),
-                );
+                return _connectedAccountsPlaceHolder();
               } else if (state is UserFailure) {
                 return Center(
                   child: Text(
@@ -118,7 +123,9 @@ class _ConnectedAccountsViewBodyState extends State<ConnectedAccountsViewBody> {
                         ),
                         const SizedBox(height: 20),
                         CustomButton(
-                          title: isConnected ? 'Disconnect' : 'Connect',
+                          title: isConnected
+                              ? S.of(context).disconnect
+                              : S.of(context).connect,
                           onPressed: () async {
                             if (isConnected && userIdentities.length > 1) {
                               await context.read<UserCubit>().unlinkIdentity();

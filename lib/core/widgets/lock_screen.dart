@@ -11,6 +11,7 @@ import 'package:taskify/core/widgets/custom_button.dart';
 import 'package:taskify/core/widgets/custom_progress_hud.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_lock_type.dart';
 import 'package:taskify/features/home/domain/entities/preferences/user_preferences_entity.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class LockScreen extends StatefulWidget {
   const LockScreen({super.key});
@@ -32,7 +33,10 @@ class _LockScreenState extends State<LockScreen> {
     _controller = TextEditingController();
   }
 
-  void _verify(String input, UserPreferencesEntity prefs) async {
+  void _verify(
+      BuildContext context, String input, UserPreferencesEntity prefs) async {
+    final appLockTypeLabel = prefs.appLockType.label(context);
+
     if (_isLockedOut) return;
 
     setState(() {
@@ -48,18 +52,19 @@ class _LockScreenState extends State<LockScreen> {
     );
 
     if (success) {
+      if (!context.mounted) return;
       AppLock.of(context)?.didUnlock();
     } else {
       setState(() {
         _attempts++;
         _controller.clear();
-        _error = 'Incorrect ${prefs.appLockType.label}. Try again.';
+        _error = S.of(context).incorrectLockType(appLockTypeLabel);
       });
 
       if (_attempts >= 5) {
         setState(() {
           _isLockedOut = true;
-          _error = 'Too many attempts. Please wait...';
+          _error = S.of(context).tooManyAttempts;
         });
 
         Future.delayed(const Duration(seconds: 10), () {
@@ -97,7 +102,10 @@ class _LockScreenState extends State<LockScreen> {
                     child: Column(
                       children: [
                         const SizedBox(height: 20),
-                        Text('Enter your ${isPin ? "PIN" : "Password"}',
+                        Text(
+                            isPin
+                                ? S.of(context).enterYourPin
+                                : S.of(context).enterYourPassword,
                             style: AppTextStyles.medium22),
                         const SizedBox(height: 20),
                         AppLockTypeField(
@@ -116,10 +124,11 @@ class _LockScreenState extends State<LockScreen> {
                         ],
                         const SizedBox(height: 40),
                         CustomButton(
-                          title: 'Unlock',
+                          title: S.of(context).unlock,
                           onPressed: _isLockedOut
                               ? null
                               : () => _verify(
+                                    context,
                                     _controller.text.trim(),
                                     prefs,
                                   ),

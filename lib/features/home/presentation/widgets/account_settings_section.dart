@@ -3,24 +3,21 @@ import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/features/home/presentation/widgets/settings_section.dart';
 import 'package:taskify/core/widgets/option_item.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class AccountSettingsSection extends StatelessWidget {
   const AccountSettingsSection({
     super.key,
     this.profileOnTap,
-    this.deleteAccountOnTap,
-    this.signOutOnTap,
     this.connectedAccountsOnTap,
   });
   final Function()? profileOnTap;
   final Function()? connectedAccountsOnTap;
-  final Function()? signOutOnTap;
-  final Function()? deleteAccountOnTap;
 
   @override
   Widget build(BuildContext context) {
     return SettingsSection(
-      title: 'Account',
+      title: S.of(context).accountSectionTitle,
       widgets: [
         const SizedBox(height: 20),
         OptionItem(
@@ -31,7 +28,7 @@ class AccountSettingsSection extends StatelessWidget {
             color: AppColors.primaryLightColor,
           ),
           title: Text(
-            'Profile',
+            S.of(context).profileOptionItem,
             style: AppTextStyles.medium18
                 .copyWith(color: AppColors.primaryLightColor),
           ),
@@ -52,45 +49,13 @@ class AccountSettingsSection extends StatelessWidget {
             color: AppColors.primaryLightColor,
           ),
           title: Text(
-            'Connected accounts',
+            S.of(context).connectedAccountsOptionItem,
             style: AppTextStyles.medium18
                 .copyWith(color: AppColors.primaryLightColor),
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
             color: AppColors.primaryLightColor,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Divider(),
-        ),
-        OptionItem(
-          onTap: signOutOnTap,
-          leading: Icon(
-            Icons.logout_outlined,
-            size: 30,
-            color: AppColors.errorColor,
-          ),
-          title: Text(
-            'Sign out',
-            style: AppTextStyles.medium18.copyWith(color: AppColors.errorColor),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Divider(),
-        ),
-        OptionItem(
-          onTap: deleteAccountOnTap,
-          leading: Icon(
-            Icons.person_off,
-            size: 30,
-            color: AppColors.errorColor,
-          ),
-          title: Text(
-            'Delete Account',
-            style: AppTextStyles.medium18.copyWith(color: AppColors.errorColor),
           ),
         ),
       ],

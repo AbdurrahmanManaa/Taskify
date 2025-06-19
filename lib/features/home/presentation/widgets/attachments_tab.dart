@@ -11,7 +11,6 @@ import 'package:get_thumbnail_video/index.dart';
 import 'package:get_thumbnail_video/video_thumbnail.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
@@ -26,6 +25,7 @@ import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/presentation/manager/cubits/attachments_cubit/attachment_cubit.dart';
 import 'package:taskify/features/home/presentation/widgets/attachment_item.dart';
 import 'package:path/path.dart' as p;
+import 'package:taskify/generated/l10n.dart';
 
 class AttachmentsTab extends StatefulWidget {
   const AttachmentsTab({
@@ -527,18 +527,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AttachmentCubit, AttachmentState>(
-      listener: (context, state) {
-        if (state is AttachmentSuccess) {
-          if (state.message != null) {
-            buildSnackbar(context, message: state.message!);
-          }
-        } else if (state is AttachmentFailure) {
-          if (state.message != null) {
-            buildSnackbar(context, message: state.message!);
-          }
-        }
-      },
+    return BlocBuilder<AttachmentCubit, AttachmentState>(
       builder: (context, state) {
         if (state is AttachmentLoading) {
           return _attachmentsPlaceholder();
@@ -558,7 +547,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (mediaAttachments.isNotEmpty)
-                Text('Media (${mediaAttachments.length})',
+                Text(S.of(context).mediaAttachments(mediaAttachments.length),
                     style: AppTextStyles.medium18),
               const SizedBox(height: 10),
               mediaAttachments.isNotEmpty
@@ -691,7 +680,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                         ),
                         child: Center(
                           child: Text(
-                            'Add Attachment',
+                            S.of(context).addAttachment,
                             style: AppTextStyles.regular14
                                 .copyWith(fontWeight: FontWeight.w500),
                           ),
@@ -702,7 +691,10 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                 Column(
                   children: [
                     SizedBox(height: 20),
-                    Text('Files (${documentAttachments.length})',
+                    Text(
+                        S
+                            .of(context)
+                            .fileAttachments(documentAttachments.length),
                         style: AppTextStyles.medium18),
                   ],
                 ),
@@ -735,7 +727,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Add File',
+                                  S.of(context).addFile,
                                   style: AppTextStyles.regular14
                                       .copyWith(fontWeight: FontWeight.w500),
                                 ),
@@ -781,7 +773,9 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                                           color: Colors.blue,
                                         ),
                                         const SizedBox(width: 8),
-                                        Text('Rename'),
+                                        Text(S
+                                            .of(context)
+                                            .renameAttachmentAction),
                                       ],
                                     ),
                                   ),
@@ -797,7 +791,9 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                                           color: AppColors.primaryLightColor,
                                         ),
                                         const SizedBox(width: 8),
-                                        Text('Download'),
+                                        Text(S
+                                            .of(context)
+                                            .downloadAttachmentAction),
                                       ],
                                     ),
                                   ),
@@ -816,7 +812,9 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                                           color: AppColors.errorColor,
                                         ),
                                         const SizedBox(width: 8),
-                                        Text('Delete'),
+                                        Text(S
+                                            .of(context)
+                                            .deleteAttachmentAction),
                                       ],
                                     ),
                                   ),
@@ -847,7 +845,7 @@ class _AttachmentsTabState extends State<AttachmentsTab> {
                         ),
                         child: Center(
                           child: Text(
-                            'Add File',
+                            S.of(context).addFile,
                             style: AppTextStyles.regular14
                                 .copyWith(fontWeight: FontWeight.w500),
                           ),

@@ -12,6 +12,7 @@ import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/widgets/custom_button.dart';
 import 'package:taskify/core/widgets/password_text_form_field.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class ResetPasswordViewBody extends StatefulWidget {
   const ResetPasswordViewBody({super.key, required this.supabase});
@@ -50,7 +51,7 @@ class _ResetPasswordViewBodyState extends State<ResetPasswordViewBody> {
           frameRate: FrameRate(120),
         ),
         Text(
-          'Your new password should be different from your previous password.',
+          S.of(context).resetPasswordBody,
           style: AppTextStyles.regular16.copyWith(color: AppColors.greyColor),
         ),
       ],
@@ -69,18 +70,18 @@ class _ResetPasswordViewBodyState extends State<ResetPasswordViewBody> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              CustomAppbar(title: 'Reset Password'),
+              CustomAppbar(title: S.of(context).resetPasswordAppBar),
               _resetPasswordPlaceholder(),
               const SizedBox(height: 36),
               PasswordTextFormField(
-                hintText: 'New Password',
+                hintText: S.of(context).newPasswordTextFieldHint,
                 maxLength: 30,
                 textInputAction: TextInputAction.next,
                 controller: _newPasswordController,
               ),
               const SizedBox(height: 15),
               PasswordTextFormField(
-                hintText: 'Confirm Password',
+                hintText: S.of(context).confirmPasswordTextFieldHint,
                 maxLength: 30,
                 textInputAction: TextInputAction.done,
                 controller: _confirmPasswordController,
@@ -99,7 +100,7 @@ class _ResetPasswordViewBodyState extends State<ResetPasswordViewBody> {
                   }
                 },
                 child: CustomButton(
-                  title: 'Reset Password',
+                  title: S.of(context).resetPasswordButton,
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       if (_newPasswordController.text.trim() !=

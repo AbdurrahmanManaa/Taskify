@@ -10,6 +10,10 @@ class AppAssets {
   /// assets/animations/forgot_password.json
   static const String animationsForgotPassword = "assets/animations/forgot_password.json";
 
+  /// Assets for animationsInitializing
+  /// assets/animations/initializing.json
+  static const String animationsInitializing = "assets/animations/initializing.json";
+
   /// Assets for animationsLoading
   /// assets/animations/loading.json
   static const String animationsLoading = "assets/animations/loading.json";
@@ -26,14 +30,6 @@ class AppAssets {
   /// assets/animations/reset_password.json
   static const String animationsResetPassword = "assets/animations/reset_password.json";
 
-  /// Assets for imagesAndroidBranding
-  /// assets/images/android_branding.png
-  static const String imagesAndroidBranding = "assets/images/android_branding.png";
-
-  /// Assets for imagesAndroidBrandingDark
-  /// assets/images/android_branding_dark.png
-  static const String imagesAndroidBrandingDark = "assets/images/android_branding_dark.png";
-
   /// Assets for imagesAndroidLogo
   /// assets/images/android_logo.png
   static const String imagesAndroidLogo = "assets/images/android_logo.png";
@@ -42,13 +38,17 @@ class AppAssets {
   /// assets/images/android_logo_dark.png
   static const String imagesAndroidLogoDark = "assets/images/android_logo_dark.png";
 
-  /// Assets for imagesBranding
-  /// assets/images/branding.png
-  static const String imagesBranding = "assets/images/branding.png";
+  /// Assets for imagesBadgeStyle
+  /// assets/images/badge_style.png
+  static const String imagesBadgeStyle = "assets/images/badge_style.png";
 
-  /// Assets for imagesBrandingDark
-  /// assets/images/branding_dark.png
-  static const String imagesBrandingDark = "assets/images/branding_dark.png";
+  /// Assets for imagesDarkBranding
+  /// assets/images/dark_branding.png
+  static const String imagesDarkBranding = "assets/images/dark_branding.png";
+
+  /// Assets for imagesDarkBrandingAndroid
+  /// assets/images/dark_branding_android.png
+  static const String imagesDarkBrandingAndroid = "assets/images/dark_branding_android.png";
 
   /// Assets for imagesGoogle
   /// assets/images/google.svg
@@ -61,6 +61,14 @@ class AppAssets {
   /// Assets for imagesLauncherIcon
   /// assets/images/launcher_icon.png
   static const String imagesLauncherIcon = "assets/images/launcher_icon.png";
+
+  /// Assets for imagesLightBranding
+  /// assets/images/light_branding.png
+  static const String imagesLightBranding = "assets/images/light_branding.png";
+
+  /// Assets for imagesLightBrandingAndroid
+  /// assets/images/light_branding_android.png
+  static const String imagesLightBrandingAndroid = "assets/images/light_branding_android.png";
 
   /// Assets for imagesLogo
   /// assets/images/logo.png

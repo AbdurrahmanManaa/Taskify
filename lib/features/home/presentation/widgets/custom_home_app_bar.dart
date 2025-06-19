@@ -17,6 +17,7 @@ import 'package:taskify/features/home/presentation/manager/cubits/task_cubit/tas
 import 'package:taskify/features/home/presentation/views/notifications_view.dart';
 import 'package:taskify/features/home/presentation/views/profile_view.dart';
 import 'package:taskify/features/home/presentation/views/trash_view.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class CustomHomeAppBar extends StatelessWidget {
   const CustomHomeAppBar({super.key, required this.supabase});
@@ -125,7 +126,7 @@ class CustomHomeAppBar extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Welcome back !',
+                        S.of(context).welcomeBackHomeView,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.regular18
                             .copyWith(color: AppColors.greyColor),

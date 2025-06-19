@@ -11,6 +11,7 @@ import 'package:taskify/core/widgets/password_text_form_field.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/auth/presentation/widgets/auth_footer.dart';
 import 'package:taskify/features/auth/presentation/widgets/auth_header.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class SignupViewBody extends StatefulWidget {
   const SignupViewBody({super.key});
@@ -23,7 +24,6 @@ class _SignupViewBodyState extends State<SignupViewBody> {
   late TextEditingController _fullNameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  late TextEditingController _confirmPasswordController;
   final GlobalKey<FormState> _formKey = GlobalKey();
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
   @override
@@ -32,7 +32,6 @@ class _SignupViewBodyState extends State<SignupViewBody> {
     _fullNameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
-    _confirmPasswordController = TextEditingController();
   }
 
   @override
@@ -40,7 +39,6 @@ class _SignupViewBodyState extends State<SignupViewBody> {
     _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -73,15 +71,15 @@ class _SignupViewBodyState extends State<SignupViewBody> {
                     child: Column(
                       children: [
                         const SizedBox(height: 60),
-                        const AuthHeader(
-                          title: 'Create an account,',
-                          subtitle: 'Let’s create account together',
+                        AuthHeader(
+                          title: S.of(context).createAccount,
+                          subtitle: S.of(context).letsCreateAccountTogether,
                         ),
                         const SizedBox(height: 25),
                         FieldItem(
-                          label: 'Full Name',
+                          label: S.of(context).fullNameTextField,
                           widget: CustomTextFormField(
-                            hintText: 'Enter your name',
+                            hintText: S.of(context).fullNameTextFieldHint,
                             keyboardType: TextInputType.name,
                             autofillHints: const [AutofillHints.name],
                             textInputAction: TextInputAction.next,
@@ -90,9 +88,9 @@ class _SignupViewBodyState extends State<SignupViewBody> {
                           ),
                         ),
                         FieldItem(
-                          label: 'Email',
+                          label: S.of(context).emailTextField,
                           widget: CustomTextFormField(
-                            hintText: 'Enter your email',
+                            hintText: S.of(context).emailTextFieldHint,
                             keyboardType: TextInputType.emailAddress,
                             autofillHints: const [AutofillHints.email],
                             textInputAction: TextInputAction.next,
@@ -101,26 +99,17 @@ class _SignupViewBodyState extends State<SignupViewBody> {
                           ),
                         ),
                         FieldItem(
-                          label: 'Password',
+                          label: S.of(context).passwordTextField,
                           widget: PasswordTextFormField(
-                            hintText: 'Enter your password',
+                            hintText: S.of(context).passwordTextFieldHint,
                             maxLength: 30,
                             textInputAction: TextInputAction.next,
                             controller: _passwordController,
                           ),
                         ),
-                        FieldItem(
-                          label: 'Confirm Password',
-                          widget: PasswordTextFormField(
-                            hintText: 'Confirm your password',
-                            maxLength: 30,
-                            textInputAction: TextInputAction.done,
-                            controller: _confirmPasswordController,
-                          ),
-                        ),
                         const SizedBox(height: 30),
                         CustomButton(
-                          title: 'Sign Up',
+                          title: S.of(context).signUpButton,
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               await context
@@ -144,8 +133,8 @@ class _SignupViewBodyState extends State<SignupViewBody> {
                       children: [
                         const Spacer(),
                         AuthFooter(
-                          title: 'Already have an account? ',
-                          tapText: 'Sign In',
+                          title: S.of(context).alreadyHaveAnAccount,
+                          tapText: S.of(context).signInRedirect,
                           onTap: () {
                             Navigator.pushNamed(context, AppRoutes.signIn);
                           },

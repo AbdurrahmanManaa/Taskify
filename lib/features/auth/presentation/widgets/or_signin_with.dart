@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class OrWidget extends StatelessWidget {
   const OrWidget({super.key});
@@ -16,7 +17,7 @@ class OrWidget extends StatelessWidget {
           width: 5,
         ),
         Text(
-          'Or',
+          S.of(context).or,
           textAlign: TextAlign.center,
           style: AppTextStyles.regular16.copyWith(color: AppColors.greyColor),
         ),

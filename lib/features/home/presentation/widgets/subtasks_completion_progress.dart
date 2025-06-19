@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:taskify/core/utils/app_colors.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/features/home/domain/entities/subtask/sub_task_entity.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class SubtasksCompletionProgress extends StatelessWidget {
   const SubtasksCompletionProgress({
@@ -19,7 +20,7 @@ class SubtasksCompletionProgress extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Todo List',
+          S.of(context).todoList,
           style: AppTextStyles.medium18,
         ),
         Row(

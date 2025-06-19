@@ -1,4 +1,3 @@
-import 'package:day_picker/model/day_in_week.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'task_repeat_entity.g.dart';
@@ -45,46 +44,3 @@ class TaskRepeatEntity {
     );
   }
 }
-
-const List<String> repeatOptions = [
-  'Don\'t repeat',
-  'Everyday',
-  'Every week',
-  'Every month',
-  'Every year',
-];
-const List<String> repeatDurations = [
-  'Forever',
-  'Specific number of times',
-  'Until',
-];
-const List<String> days = [
-  'Saturday',
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday'
-];
-final List<DayInWeek> weekDays = [
-  DayInWeek('Sunday', dayKey: 'Sun'),
-  DayInWeek('Monday', dayKey: 'Mon'),
-  DayInWeek('Tuesday', dayKey: 'Tue'),
-  DayInWeek(
-    'Wednesday',
-    dayKey: 'Wed',
-    isSelected: true,
-  ),
-  DayInWeek('Thursday', dayKey: 'Thu'),
-  DayInWeek('Friday', dayKey: 'Fri'),
-  DayInWeek('Saturday', dayKey: 'Sat'),
-];
-
-const Map<String, int> repeatMaxValues = {
-  'Everyday': 365,
-  'Every week': 52,
-  'Every month': 12,
-  'Every year': 10,
-  'Specific number of times': 100,
-};

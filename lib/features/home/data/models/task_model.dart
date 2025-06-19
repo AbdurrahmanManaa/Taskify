@@ -128,7 +128,7 @@ class TaskModel {
         'week_days': repeat.weekDays,
         'until_date': repeat.untilDate?.toIso8601String(),
       },
-      'priority': priority.label,
+      'priority': priority.labelDB,
       'categories': categories
           .map((c) => {
                 'name': c.name,
@@ -136,7 +136,7 @@ class TaskModel {
                 'color': c.color.toARGB32(),
               })
           .toList(),
-      'status': status.label,
+      'status': status.labelDB,
       'attachments_count': attachmentsCount,
       'subtask_count': subtaskCount,
     };

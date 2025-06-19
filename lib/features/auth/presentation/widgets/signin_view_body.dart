@@ -17,6 +17,7 @@ import 'package:taskify/features/auth/presentation/widgets/auth_button.dart';
 import 'package:taskify/features/auth/presentation/widgets/auth_footer.dart';
 import 'package:taskify/features/auth/presentation/widgets/auth_header.dart';
 import 'package:taskify/features/auth/presentation/widgets/or_signin_with.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class SigninViewBody extends StatefulWidget {
   const SigninViewBody({super.key});
@@ -71,14 +72,14 @@ class _SigninViewBodyState extends State<SigninViewBody> {
                     child: Column(
                       children: [
                         const SizedBox(height: 60),
-                        const AuthHeader(
-                          title: 'Welcome back,',
-                          subtitle: 'Sign in your account',
+                        AuthHeader(
+                          title: S.of(context).welcomeBackSignInView,
+                          subtitle: S.of(context).signInToYourAccount,
                         ),
                         FieldItem(
-                          label: 'Email',
+                          label: S.of(context).emailTextField,
                           widget: CustomTextFormField(
-                            hintText: 'Enter your email',
+                            hintText: S.of(context).emailTextFieldHint,
                             keyboardType: TextInputType.emailAddress,
                             autofillHints: const [AutofillHints.email],
                             textInputAction: TextInputAction.next,
@@ -87,9 +88,9 @@ class _SigninViewBodyState extends State<SigninViewBody> {
                           ),
                         ),
                         FieldItem(
-                          label: 'Password',
+                          label: S.of(context).passwordTextField,
                           widget: PasswordTextFormField(
-                            hintText: 'Enter your password',
+                            hintText: S.of(context).passwordTextFieldHint,
                             maxLength: 30,
                             textInputAction: TextInputAction.done,
                             controller: _passwordController,
@@ -102,7 +103,7 @@ class _SigninViewBodyState extends State<SigninViewBody> {
                             onTap: () => Navigator.pushNamed(
                                 context, AppRoutes.forgotPassword),
                             child: Text(
-                              'Forgot password?',
+                              S.of(context).forgotPassword,
                               style: AppTextStyles.regular18
                                   .copyWith(color: AppColors.greyColor),
                             ),
@@ -110,7 +111,7 @@ class _SigninViewBodyState extends State<SigninViewBody> {
                         ),
                         const SizedBox(height: 30),
                         CustomButton(
-                          title: 'Sign In',
+                          title: S.of(context).signInButton,
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               await context
@@ -128,7 +129,7 @@ class _SigninViewBodyState extends State<SigninViewBody> {
                         const OrWidget(),
                         const SizedBox(height: 25),
                         AuthButton(
-                          title: 'Sign in with Google',
+                          title: S.of(context).signInWithGoogle,
                           leading: SvgPicture.asset(
                             AppAssets.imagesGoogle,
                             height: 40,
@@ -147,8 +148,8 @@ class _SigninViewBodyState extends State<SigninViewBody> {
                       children: [
                         const Spacer(),
                         AuthFooter(
-                          title: 'Don’t have an account? ',
-                          tapText: 'Sign Up',
+                          title: S.of(context).dontHaveAnAccount,
+                          tapText: S.of(context).signUpRedirect,
                           onTap: () {
                             Navigator.pushNamedAndRemoveUntil(
                                 context, AppRoutes.signUp, (route) => false);

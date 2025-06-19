@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:provider/provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:taskify/core/extensions/task_enum_extensions.dart';
+import 'package:taskify/core/functions/delete_custom_task_categories.dart';
 import 'package:taskify/core/functions/filter_tasks.dart';
+import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/functions/build_snackbar.dart';
 import 'package:taskify/core/utils/app_colors.dart';
@@ -29,6 +30,7 @@ import 'package:taskify/features/home/presentation/views/task_details_view.dart'
 import 'package:taskify/features/home/presentation/widgets/custom_home_app_bar.dart';
 import 'package:taskify/features/home/presentation/widgets/custom_tab_bar.dart';
 import 'package:taskify/features/home/presentation/widgets/task_card.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class HomeViewBody extends StatefulWidget {
   const HomeViewBody({super.key, required this.supabase});
@@ -44,8 +46,6 @@ class _HomeViewBodyState extends State<HomeViewBody> {
   List<TaskPriority> _selectedPriorities = [];
   List<TaskCategoryEntity> _selectedCategories = [];
   List<String> _selectedDueDates = [];
-  List<TaskCategoryEntity> _customCategories = [];
-  String _selectedSortField = 'dueDate';
   bool _isDateAscending = true;
   bool _isPriorityAscending = true;
   bool _isAlphabetAscending = true;
@@ -56,7 +56,6 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     super.initState();
     getUserData();
     getTasks();
-    _loadCustomCategoriesFromHive();
     _searchController = TextEditingController();
   }
 
@@ -78,23 +77,22 @@ class _HomeViewBodyState extends State<HomeViewBody> {
         .getTasks(userId: widget.supabase.auth.currentUser!.id);
   }
 
-  Future<void> _loadCustomCategoriesFromHive() async {
-    var categoriesBox = await Hive.openBox(AppConstants.categoriesBox);
-    List<TaskCategoryEntity> categories =
-        List<TaskCategoryEntity>.from(categoriesBox.values);
-    setState(() {
-      _customCategories = categories;
-    });
-  }
-
-  Future<void> _showFiltersAndSort(BuildContext context) async {
+  Future<void> _showFiltersAndSort(
+    BuildContext context,
+    List<Map<String, dynamic>> categories,
+    String selectedSortField,
+    String ascendingLabel,
+    String descendingLabel,
+    String ascendingLowToHigh,
+    String descendingHighToLow,
+  ) async {
     List<TaskStatus> tempStatuses = List<TaskStatus>.from(_selectedStatuses);
     List<TaskCategoryEntity> tempCategories =
         List<TaskCategoryEntity>.from(_selectedCategories);
     List<String> tempDueDates = List<String>.from(_selectedDueDates);
     List<TaskPriority> tempPriorities =
         List<TaskPriority>.from(_selectedPriorities);
-    String tempSortField = _selectedSortField;
+    String tempSortField = selectedSortField;
     bool tempIsDateAscending = _isDateAscending;
     bool tempIsPriorityAscending = _isPriorityAscending;
     bool tempIsAlphabetAscending = _isAlphabetAscending;
@@ -119,19 +117,19 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                   children: [
                     const SizedBox(width: 5),
                     Text(
-                      'Filters',
+                      S.of(context).filters,
                       style: AppTextStyles.medium24,
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Categories',
+                      S.of(context).categoriesFilter,
                       style: AppTextStyles.regular16,
                     ),
                     const SizedBox(height: 5),
                     Wrap(
                       spacing: 10,
                       children: [
-                        ...predefinedCategories.map(
+                        ...categories.map(
                           (categoryMap) {
                             final category = TaskCategoryEntity(
                               name: categoryMap['name'],
@@ -164,58 +162,73 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                             );
                           },
                         ),
-                        ..._customCategories.map((category) {
-                          final isSelected = tempCategories
-                              .any((c) => c.name == category.name);
-                          return FilterChip(
-                            showCheckmark: false,
-                            label: Text(category.name),
-                            avatar: Icon(
-                              isSelected
-                                  ? null
-                                  : IconData(
-                                      category.icon.codePoint,
-                                      fontFamilyFallback: [
-                                        'MaterialIcons',
-                                        'CupertinoIcons'
-                                      ],
-                                    ),
-                              color: Color(
-                                category.color.toARGB32(),
-                              ),
-                            ),
-                            selected: isSelected,
-                            onSelected: (bool selected) {
-                              setState(() {
-                                if (selected) {
-                                  tempCategories.add(category);
-                                } else {
-                                  tempCategories.removeWhere(
-                                      (c) => c.name == category.name);
-                                }
-                              });
-                            },
-                            selectedColor: category.color.withAlpha(51),
-                            backgroundColor:
-                                AppColors.scaffoldLightBackgroundColor,
-                          );
-                        }),
+                        ValueListenableBuilder<List<TaskCategoryEntity>>(
+                            valueListenable: HiveService.categoriesNotifier,
+                            builder: (context, customCategories, _) {
+                              return Wrap(
+                                spacing: 8,
+                                children: customCategories.map(
+                                  (category) {
+                                    bool isSelected = tempCategories
+                                        .any((c) => c.name == category.name);
+                                    return GestureDetector(
+                                      onLongPress: () async {
+                                        await deleteCustomTaskCategory(
+                                          context,
+                                          category,
+                                        );
+                                      },
+                                      child: FilterChip(
+                                        showCheckmark: false,
+                                        backgroundColor: AppColors
+                                            .scaffoldLightBackgroundColor,
+                                        label: Text(category.name),
+                                        avatar: Icon(
+                                          IconData(
+                                            category.icon.codePoint,
+                                            fontFamilyFallback: [
+                                              'MaterialIcons'
+                                            ],
+                                          ),
+                                          color: Color(
+                                            category.color.toARGB32(),
+                                          ),
+                                        ),
+                                        selectedColor:
+                                            category.color.withAlpha(51),
+                                        selected: isSelected,
+                                        onSelected: (bool selected) {
+                                          setState(() {
+                                            if (selected) {
+                                              tempCategories.add(category);
+                                            } else {
+                                              tempCategories.removeWhere((c) =>
+                                                  c.name == category.name);
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ).toList(),
+                              );
+                            }),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Due Date',
+                      S.of(context).dueDateFilter,
                       style: AppTextStyles.regular16,
                     ),
                     const SizedBox(height: 5),
                     Wrap(
                       spacing: 10,
                       children: [
-                        'Today',
-                        'Tomorrow',
-                        'This Week',
-                        'This Month',
-                        'This Year',
+                        S.of(context).todayFilter,
+                        S.of(context).tomorrowFilter,
+                        S.of(context).thisWeekFilter,
+                        S.of(context).thisMonthFilter,
+                        S.of(context).thisYearFilter,
                       ].map((dueDateOption) {
                         bool isSelected = tempDueDates.contains(dueDateOption);
                         return FilterChip(
@@ -241,7 +254,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Status',
+                      S.of(context).statusFilter,
                       style: AppTextStyles.regular16,
                     ),
                     const SizedBox(height: 5),
@@ -256,10 +269,11 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                         bool isSelected = tempStatuses.contains(status);
                         final statusDetails =
                             TaskUIHelper.getStatusDetails(status);
+                        final label = status.label(context);
 
                         return FilterChip(
                           showCheckmark: false,
-                          label: Text(status.label),
+                          label: Text(label),
                           avatar: Icon(
                             statusDetails['icon'],
                             color: statusDetails['color'],
@@ -286,7 +300,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Priority',
+                      S.of(context).priorityFilter,
                       style: AppTextStyles.regular16,
                     ),
                     const SizedBox(height: 5),
@@ -298,11 +312,13 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                         TaskPriority.low
                       ].map((priority) {
                         bool isSelected = tempPriorities.contains(priority);
-                        var priorityDetails =
+                        final priorityDetails =
                             TaskUIHelper.getPriorityDetails(priority);
+                        final label = priority.label(context);
+
                         return FilterChip(
                           showCheckmark: false,
-                          label: Text(priority.label),
+                          label: Text(label),
                           avatar: Icon(
                             priorityDetails['icon'],
                             color: priorityDetails['color'],
@@ -329,57 +345,62 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Sort By',
+                      S.of(context).sortBy,
                       style: AppTextStyles.medium24,
                     ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
                         GestureDetector(
-                          onTap: () =>
-                              setState(() => tempSortField = 'dueDate'),
+                          onTap: () => setState(() => tempSortField =
+                              S.of(context).tempSortFieldDueDate),
                           child: _buildSortOption(
-                            label: 'dueDate',
+                            label: S.of(context).sortByLabel1,
+                            ascendingLabel: ascendingLabel,
+                            descendingLabel: descendingLabel,
                             icon: FontAwesomeIcons.arrowUpWideShort,
                             isAscending: tempIsDateAscending,
                             onOrderChanged: (asc) {
                               setState(() {
                                 tempIsDateAscending = asc;
-                                tempSortField = 'dueDate';
+                                tempSortField =
+                                    S.of(context).tempSortFieldDueDate;
                               });
                             },
                           ),
                         ),
-                        // Priority
                         GestureDetector(
-                          onTap: () =>
-                              setState(() => tempSortField = 'priority'),
+                          onTap: () => setState(() => tempSortField =
+                              S.of(context).tempSortFieldPriority),
                           child: _buildSortOption(
-                            label: 'priority',
+                            label: S.of(context).sortByLabel2,
                             icon: FontAwesomeIcons.triangleExclamation,
                             isAscending: tempIsPriorityAscending,
-                            ascendingLabel: 'High to Low',
-                            descendingLabel: 'Low to High',
+                            ascendingLabel: ascendingLowToHigh,
+                            descendingLabel: descendingHighToLow,
                             onOrderChanged: (asc) {
                               setState(() {
                                 tempIsPriorityAscending = asc;
-                                tempSortField = 'priority';
+                                tempSortField =
+                                    S.of(context).tempSortFieldPriority;
                               });
                             },
                           ),
                         ),
-                        // Alphabet
                         GestureDetector(
-                          onTap: () =>
-                              setState(() => tempSortField = 'alphabet'),
+                          onTap: () => setState(() => tempSortField =
+                              S.of(context).tempSortFieldAlphabet),
                           child: _buildSortOption(
-                            label: 'alphabet',
+                            label: S.of(context).sortByLabel3,
+                            ascendingLabel: ascendingLabel,
+                            descendingLabel: descendingLabel,
                             icon: FontAwesomeIcons.arrowUpAZ,
                             isAscending: tempIsAlphabetAscending,
                             onOrderChanged: (asc) {
                               setState(() {
                                 tempIsAlphabetAscending = asc;
-                                tempSortField = 'alphabet';
+                                tempSortField =
+                                    S.of(context).tempSortFieldAlphabet;
                               });
                             },
                           ),
@@ -394,8 +415,8 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: const Text(
-                            'Cancel',
+                          child: Text(
+                            S.of(context).cancelModalSheetButton,
                             style:
                                 TextStyle(color: AppColors.primaryLightColor),
                           ),
@@ -405,10 +426,11 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                             _resetFiltersAndSort(
                               setState,
                               context,
+                              selectedSortField,
                             );
                           },
                           child: Text(
-                            'Reset',
+                            S.of(context).resetModalSheetButton,
                             style: AppTextStyles.regular16
                                 .copyWith(color: AppColors.primaryLightColor),
                           ),
@@ -423,17 +445,20 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                               _selectedCategories = tempCategories;
                               _selectedDueDates = tempDueDates;
                               _selectedPriorities = tempPriorities;
-                              _selectedSortField = tempSortField;
+                              selectedSortField = tempSortField;
                               _isDateAscending = tempIsDateAscending;
                               _isPriorityAscending = tempIsPriorityAscending;
                               _isAlphabetAscending = tempIsAlphabetAscending;
                             });
 
-                            _applyFiltersAndSort(context);
+                            _applyFiltersAndSort(
+                              context,
+                              selectedSortField,
+                            );
                             Navigator.pop(context);
                           },
                           child: Text(
-                            'Ok',
+                            S.of(context).okModalBottomSheet,
                             style: AppTextStyles.regular16
                                 .copyWith(color: Colors.white),
                           ),
@@ -464,14 +489,18 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     }
   }
 
-  void _resetFiltersAndSort(StateSetter setState, BuildContext context) {
+  void _resetFiltersAndSort(
+    StateSetter setState,
+    BuildContext context,
+    String selectedSortField,
+  ) {
     setState(() {
       _searchController.clear();
       _selectedStatuses.clear();
       _selectedPriorities.clear();
       _selectedCategories.clear();
       _selectedDueDates.clear();
-      _selectedSortField = 'Date';
+      selectedSortField = S.of(context).selectedSortField;
       _isDateAscending = true;
       _isPriorityAscending = true;
       _isAlphabetAscending = true;
@@ -479,7 +508,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
 
     Navigator.pop(context);
 
-    final bool isAscending = _getSortOrderForField(_selectedSortField);
+    final bool isAscending = _getSortOrderForField(selectedSortField);
 
     context.read<TaskCubit>().applyFiltersAndSort(
           query: _searchController.text,
@@ -487,13 +516,13 @@ class _HomeViewBodyState extends State<HomeViewBody> {
           priorities: _selectedPriorities,
           categories: _selectedCategories.map((c) => c.name).toList(),
           dueDates: _selectedDueDates,
-          sortBy: _selectedSortField,
+          sortBy: selectedSortField,
           ascending: isAscending,
         );
   }
 
-  void _applyFiltersAndSort(BuildContext context) {
-    final bool isAscending = _getSortOrderForField(_selectedSortField);
+  void _applyFiltersAndSort(BuildContext context, String selectedSortField) {
+    final bool isAscending = _getSortOrderForField(selectedSortField);
 
     context.read<TaskCubit>().applyFiltersAndSort(
           query: _searchController.text,
@@ -501,7 +530,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
           priorities: _selectedPriorities,
           categories: _selectedCategories.map((c) => c.name).toList(),
           dueDates: _selectedDueDates,
-          sortBy: _selectedSortField,
+          sortBy: selectedSortField,
           ascending: isAscending,
         );
   }
@@ -511,8 +540,8 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     required IconData icon,
     required ValueChanged<bool> onOrderChanged,
     required bool isAscending,
-    String ascendingLabel = 'Ascending',
-    String descendingLabel = 'Descending',
+    required String ascendingLabel,
+    required String descendingLabel,
   }) {
     return CustomPopupMenuButton(
       onSelected: (int value) {
@@ -652,24 +681,14 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     );
   }
 
-  List<String> get _tabs {
-    return [
-      'All',
-      'Today',
-      'Tomorrow',
-      'Upcoming',
-      'Completed',
-      'Overdue',
-    ];
-  }
-
   List<Widget> _tabViews(
-      List<TaskEntity> tasks,
-      List<TaskEntity> todayTasks,
-      List<TaskEntity> tomorrowTasks,
-      List<TaskEntity> upcomingTasks,
-      List<TaskEntity> completedTasks,
-      List<TaskEntity> overdueTasks) {
+    List<TaskEntity> tasks,
+    List<TaskEntity> todayTasks,
+    List<TaskEntity> tomorrowTasks,
+    List<TaskEntity> upcomingTasks,
+    List<TaskEntity> completedTasks,
+    List<TaskEntity> overdueTasks,
+  ) {
     return [
       _buildTasks(
         tasks: tasks,
@@ -705,6 +724,12 @@ class _HomeViewBodyState extends State<HomeViewBody> {
     final completedTasks = filterTasks(tasks, 'completed');
     final overdueTasks = filterTasks(tasks, 'overdue');
     final scrollController = Provider.of<ScrollController>(context);
+    final predefinedCategories = predefinedTaskCategories(context);
+    final String selectedSortField = S.of(context).selectedSortField;
+    final String ascendingLabel = S.of(context).ascendingLabel;
+    final String descendingLabel = S.of(context).descendingLabel;
+    final String ascendingLowToHigh = S.of(context).ascendingLowToHigh;
+    final String descendingHighToLow = S.of(context).descendingHighToLow;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppConstants.horizontalPadding),
@@ -720,18 +745,21 @@ class _HomeViewBodyState extends State<HomeViewBody> {
             const SizedBox(height: 30),
             CustomTabBar(
               selectedTabIndex: _selectedTabIndex,
-              titles: _tabs,
               onTabSelected: (index) {
                 setState(() {
                   _selectedTabIndex = index;
                 });
               },
+              titleCount: 5,
             ),
             const SizedBox(height: 20),
             CustomSearchTextField(
               controller: _searchController,
               onChanged: (value) {
-                _applyFiltersAndSort(context);
+                _applyFiltersAndSort(
+                  context,
+                  selectedSortField,
+                );
               },
               prefixIcon: Image.asset(
                 AppAssets.imagesSearch,
@@ -739,7 +767,15 @@ class _HomeViewBodyState extends State<HomeViewBody> {
               ),
               suffixIcon: GestureDetector(
                 onTap: () async {
-                  await _showFiltersAndSort(context);
+                  await _showFiltersAndSort(
+                    context,
+                    predefinedCategories,
+                    selectedSortField,
+                    ascendingLabel,
+                    descendingLabel,
+                    ascendingLowToHigh,
+                    descendingHighToLow,
+                  );
                 },
                 child: Icon(
                   Icons.filter_alt,
@@ -747,7 +783,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                   size: 30,
                 ),
               ),
-              hintText: 'What are you looking for?',
+              hintText: S.of(context).searchBarPlaceholder,
             ),
             const SizedBox(height: 20),
             IndexedStack(
@@ -761,7 +797,7 @@ class _HomeViewBodyState extends State<HomeViewBody> {
                 overdueTasks,
               ),
             ),
-            const SizedBox(height: 60),
+            const SizedBox(height: 30),
           ],
         ),
       ),

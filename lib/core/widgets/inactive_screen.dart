@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class InActiveScreen extends StatelessWidget {
@@ -11,13 +10,15 @@ class InActiveScreen extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const Opacity(
-            opacity: 1.0,
-            child: ModalBarrier(dismissible: false, color: Colors.black),
+          const ModalBarrier(
+            dismissible: false,
+            color: Colors.white,
           ),
           BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-            child: const SizedBox.expand(),
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Container(
+              color: Colors.white.withAlpha(15),
+            ),
           ),
         ],
       ),

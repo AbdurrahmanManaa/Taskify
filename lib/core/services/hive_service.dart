@@ -65,7 +65,7 @@ class HiveService {
         .putAll({for (var subtask in subtaskEntities) subtask.id: subtask});
   }
 
-  static Future<void> initializeCategories() async {
+  Future<void> initializeCategories() async {
     var categoriesBox = Hive.box(AppConstants.categoriesBox);
     categoriesNotifier.value =
         List<TaskCategoryEntity>.from(categoriesBox.values);

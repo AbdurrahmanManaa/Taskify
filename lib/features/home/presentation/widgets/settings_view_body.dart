@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:provider/provider.dart';
+import 'package:taskify/core/extensions/user_preferences_extension.dart';
+import 'package:taskify/core/functions/get_scheme_primary_color.dart';
+import 'package:taskify/core/functions/show_language_selection_modal_sheet.dart';
+import 'package:taskify/core/functions/show_theme_mode_selection_modal_sheet.dart';
 import 'package:taskify/core/services/hive_service.dart';
 import 'package:taskify/core/utils/app_constants.dart';
 import 'package:taskify/core/utils/app_colors.dart';
-import 'package:taskify/core/utils/app_assets.dart';
 import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/widgets/custom_appbar.dart';
 import 'package:taskify/core/widgets/option_item.dart';
 import 'package:taskify/features/auth/presentation/manager/cubits/user_cubit/user_cubit.dart';
 import 'package:taskify/features/home/domain/entities/edit_user_entity.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_fonts.dart';
 import 'package:taskify/features/home/domain/entities/preferences/app_icon_badge_style.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_language.dart';
+import 'package:taskify/features/home/domain/entities/preferences/app_scheme.dart';
 import 'package:taskify/features/home/presentation/views/app_lock_view.dart';
 import 'package:taskify/features/home/presentation/views/connected_accounts_view.dart';
 import 'package:taskify/features/home/presentation/views/edit_user_view.dart';
 import 'package:taskify/features/home/presentation/views/profile_view.dart';
+import 'package:taskify/features/home/presentation/widgets/account_actions_settings_section.dart';
 import 'package:taskify/features/home/presentation/widgets/account_settings_section.dart';
 import 'package:taskify/features/home/presentation/widgets/edit_user_view_body.dart';
 import 'package:taskify/features/home/presentation/widgets/preferences_settings_section.dart';
 import 'package:taskify/features/home/presentation/widgets/security_settings_section.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class SettingsViewBody extends StatefulWidget {
   const SettingsViewBody({super.key});
@@ -28,9 +36,15 @@ class SettingsViewBody extends StatefulWidget {
 }
 
 class _SettingsViewBodyState extends State<SettingsViewBody> {
-  bool _isNotificationsToggleActive = true;
+  Future<void> _fontSelection(BuildContext context) {
+    final prefs = HiveService.preferencesNotifier.value;
+    final font = prefs.appFont;
+    final language = prefs.appLanguage;
+    final fontLabel = font.label(context);
+    final List<AppFonts> fontsToShow = AppFonts.values.where((item) {
+      return language == AppLanguage.arabic ? item.isArabic : !item.isArabic;
+    }).toList();
 
-  Future<dynamic> _languageSelection(BuildContext context) {
     return showModalBottomSheet(
       showDragHandle: true,
       backgroundColor: AppColors.scaffoldLightBackgroundColor,
@@ -38,37 +52,49 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
       context: context,
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.only(
-            left: 23,
-            right: 23,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 80,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 23),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'App Language',
-                style: AppTextStyles.medium24
-                    .copyWith(color: AppColors.primaryLightColor),
-              ),
-              Divider(),
-              ListTile(
-                leading: Image.asset(AppAssets.imagesUsa),
-                title: Text(
-                  'English',
-                  style: AppTextStyles.medium18,
-                ),
-                trailing: Icon(
-                  Icons.check,
+                S.of(context).showFontSelectionModalSheetTitle,
+                style: AppTextStyles.medium24.copyWith(
                   color: AppColors.primaryLightColor,
                 ),
               ),
-              Divider(),
-              ListTile(
-                leading: Image.asset(AppAssets.imagesKsa),
-                title: Text(
-                  'Arabic',
-                  style: AppTextStyles.medium18,
+              const Divider(),
+              Flexible(
+                child: ListView.separated(
+                  itemCount: fontsToShow.length,
+                  separatorBuilder: (_, __) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final selectedFont = fontsToShow[index];
+                    final selectedFontlabel = selectedFont.label(context);
+
+                    return OptionItem(
+                      onTap: () async {
+                        final updated = prefs.copyWith(appFont: selectedFont);
+                        await HiveService().setUserPreferences(updated);
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop();
+                      },
+                      title: Text(
+                        selectedFontlabel,
+                        style: AppTextStyles.medium18,
+                      ),
+                      subtitle: Text(
+                        S.of(context).fontSelectionModalSheetDescription,
+                        style: TextStyle(
+                          fontFamily: fontLabel,
+                          fontSize: 18,
+                        ),
+                      ),
+                      trailing: selectedFont == font
+                          ? Icon(Icons.check,
+                              color: AppColors.primaryLightColor)
+                          : null,
+                    );
+                  },
                 ),
               ),
             ],
@@ -78,7 +104,7 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
     );
   }
 
-  Future<dynamic> _notificationStyleSelection(BuildContext context) {
+  Future<dynamic> _badgeStyleSelection(BuildContext context) {
     final prefs = HiveService.preferencesNotifier.value;
     final badgeStyle = prefs.appIconBadgeStyle;
 
@@ -89,16 +115,13 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
       context: context,
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.only(
-            left: 23,
-            right: 23,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 30,
-          ),
+          padding:
+              EdgeInsets.symmetric(horizontal: AppConstants.horizontalPadding),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'App Badge Style',
+                S.of(context).showBadgeSelectionModalSheetTitle,
                 style: AppTextStyles.medium24
                     .copyWith(color: AppColors.primaryLightColor),
               ),
@@ -118,7 +141,7 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
                   color: AppColors.errorColor,
                 ),
                 title: Text(
-                  'Dot',
+                  S.of(context).BadgeStyleSelectionOption1,
                   style: AppTextStyles.medium18,
                 ),
                 trailing: badgeStyle == AppIconBadgeStyle.dot
@@ -144,7 +167,7 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
                   color: AppColors.errorColor,
                 ),
                 title: Text(
-                  'Number',
+                  S.of(context).BadgeStyleSelectionOption2,
                   style: AppTextStyles.medium18,
                 ),
                 trailing: badgeStyle == AppIconBadgeStyle.number
@@ -161,67 +184,71 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
     );
   }
 
-  Future<dynamic> _themeModeSelection(BuildContext context) {
+  Future<dynamic> _schemeColorSelection(BuildContext context) {
+    final prefs = HiveService.preferencesNotifier.value;
+    final appScheme = prefs.appScheme;
+    final schemeLabel = appScheme.label(context);
+
     return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: AppColors.scaffoldLightBackgroundColor,
-      useSafeArea: true,
-      context: context,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 23,
-            right: 23,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 80,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'App Theme',
-                style: AppTextStyles.medium24.copyWith(
-                  color: AppColors.primaryLightColor,
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 1,
+          expand: false,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                Text(
+                  S.of(context).showSchemeColorSelectionModalSheetTitle,
+                  style: AppTextStyles.medium24
+                      .copyWith(color: AppColors.primaryLightColor),
                 ),
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(
-                  Icons.brightness_auto,
-                  color: AppColors.primaryLightColor,
+                Divider(),
+                Expanded(
+                  child: ListView.separated(
+                    controller: scrollController,
+                    itemCount: AppScheme.values.length,
+                    separatorBuilder: (_, __) => Divider(),
+                    itemBuilder: (context, index) {
+                      final scheme = AppScheme.values[index];
+                      final schemeColor = getSchemePrimaryColor(
+                        context,
+                        scheme,
+                      );
+
+                      return OptionItem(
+                        onTap: () async {
+                          final updated = prefs.copyWith(
+                            appScheme: scheme,
+                          );
+                          await HiveService().setUserPreferences(updated);
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop();
+                        },
+                        leading: CircleAvatar(
+                          backgroundColor: schemeColor,
+                          radius: 15,
+                        ),
+                        title: Text(
+                          schemeLabel,
+                          style: AppTextStyles.medium18,
+                        ),
+                        trailing: appScheme == scheme
+                            ? Icon(Icons.check,
+                                color: AppColors.primaryLightColor)
+                            : null,
+                      );
+                    },
+                  ),
                 ),
-                title: Text(
-                  'System',
-                  style: AppTextStyles.medium18,
-                ),
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(
-                  Icons.light_mode,
-                  color: AppColors.primaryLightColor,
-                ),
-                title: Text(
-                  'Light',
-                  style: AppTextStyles.medium18,
-                ),
-                trailing: Icon(
-                  Icons.check,
-                  color: AppColors.primaryLightColor,
-                ),
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(
-                  Icons.dark_mode,
-                  color: AppColors.primaryLightColor,
-                ),
-                title: Text(
-                  'Dark',
-                  style: AppTextStyles.medium18,
-                ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
         );
       },
     );
@@ -232,19 +259,19 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.scaffoldLightBackgroundColor,
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
+        title: Text(S.of(context).signOutDialogTitle),
+        content: Text(S.of(context).signOutDialogDescription),
         actions: [
           TextButton(
-            child: const Text(
-              'Cancel',
+            child: Text(
+              S.of(context).cancelModalSheetButton,
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text(
-              'Confirm',
+            child: Text(
+              S.of(context).confirmModalSheetButton,
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
             onPressed: () async {
@@ -262,20 +289,19 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.scaffoldLightBackgroundColor,
-        title: const Text('Delete Account Permanently'),
-        content: const Text(
-            'Are you sure you want to delete your account permanently?'),
+        title: Text(S.of(context).deleteAccountDialogTitle),
+        content: Text(S.of(context).deleteAccountDialogDescription),
         actions: [
           TextButton(
-            child: const Text(
-              'Cancel',
+            child: Text(
+              S.of(context).cancelModalSheetButton,
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text(
-              'Delete',
+            child: Text(
+              S.of(context).deleteModalSheetButton,
               style: TextStyle(color: AppColors.primaryLightColor),
             ),
             onPressed: () async {
@@ -302,7 +328,7 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
           children: [
             const SizedBox(height: 20),
             CustomAppbar(
-              title: 'Settings',
+              title: S.of(context).settingsAppBar,
               showBackButton: false,
             ),
             const SizedBox(height: 20),
@@ -319,10 +345,6 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
                   ConnectedAccountsView(),
                 );
               },
-              signOutOnTap: () async {
-                await _signOut(context);
-              },
-              deleteAccountOnTap: () => _deleteAccount(context),
             ),
             const SizedBox(height: 20),
             SecuritySettingsSection(
@@ -347,18 +369,28 @@ class _SettingsViewBodyState extends State<SettingsViewBody> {
             ),
             const SizedBox(height: 20),
             PreferencesSettingsSection(
-              isNotificationsToggleActive: _isNotificationsToggleActive,
-              toggleNotifications: (value) =>
-                  setState(() => _isNotificationsToggleActive = value),
               appIconBadgesOnTap: () async {
-                await _notificationStyleSelection(context);
+                await _badgeStyleSelection(context);
               },
               appThemeModeOnTap: () async {
-                await _themeModeSelection(context);
+                await showThemeModeSelectionModalSheet(context);
               },
-              languageOnTap: () async {
-                await _languageSelection(context);
+              appSchemeOnTap: () async {
+                await _schemeColorSelection(context);
               },
+              appLanguageOnTap: () async {
+                await showLanguageSelectionModalSheet(context);
+              },
+              appFontOnTap: () async {
+                await _fontSelection(context);
+              },
+            ),
+            const SizedBox(height: 20),
+            AccountActionsSettingsSection(
+              signOutOnTap: () async {
+                await _signOut(context);
+              },
+              deleteAccountOnTap: () => _deleteAccount(context),
             ),
             const SizedBox(height: 20),
           ],

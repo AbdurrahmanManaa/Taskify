@@ -6,6 +6,7 @@ import 'package:taskify/core/utils/app_text_styles.dart';
 import 'package:taskify/core/utils/task_ui_helper.dart';
 import 'package:taskify/features/home/domain/entities/task/task_entity.dart';
 import 'package:taskify/features/home/domain/entities/task/task_priority.dart';
+import 'package:taskify/generated/l10n.dart';
 
 class CustomBarChart extends StatefulWidget {
   const CustomBarChart(
@@ -208,13 +209,13 @@ class _CustomBarChartState extends State<CustomBarChart> {
     String text;
     switch (value.toInt()) {
       case 0:
-        text = 'Low';
+        text = S.of(context).taskPriorityLow;
         break;
       case 1:
-        text = 'Medium';
+        text = S.of(context).taskPriorityMedium;
         break;
       case 2:
-        text = 'High';
+        text = S.of(context).taskPriorityHigh;
         break;
       default:
         text = '';

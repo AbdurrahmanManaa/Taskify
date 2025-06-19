@@ -1,7 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:taskify/features/home/domain/entities/subtask/subtask_status.dart';
+import 'package:taskify/generated/l10n.dart';
 
 extension SubtaskStatusX on SubtaskStatus {
-  String get label {
+  String label(BuildContext context) {
+    switch (this) {
+      case SubtaskStatus.inProgress:
+        return S.of(context).subtaskStatusInProgress;
+      case SubtaskStatus.completed:
+        return S.of(context).subtaskStatusCompleted;
+    }
+  }
+
+  String get labelDB {
     switch (this) {
       case SubtaskStatus.inProgress:
         return 'In Progress';
